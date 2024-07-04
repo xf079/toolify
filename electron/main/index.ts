@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import os from 'node:os'
 import { update } from './update'
+import { WINDOW_HEIGHT, WINDOW_MIN_HEIGHT, WINDOW_WIDTH } from '../common/constants/common';
 
 // const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -47,7 +48,9 @@ async function createWindow() {
   win = new BrowserWindow({
     title: 'Main window',
     icon: path.join(process.env.VITE_PUBLIC, 'favicon.ico'),
-    width:680,
+    width:WINDOW_WIDTH,
+    height:WINDOW_HEIGHT,
+    minHeight:WINDOW_MIN_HEIGHT,
     frame: false,
     webPreferences: {
       preload,

@@ -1,5 +1,4 @@
 import { Button } from 'antd';
-import { UserSwitchOutlined } from '@ant-design/icons';
 import EmailIcon from '@/assets/icon/email-icon.svg?react';
 import CalendarIcon from '@/assets/icon/calendar-icon.svg?react';
 import NotebookIcon from '@/assets/icon/notebook-icon.svg?react';
@@ -7,6 +6,7 @@ import TranslationIcon from '@/assets/icon/translation-icon.svg?react';
 
 import './index.less';
 import { Outlet } from 'react-router-dom';
+import { ChangeEventHandler, FormEventHandler, useState } from 'react';
 
 const items = [
   {
@@ -32,19 +32,23 @@ const items = [
 ];
 
 function AppPage() {
+  const [value, setValue] = useState();
+
+  const onSearchChange = (event:InputEvent<HTMLInputElement>) => {
+    console.log(event.target.value);
+  };
   return (
     <div className='app-container'>
       <div className='app-header'>
         <div className='app-search-wrapper'>
-          <input className='app-search' placeholder='Hi, Zing Panel' />
+          <input
+            value={value}
+            onInput={onSearchChange}
+            className='app-search'
+            placeholder='Hi, Zing Panel'
+          />
         </div>
-        <div className='app-user-wrapper'>
-          <Button
-            shape='circle'
-            type='primary'
-            icon={<UserSwitchOutlined />}
-          ></Button>
-        </div>
+        <div className='app-user-wrapper'></div>
       </div>
       <div>
         <div className='hot-list'>
