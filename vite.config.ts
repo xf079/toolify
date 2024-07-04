@@ -2,6 +2,7 @@ import { rmSync } from 'node:fs'
 import path from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import svgr from "vite-plugin-svgr";
 import electron from 'vite-plugin-electron/simple'
 import pkg from './package.json'
 
@@ -21,6 +22,7 @@ export default defineConfig(({ command }) => {
     },
     plugins: [
       react(),
+      svgr(),
       electron({
         main: {
           // Shortcut of `build.lib.entry`

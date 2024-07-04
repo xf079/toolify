@@ -1,9 +1,12 @@
 {
-  "name": "electron-vite-react",
-  "version": "2.2.0",
+  "name": "apeak",
+  "version": "0.0.1",
   "main": "dist-electron/main/index.js",
   "description": "Electron Vite React boilerplate.",
-  "author": "草鞋没号 <308487730@qq.com>",
+  "author": {
+    "name": "Apeak",
+    "email": "xfo79k@gmail.com"
+  },
   "license": "MIT",
   "private": true,
   "debug": {
@@ -23,21 +26,32 @@
     "electron-updater": "^6.1.8"
   },
   "devDependencies": {
+    "@ant-design/icons": "^5.3.7",
     "@playwright/test": "^1.42.1",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@vitejs/plugin-react": "^4.2.1",
+    "ahooks": "^3.8.0",
+    "antd": "^5.19.0",
     "autoprefixer": "^10.4.18",
     "electron": "^29.1.1",
     "electron-builder": "^24.13.3",
+    "less": "^4.2.0",
+    "lodash": "^4.17.21",
     "postcss": "^8.4.35",
     "postcss-import": "^16.0.1",
+    "prettier": "^3.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tailwindcss": "^3.4.1",
+    "react-router-dom": "^6.24.1",
     "typescript": "^5.4.2",
     "vite": "^5.1.5",
     "vite-plugin-electron": "^0.28.4",
-    "vite-plugin-electron-renderer": "^0.14.5"
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "vite-plugin-svgr": "^4.2.0"
+  },
+  "volta": {
+    "node": "18.20.3",
+    "yarn": "1.22.22"
   }
 }
