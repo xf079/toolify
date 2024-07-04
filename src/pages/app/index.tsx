@@ -7,6 +7,7 @@ import TranslationIcon from '@/assets/icon/translation-icon.svg?react';
 import './index.less';
 import { Outlet } from 'react-router-dom';
 import { ChangeEventHandler, FormEventHandler, useState } from 'react';
+import { ipcRenderer } from 'electron';
 
 const items = [
   {
@@ -34,9 +35,18 @@ const items = [
 function AppPage() {
   const [value, setValue] = useState();
 
-  const onSearchChange = (event:InputEvent<HTMLInputElement>) => {
+  const onSearchChange = (event:any) => {
     console.log(event.target.value);
+    window.ipcRenderer.on('search', event.target.value);
   };
+
+  const onItemClick = ()=>{
+    window.ipcRenderer.send('open-plugin', {
+      name: '翻译',
+      url: 'https://www.baidu.com'
+    })
+  }
+
   return (
     <div className='app-container'>
       <div className='app-header'>
@@ -53,7 +63,7 @@ function AppPage() {
       <div>
         <div className='hot-list'>
           {items.map((item) => (
-            <div className='hot-item'>
+            <div className='hot-item' key={item.key} onClick={onItemClick}>
               {item.icon}
               <span>{item.label}</span>
             </div>
