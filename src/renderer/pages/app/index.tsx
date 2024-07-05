@@ -29,12 +29,10 @@ function AppPage() {
     <div className='app-container'>
       <div className='app-header'>
         {!hasMain && (
-          <div className='app-breadcrumb-wrapper'>
-            <div className='app-breadcrumb'>
-              <span className='app-breadcrumb-text'>插件应用中心</span>
-              <div className='app-breadcrumb-icon'>
-                <CloseIcon width={20} height={20} />
-              </div>
+          <div className='app-breadcrumb'>
+            <span className='app-breadcrumb-text'>插件应用中心</span>
+            <div className='app-breadcrumb-icon'>
+              <CloseIcon width={18} height={18} />
             </div>
           </div>
         )}
