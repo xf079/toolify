@@ -1,36 +1,27 @@
-import { createHashRouter } from 'react-router-dom';
+import { createMemoryRouter } from 'react-router-dom';
 import AppPage from '@/pages/app';
-import TranslationPage from '@/pages/plugins/translation';
-import CalendarPage from '@/pages/plugins/calendar';
-import CipherPage from '@/pages/plugins/cipher';
 import PluginsPage from '@/pages/plugins';
+import RecentlyPage from '@/pages/recently';
 
-const router = createHashRouter([
+const routes = [
   {
     path: '',
     element: <AppPage />,
-    children:[
+    children: [
       {
         index: true,
+        element: <RecentlyPage />
       },
       {
         path: '/plugins',
         element: <PluginsPage />
-      },
-      {
-        path: '/plugins/translation',
-        element: <TranslationPage />
-      },
-      {
-        path: '/plugins/calendar',
-        element: <CalendarPage />
-      },
-      {
-        path: '/plugins/cipher',
-        element: <CipherPage />
       }
     ]
-  },
-]);
+  }
+];
+
+const router = createMemoryRouter(routes, {
+  initialIndex: 0
+});
 
 export default router;
