@@ -1,7 +1,12 @@
 import type { ConfigEnv, UserConfig } from 'vite';
 import { defineConfig, mergeConfig } from 'vite';
-import { getBuildConfig, getBuildDefine, external, pluginHotRestart } from './vite.base.config';
-import path from 'node:path';
+import copyPlugin from 'rollup-plugin-copy';
+import {
+  getBuildConfig,
+  getBuildDefine,
+  external,
+  pluginHotRestart
+} from './vite.base.config';
 
 // https://vitejs.dev/config
 export default defineConfig((env) => {
@@ -13,21 +18,18 @@ export default defineConfig((env) => {
       lib: {
         entry: forgeConfigSelf.entry!,
         fileName: () => 'main/[name].js',
-        formats: ['cjs'],
+        formats: ['cjs']
       },
       rollupOptions: {
         external,
-      },
+        plugins: []
+      }
     },
     plugins: [pluginHotRestart('restart')],
     define,
     resolve: {
-      mainFields: ['module', 'jsnext:main', 'jsnext'],
-      alias: {
-        '@core': path.join(__dirname, 'src/core'),
-        '@common': path.join(__dirname, 'src/common'),
-      }
-    },
+      mainFields: ['module', 'jsnext:main', 'jsnext']
+    }
   };
 
   return mergeConfig(getBuildConfig(forgeEnv), config);

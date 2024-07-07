@@ -1,12 +1,13 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, protocol } from 'electron';
 import path from 'node:path';
-// eslint-disable-next-line import/no-unresolved
-import { getAppList } from '@common/utils/app.list';
 import {
   WINDOW_HEIGHT,
-  WINDOW_MIN_HEIGHT, WINDOW_PLUGIN_HEIGHT,
+  WINDOW_MIN_HEIGHT,
+  WINDOW_PLUGIN_HEIGHT,
   WINDOW_WIDTH
 } from '@common/constants/common';
+import registerGlobalShortcut from './common/register.global.shortcut';
+import systemApplication from './common/system.application';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -21,12 +22,17 @@ const createWindow = () => {
     minWidth: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
     minHeight: WINDOW_MIN_HEIGHT,
-    resizable: false,
-    frame:false,
+    resizable: true,
+    frame: true,
     webPreferences: {
-      preload: path.join(__dirname, '..', 'preload/index.js')
+      preload: path.join(__dirname, '..', 'preload/index.js'),
     }
   });
+
+  protocol.registerFileProtocol('apeak', (request, callback) => {
+    const filePath = request.url.replace('apeak:///','');
+    callback(filePath);
+  })
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -37,8 +43,16 @@ const createWindow = () => {
     );
   }
 
+  registerGlobalShortcut.init();
+
+  async function handleAppList() {
+    return await systemApplication.getAppList();
+  }
+
+  ipcMain.handle('system:appList', handleAppList);
+
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
@@ -66,19 +80,12 @@ app.on('activate', () => {
 ipcMain.on('changeWindowResize', (event, arg) => {
   const mainWindow = BrowserWindow.getFocusedWindow();
   if (arg.type === 'maximize') {
-    mainWindow?.setSize(WINDOW_WIDTH, WINDOW_PLUGIN_HEIGHT)
-  } else if(arg.type === 'minimize') {
-    mainWindow?.setSize(WINDOW_WIDTH, WINDOW_HEIGHT)
-  }else if(arg.type === 'custom'){
-    mainWindow?.setSize(arg.width, arg.height)
+    mainWindow?.setSize(WINDOW_WIDTH, WINDOW_PLUGIN_HEIGHT, true);
+  } else if (arg.type === 'minimize') {
+    mainWindow?.setSize(WINDOW_WIDTH, WINDOW_HEIGHT, true);
+  } else if (arg.type === 'custom') {
+    mainWindow?.setSize(arg.width, arg.height);
   }
 });
-
-ipcMain.on('getAppList', (event, arg) => {
-  getAppList().then((res) => {
-    event.reply('appList', res);
-  });
-});
-
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.

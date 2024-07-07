@@ -1,5 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useMemo, useState } from 'react';
+import { Image } from 'antd';
 
 import PluginIcon from '@/assets/icon/plugin-icon.svg?react';
 import CloseIcon from '@/assets/icon/close-icon.svg?react';
@@ -11,6 +12,8 @@ function AppPage() {
   const navigate = useNavigate();
   const [value, setValue] = useState();
 
+  const [list, setList] = useState([]);
+
   const hasMain = useMemo(() => location.pathname === '/', [location.pathname]);
 
   const onSearchChange = (event: any) => {
@@ -18,12 +21,21 @@ function AppPage() {
     window.ipcRenderer.on('search', event.target.value);
   };
 
+  const onConfirmSearch = async () => {
+    const list = await window.ipcRenderer.invoke('system:appList');
+    console.log(list);
+    setList(list);
+  };
+
   const onToPlugin = () => {
     navigate('/plugins');
     window.ipcRenderer?.send('changeWindowResize', { type: 'maximize' });
   };
 
-  console.log(location);
+  const onToApp = () => {
+    navigate('/');
+    window.ipcRenderer?.send('changeWindowResize', { type: 'minimize' });
+  };
 
   return (
     <div className='app-container'>
@@ -31,7 +43,7 @@ function AppPage() {
         {!hasMain && (
           <div className='app-breadcrumb'>
             <span className='app-breadcrumb-text'>插件应用中心</span>
-            <div className='app-breadcrumb-icon'>
+            <div className='app-breadcrumb-icon' onClick={onToApp}>
               <CloseIcon width={18} height={18} />
             </div>
           </div>
@@ -45,11 +57,25 @@ function AppPage() {
           />
         </div>
         <div className='app-action-wrapper'>
+          <div className='app-btn app-btn-plugin' onClick={onConfirmSearch}>
+            <PluginIcon width={26} height={26} color='#fff' />
+          </div>
           <div className='app-btn app-btn-plugin' onClick={onToPlugin}>
             <PluginIcon width={26} height={26} color='#fff' />
           </div>
         </div>
       </div>
+      {list.map((item, index) => {
+        return (
+          <div key={index}>
+            <Image
+              src={'apeak:///' + item.Icon}
+              style={{ width: 20, height: 20 }}
+            />
+            {item.Name}
+          </div>
+        );
+      })}
       <Outlet />
     </div>
   );

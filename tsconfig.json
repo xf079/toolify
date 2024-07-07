@@ -11,12 +11,14 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/renderer/*"],
-      "@core/*": ["./src/core/*"],
       "@common/*": ["./src/common/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@main/*": ["./src/main/*"],
+      "@preload/*": ["./src/preload/*"],
     },
     "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "types": ["node_modules/@types","./types"]
-  },
+    "types": ["node_modules/@types"]
+  }
 }

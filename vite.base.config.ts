@@ -2,6 +2,7 @@ import {builtinModules} from 'node:module';
 import type {AddressInfo} from 'node:net';
 import type {ConfigEnv, Plugin, UserConfig} from 'vite';
 import pkg from './package.json';
+import path from 'node:path';
 
 export const builtins = ['electron', ...builtinModules.map((m) => [m, `node:${m}`]).flat()];
 
@@ -22,6 +23,15 @@ export function getBuildConfig(env: ConfigEnv<'build'>): UserConfig {
       minify: command === 'build',
     },
     clearScreen: false,
+    resolve: {
+      alias: {
+        '@': path.join(__dirname, 'src/renderer'),
+        '@common': path.join(__dirname, 'src/common'),
+        '@shared': path.join(__dirname, 'src/shared'),
+        '@main': path.join(__dirname, 'src/main'),
+        '@preload': path.join(__dirname, 'src/preload'),
+      }
+    },
   };
 }
 
