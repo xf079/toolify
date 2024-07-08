@@ -8,16 +8,13 @@ import configModal from '@shared/db/modal/config';
 import { CONFIG_GUIDE } from '@shared/db/constants';
 
 import MainWindow from '@main/browser/main';
+import { IWindow } from '@common/types';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-export interface IWindow {
-  init(): void;
-  getWindow(): BrowserWindow;
-}
 
 class Main {
   windowCreator: IWindow;

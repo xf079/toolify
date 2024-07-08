@@ -49,15 +49,10 @@ export default class MainWindow {
     });
 
     this.win.on('show', () => {
-      this.win.webContents.executeJavaScript(
-        `window.rubick && window.rubick.hooks && typeof window.rubick.hooks.onShow === "function" && window.rubick.hooks.onShow()`
-      );
     });
 
     this.win.on('hide', () => {
-      this.win.webContents.executeJavaScript(
-        `window.rubick && window.rubick.hooks && typeof window.rubick.hooks.onHide === "function" && window.rubick.hooks.onHide()`
-      );
+
     });
 
     // 判断失焦是否隐藏

@@ -6,3 +6,7 @@ export const GUIDE_WIDTH = 800;
 export const GUIDE_HEIGHT = 600;
 
 export const WINDOW_MIN_HEIGHT = 320;
+
+
+export const TOOLBAR_WIDTH = 300;
+export const TOOLBAR_HEIGHT = 120;
