@@ -7,11 +7,5 @@ export default {
   },
   windows(): boolean {
     return process.platform === 'win32';
-  },
-  production(): boolean {
-    return process.env.NODE_ENV !== 'development';
-  },
-  dev(): boolean {
-    return process.env.NODE_ENV === 'development';
-  },
+  }
 };

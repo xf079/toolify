@@ -1,6 +1,7 @@
 import type { ConfigEnv, UserConfig } from 'vite';
 import { defineConfig, mergeConfig } from 'vite';
 import copyPlugin from 'rollup-plugin-copy';
+import commonjs from '@rollup/plugin-commonjs';
 import {
   getBuildConfig,
   getBuildDefine,
@@ -22,7 +23,9 @@ export default defineConfig((env) => {
       },
       rollupOptions: {
         external,
-        plugins: []
+        plugins: [
+          commonjs()
+        ]
       }
     },
     plugins: [pluginHotRestart('restart')],

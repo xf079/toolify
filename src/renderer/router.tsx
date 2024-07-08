@@ -1,12 +1,13 @@
-import { createMemoryRouter } from 'react-router-dom';
+import { createHashRouter } from 'react-router-dom';
 import AppPage from '@/pages/app';
 import PluginsPage from '@/pages/plugins';
 import RecentlyPage from '@/pages/recently';
+import ToolbarPage from '@/pages/toolbar';
 
 const routes = [
   {
     path: '',
-    element: <AppPage />,
+    element: <ToolbarPage />,
     children: [
       {
         index: true,
@@ -17,11 +18,13 @@ const routes = [
         element: <PluginsPage />
       }
     ]
+  },
+  {
+    path: 'toolbar',
+    element: <ToolbarPage />
   }
 ];
 
-const router = createMemoryRouter(routes, {
-  initialIndex: 0
-});
+const router = createHashRouter(routes);
 
 export default router;

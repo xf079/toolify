@@ -1,20 +1,15 @@
+import 'fake-indexeddb/auto';
 import { Dexie, Table } from 'dexie';
-
-export interface Config {
-  id?: number;
-  key: string;
-  value: string;
-}
+import { IConfig } from '@shared/db/types';
 
 class DBInstance extends Dexie {
-  configs!: Table<Config>;
+  configs!: Table<IConfig>;
   constructor() {
     super('Apeak');
     this.version(1).stores({
-      configs: '++id,key,value'
+      configs: '++id,type,value'
     });
   }
 }
-
 
 export default new DBInstance();
