@@ -1,11 +1,11 @@
 import { BrowserWindow } from 'electron';
-import path from 'path';
+import path from 'node:path';
 import { PANEL_HEIGHT, PANEL_WIDTH } from '@common/constants/common';
 import { IBrowserWindow, ICreateWindowOption } from '@common/types';
 import { clipboard, Key, keyboard } from '@nut-tree/nut-js';
 import device from '@common/utils/device';
 
-class PanelBrowser extends IBrowserWindow {
+class PanelBrowser implements IBrowserWindow {
   private win: BrowserWindow;
 
   originValue = '';
@@ -45,18 +45,14 @@ class PanelBrowser extends IBrowserWindow {
         spellcheck: false
       }
     });
-
     // and load the index.html of the app.
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-      void this.win.loadFile(MAIN_WINDOW_VITE_DEV_SERVER_URL, {
-        hash: '/panel'
-      });
+      this.win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL + '#/panel');
     } else {
-      void this.win.loadFile(
+      // and load the index.html of the app.
+      this.win.loadFile(
         path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
-        {
-          hash: '/panel'
-        }
+        { hash: '/panel' }
       );
     }
   }

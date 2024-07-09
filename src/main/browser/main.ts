@@ -1,5 +1,5 @@
-import { BrowserWindow, nativeTheme } from 'electron';
-import path from 'path';
+import { BrowserWindow } from 'electron';
+import path from 'node:path';
 import {
   WINDOW_HEIGHT,
   WINDOW_MIN_HEIGHT,
@@ -7,7 +7,7 @@ import {
 } from '@common/constants/common';
 import { IBrowserWindow, ICreateWindowOption } from '@common/types';
 
-export class MainBrowser extends IBrowserWindow {
+export class MainBrowser implements IBrowserWindow {
   private win: BrowserWindow;
 
   init() {
@@ -19,7 +19,8 @@ export class MainBrowser extends IBrowserWindow {
     return this.win;
   }
 
-  private createMainWindow(opiton?: ICreateWindowOption) {
+  private createMainWindow(option?: ICreateWindowOption) {
+    console.log(option);
     this.win = new BrowserWindow({
       height: WINDOW_HEIGHT,
       minHeight: WINDOW_MIN_HEIGHT,
@@ -30,7 +31,6 @@ export class MainBrowser extends IBrowserWindow {
       title: 'Apeak',
       show: true,
       skipTaskbar: true,
-      backgroundColor: nativeTheme.shouldUseDarkColors ? '#1c1c28' : '#fff',
       webPreferences: {
         webSecurity: false,
         backgroundThrottling: false,
@@ -47,12 +47,11 @@ export class MainBrowser extends IBrowserWindow {
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
       this.win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     } else {
-      this.win.loadFile(
-        path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
-      );
+      this.win.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
     }
+    // and load the index.html of the app.
     // Open the DevTools.
-    this.win.webContents.openDevTools();
+    // this.win.webContents.openDevTools();
   }
 
 
