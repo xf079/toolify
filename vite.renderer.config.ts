@@ -23,7 +23,6 @@ export default defineConfig((env) => {
       alias: {
         '@': path.join(__dirname, 'src/renderer'),
         '@common': path.join(__dirname, 'src/common'),
-        '@shared': path.join(__dirname, 'src/shared'),
         '@main': path.join(__dirname, 'src/main'),
         '@preload': path.join(__dirname, 'src/preload'),
       }

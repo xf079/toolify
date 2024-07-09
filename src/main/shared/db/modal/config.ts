@@ -1,4 +1,4 @@
-import db from '@shared/db';
+import db from '@main/shared/db';
 
 class ConfigModal {
   async getConfig(type: string) {

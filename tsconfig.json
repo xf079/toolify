@@ -12,7 +12,6 @@
     "paths": {
       "@/*": ["./src/renderer/*"],
       "@common/*": ["./src/common/*"],
-      "@shared/*": ["./src/shared/*"],
       "@main/*": ["./src/main/*"],
       "@preload/*": ["./src/preload/*"],
     },

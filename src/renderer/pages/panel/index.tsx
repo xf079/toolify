@@ -1,22 +1,16 @@
-import { Button, Divider, Dropdown, Flex } from 'antd';
 import { useMemo } from 'react';
 import {
-  BlockOutlined,
-  BookOutlined,
   DeliveredProcedureOutlined,
   LogoutOutlined,
-  MenuOutlined,
   QuestionCircleOutlined,
-  SearchOutlined,
   SendOutlined,
-  SettingOutlined,
-  TranslationOutlined
+  SettingOutlined
 } from '@ant-design/icons';
 import type { ItemType } from 'antd/es/menu/interface';
 
 import './index.less';
 
-function ToolbarPage() {
+function PanelPage() {
   const items = useMemo<ItemType[]>(
     () => [
       {
@@ -53,7 +47,8 @@ function ToolbarPage() {
     []
   );
   return (
-    <Flex className='toolbar' align='center'>
+    <div>123</div>
+    /*<Flex className='toolbar' align='center'>
       <Button
         type='text'
         size='middle'
@@ -90,8 +85,8 @@ function ToolbarPage() {
       <Dropdown menu={{ items }}>
         <Button type='text' size='middle' icon={<MenuOutlined />} />
       </Dropdown>
-    </Flex>
+    </Flex>*/
   );
 }
 
-export default ToolbarPage;
+export default PanelPage;

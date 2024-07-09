@@ -5,11 +5,21 @@ import {
   WINDOW_MIN_HEIGHT,
   WINDOW_WIDTH
 } from '@common/constants/common';
+import { IBrowserWindow, ICreateWindowOption } from '@common/types';
 
-export default class MainWindow {
+export class MainBrowser extends IBrowserWindow {
   private win: BrowserWindow;
 
-  private createWindow() {
+  init() {
+    this.createMainWindow();
+    this.handle();
+  }
+
+  getWindow() {
+    return this.win;
+  }
+
+  private createMainWindow(opiton?: ICreateWindowOption) {
     this.win = new BrowserWindow({
       height: WINDOW_HEIGHT,
       minHeight: WINDOW_MIN_HEIGHT,
@@ -35,37 +45,31 @@ export default class MainWindow {
 
     // and load the index.html of the app.
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-      void this.win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+      this.win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     } else {
-      void this.win.loadFile(
+      this.win.loadFile(
         path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
       );
     }
     // Open the DevTools.
     this.win.webContents.openDevTools();
+  }
 
+
+  private handle() {
     this.win.on('closed', () => {
-      this.win = undefined;
+      this.win.destroy();
     });
 
-    this.win.on('show', () => {
-    });
+    this.win.on('show', () => {});
 
-    this.win.on('hide', () => {
-
-    });
+    this.win.on('hide', () => {});
 
     // 判断失焦是否隐藏
     this.win.on('blur', async () => {
       console.log('blur');
     });
   }
-
-  init() {
-    this.createWindow();
-  }
-
-  getWindow() {
-    return this.win;
-  }
 }
+
+export default MainBrowser;

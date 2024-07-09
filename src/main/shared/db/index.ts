@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { Dexie, Table } from 'dexie';
-import { IConfig } from '@shared/db/types';
+import { IConfig } from '@main/shared/db/types';
 
 class DBInstance extends Dexie {
   configs!: Table<IConfig>;
