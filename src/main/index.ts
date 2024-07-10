@@ -12,18 +12,22 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-const main = new MainBrowser();
-const panel = new PanelBrowser();
 
 async function appReadyHandle() {
   try {
+    const main = new MainBrowser();
+    const panel = new PanelBrowser();
     const isGuide = await configModal.getConfig(CONFIG_GUIDE);
     console.log(isGuide, 'isGuide');
     if (!isGuide) {
       await configModal.setConfig(CONFIG_GUIDE, '1');
     } else {
     }
-    main.init();
+
+    createShortcut({
+      mainWin: main,
+      panelWin: panel
+    });
   } catch (e) {
     console.log(e);
   }
@@ -53,7 +57,7 @@ if (device.macOS()) {
     app.dock.hide();
   }
 } else {
-  app.disableHardwareAcceleration();
+  // app.disableHardwareAcceleration();
 }
 
 /**
@@ -75,10 +79,6 @@ if (env.dev()) {
 
 app.on('ready', () => {
   void appReadyHandle();
-  createShortcut({
-    mainWin: main,
-    panelWin: panel
-  });
 });
 
 app.on('window-all-closed', () => {

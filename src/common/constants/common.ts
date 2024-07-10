@@ -9,5 +9,5 @@ export const GUIDE_WIDTH = 800;
 export const GUIDE_HEIGHT = 600;
 
 
-export const PANEL_WIDTH = 280;
-export const PANEL_HEIGHT = 360;
+export const PANEL_WIDTH = 240;
+export const PANEL_HEIGHT = 380;

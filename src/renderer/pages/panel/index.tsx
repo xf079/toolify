@@ -1,91 +1,55 @@
-import { useMemo } from 'react';
-import {
-  DeliveredProcedureOutlined,
-  LogoutOutlined,
-  QuestionCircleOutlined,
-  SendOutlined,
-  SettingOutlined
-} from '@ant-design/icons';
-import type { ItemType } from 'antd/es/menu/interface';
+import { MenuOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
+import { createStyles } from 'antd-style';
 
-import './index.less';
+import { PanelResultList } from '@/components/PanelResultList';
+
+const useStyles = createStyles(({ token, css }) => ({
+  panel: css`
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+  `,
+  header: css`
+    width: 100%;
+    height: 56px;
+    background-color: ${token.colorBgContainer};
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 6px;
+    gap: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid ${token.colorBorderSecondary};
+  `,
+  headerContent: css`
+    flex: 1;
+    font-size: ${token.fontSize};
+    color: ${token.colorTextSecondary};
+  `,
+  body: css`
+    flex: 1;
+    overflow: hidden;
+    background-color: ${token.colorBgContainer};
+  `
+}));
 
 function PanelPage() {
-  const items = useMemo<ItemType[]>(
-    () => [
-      {
-        key: '1',
-        label: '问问AI',
-        icon: <QuestionCircleOutlined />
-      },
-      {
-        key: '11',
-        label: '添加到备忘录',
-        icon: <DeliveredProcedureOutlined />
-      },
-      {
-        key: 'divider',
-        type: 'divider'
-      },
-      {
-        key: '2',
-        label: '发现更多',
-        icon: <SendOutlined />
-      },
-      {
-        key: '3',
-        label: '自定义设置',
-        icon: <SettingOutlined />
-      },
-      {
-        key: '4',
-        label: '禁用',
-        danger: true,
-        icon: <LogoutOutlined />
-      }
-    ],
-    []
-  );
+  const { styles } = useStyles();
   return (
-    <div>123</div>
-    /*<Flex className='toolbar' align='center'>
-      <Button
-        type='text'
-        size='middle'
-        icon={<SearchOutlined />}
-        className='toolbar-btn'
-      >
-        搜索
-      </Button>
-      <Button
-        type='text'
-        size='middle'
-        icon={<TranslationOutlined />}
-        className='toolbar-btn'
-      >
-        翻译
-      </Button>
-      <Button
-        type='text'
-        size='middle'
-        icon={<BlockOutlined />}
-        className='toolbar-btn'
-      >
-        复制
-      </Button>
-      <Button
-        type='text'
-        size='middle'
-        icon={<BookOutlined />}
-        className='toolbar-btn'
-      >
-        解释
-      </Button>
-      <Divider type='vertical' />
-      <Dropdown menu={{ items }}>
-        <Button type='text' size='middle' icon={<MenuOutlined />} />
-      </Dropdown>
-    </Flex>*/
+    <div className={styles.panel}>
+      <div className={styles.header}>
+        <Button icon={<MenuOutlined />} type='text' />
+        <div className={styles.headerContent}>超级面板</div>
+        <Button icon={<SearchOutlined />} type='text' />
+      </div>
+      <div className={styles.body}>
+        <PanelResultList />
+      </div>
+    </div>
   );
 }
 

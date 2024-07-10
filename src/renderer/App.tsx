@@ -1,4 +1,4 @@
-import { ConfigProvider, App as AntdApp } from 'antd';
+import { ConfigProvider, App as AntdApp, theme } from 'antd';
 import { RouterProvider } from 'react-router-dom';
 import router from './router';
 
@@ -7,6 +7,10 @@ function App() {
     <ConfigProvider
       theme={{
         cssVar: true,
+        algorithm: [
+          // compactAlgorithm,
+          // defaultAlgorithm
+        ],
         token: {
           borderRadius: 8
         }

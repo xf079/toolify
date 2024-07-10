@@ -1,13 +1,15 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useMemo, useState } from 'react';
-import { Image } from 'antd';
 
 import PluginIcon from '@/assets/icon/plugin-icon.svg?react';
 import CloseIcon from '@/assets/icon/close-icon.svg?react';
 
+import { useStyles } from '@/pages/app/style';
+
 import './index.less';
 
 function AppPage() {
+  const {styles} = useStyles();
   const location = useLocation();
   const navigate = useNavigate();
   const [value, setValue] = useState();
@@ -23,7 +25,6 @@ function AppPage() {
 
   const onConfirmSearch = async () => {
     const list = await window.ipcRenderer.invoke('system:appList');
-    console.log(list);
     setList(list);
   };
 
@@ -40,14 +41,6 @@ function AppPage() {
   return (
     <div className='app-container'>
       <div className='app-header'>
-        {!hasMain && (
-          <div className='app-breadcrumb'>
-            <span className='app-breadcrumb-text'>插件应用中心</span>
-            <div className='app-breadcrumb-icon' onClick={onToApp}>
-              <CloseIcon width={18} height={18} />
-            </div>
-          </div>
-        )}
         <div className='app-search-wrapper'>
           <input
             value={value}
@@ -57,26 +50,14 @@ function AppPage() {
           />
         </div>
         <div className='app-action-wrapper'>
-          <div className='app-btn app-btn-plugin' onClick={onConfirmSearch}>
-            <PluginIcon width={26} height={26} color='#fff' />
-          </div>
           <div className='app-btn app-btn-plugin' onClick={onToPlugin}>
             <PluginIcon width={26} height={26} color='#fff' />
           </div>
         </div>
       </div>
-      {list.map((item, index) => {
-        return (
-          <div key={index}>
-            <Image
-              src={'apeak:///' + item.Icon}
-              style={{ width: 20, height: 20 }}
-            />
-            {item.Name}
-          </div>
-        );
-      })}
-      <Outlet />
+      <div>
+        <Outlet />
+      </div>
     </div>
   );
 }

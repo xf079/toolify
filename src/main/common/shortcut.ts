@@ -1,6 +1,6 @@
 import {  globalShortcut } from 'electron';
-import { mouse } from '@nut-tree/nut-js';
 import { IBrowserWindow } from '@common/types';
+import { mouseLocaion } from 'rubick-native';
 
 export interface IShortcutOption {
   mainWin: IBrowserWindow;
@@ -12,12 +12,14 @@ export default function createShortcut(option: IShortcutOption) {
    * 注册超级面板快捷键
    * @param {string} 'CommandOrControl+Q' - 快捷键
    */
-  globalShortcut.register('CommandOrControl+P', async () => {
-    try {
-      const position = await mouse.getPosition();
-      void option.panelWin.init(position);
-    } catch (error) {
-      console.log(error);
-    }
+  globalShortcut.register('CommandOrControl+Q', async () => {
+    void option.panelWin.init(mouseLocaion());
+  });
+  /**
+   * 注册搜索快捷键
+   * @param {string} 'CommandOrControl+Q' - 快捷键
+   */
+  globalShortcut.register('CommandOrControl+L', async () => {
+    void option.mainWin.init();
   });
 }

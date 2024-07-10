@@ -4,7 +4,7 @@ import type {ConfigEnv, Plugin, UserConfig} from 'vite';
 import pkg from './package.json';
 import path from 'node:path';
 
-export const builtins = ['electron','iohook-raub', ...builtinModules.map((m) => [m, `node:${m}`]).flat()];
+export const builtins = ['electron','rubick-native', ...builtinModules.map((m) => [m, `node:${m}`]).flat()];
 
 export const external = [...builtins, ...Object.keys('dependencies' in pkg ? (pkg.dependencies as Record<string, unknown>) : {})];
 

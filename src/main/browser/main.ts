@@ -5,22 +5,16 @@ import {
   WINDOW_MIN_HEIGHT,
   WINDOW_WIDTH
 } from '@common/constants/common';
-import { IBrowserWindow, ICreateWindowOption } from '@common/types';
+import { IBrowserWindow } from '@common/types';
 
 export class MainBrowser implements IBrowserWindow {
   private win: BrowserWindow;
 
-  init() {
+  constructor() {
     this.createMainWindow();
-    this.handle();
   }
 
-  getWindow() {
-    return this.win;
-  }
-
-  private createMainWindow(option?: ICreateWindowOption) {
-    console.log(option);
+  private createMainWindow() {
     this.win = new BrowserWindow({
       height: WINDOW_HEIGHT,
       minHeight: WINDOW_MIN_HEIGHT,
@@ -29,6 +23,7 @@ export class MainBrowser implements IBrowserWindow {
       width: WINDOW_WIDTH,
       frame: true,
       title: 'Apeak',
+      center: true,
       show: true,
       skipTaskbar: true,
       webPreferences: {
@@ -47,27 +42,26 @@ export class MainBrowser implements IBrowserWindow {
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
       this.win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     } else {
-      this.win.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
+      this.win.loadFile(
+        path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
+      );
     }
     // and load the index.html of the app.
     // Open the DevTools.
-    // this.win.webContents.openDevTools();
+    this.win.webContents.openDevTools();
   }
 
+  getWindow() {
+    return this.win;
+  }
+
+  init() {
+    this.win.show();
+    this.handle();
+  }
 
   private handle() {
-    this.win.on('closed', () => {
-      this.win.destroy();
-    });
-
-    this.win.on('show', () => {});
-
-    this.win.on('hide', () => {});
-
-    // 判断失焦是否隐藏
-    this.win.on('blur', async () => {
-      console.log('blur');
-    });
+    console.log('handle');
   }
 }
 
