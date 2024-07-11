@@ -1,40 +1,56 @@
 import { createStyles } from 'antd-style';
 
-
-export const useStyles = createStyles(({token})=>({
-  container: {
+export const useStyles = createStyles(({ token, css }) => ({
+  app: {
     width: '100%',
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: token.colorBgContainer,
-    borderRadius: token.borderRadiusLG,
-    boxShadow: token.boxShadowSecondary,
-    overflow: 'hidden',
-    transition: 'all 0.3s',
-    '&:hover': {
-      boxShadow: token.boxShadowTertiary,
-      transform: 'scale(1.05)'
+    backgroundColor: token.colorBgContainer
+  },
+  wrapper: css`
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    height: 64px;
+    background-color: ${token.colorBgContainer};
+    padding-inline: ${token.paddingXS}px;
+    align-items: center;
+  `,
+  search: css`
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: ${token.borderRadius}px;
+  `,
+  searchValue: css`
+    width: 100%;
+    height: 100%;
+    outline: none;
+    border: none;
+    font-weight: 200;
+    font-size: ${token.fontSizeHeading4}px;
+  `,
+  btn: css`
+    height: 42px;
+    width: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.1s;
+    border-radius: ${token.borderRadius}px;
+    &:hover {
+      background-color: ${token.colorBgLayout};
     }
-  },
-  icon: {
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 48,
-    color: token.colorTextTertiary
-  },
-  title: {
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 16,
-    color: token.colorTextTertiary
+  `,
+  btnIcon: css`
+    font-size: ${token.fontSizeHeading4}px;
+  `,
+  content: {
+    flex: 1,
+    overflow: 'hidden'
   }
-}))
+}));

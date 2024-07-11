@@ -29,7 +29,7 @@ class PanelBrowser implements IBrowserWindow {
       x: 0,
       y: 0,
       show: false,
-      transparent:true,
+      transparent:false,
       webPreferences: {
         webSecurity: false,
         backgroundThrottling: false,

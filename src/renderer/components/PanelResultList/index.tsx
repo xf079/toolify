@@ -7,15 +7,17 @@ const useStyles = createStyles(({ token }) => ({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'start',
-    padding: `${token.paddingXS}px ${token.paddingSM}px`
+    padding: `${token.paddingXS}px ${token.paddingXS}px`
   }
 }));
 
 export const PanelResultList = () => {
   const { styles, cx } = useStyles();
-  return <div className={styles.list}>
-    <PanelResultRow />
-    <PanelResultRow />
-    <PanelResultRow />
-  </div>;
+  return (
+    <div className={styles.list}>
+      <PanelResultRow />
+      <PanelResultRow />
+      <PanelResultRow />
+    </div>
+  );
 };

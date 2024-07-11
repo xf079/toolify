@@ -15,11 +15,11 @@ const routes = [
         element: <RecentlyPage />
       },
       {
-        path: '/mine',
+        path: 'mine',
         element: <MinePage />
       },
       {
-        path: '/plugins',
+        path: 'plugins',
         element: <PluginsPage />
       }
     ]

@@ -18,7 +18,7 @@ function App() {
       variant='filled'
       componentSize='large'
     >
-      <AntdApp>
+      <AntdApp style={{height:'100vh'}}>
         <RouterProvider router={router} />
       </AntdApp>
     </ConfigProvider>

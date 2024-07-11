@@ -1,4 +1,4 @@
-import { MenuOutlined } from '@ant-design/icons';
+import { MenuOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { createStyles } from 'antd-style';
 
@@ -42,9 +42,9 @@ function PanelPage() {
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        <Button icon={<MenuOutlined />} type='text' />
+        <Button icon={<MenuOutlined />} size='middle' type='text' />
         <div className={styles.headerContent}>超级面板</div>
-        <Button icon={<SearchOutlined />} type='text' />
+        <Button icon={<SearchOutlined />} size='middle' type='text' />
       </div>
       <div className={styles.body}>
         <PanelResultList />
