@@ -31,6 +31,8 @@ export const useStyles = createStyles(({ token, css }) => ({
     outline: none;
     border: none;
     font-weight: 200;
+    background-color: transparent;
+    color: ${token.colorTextBase};
     font-size: ${token.fontSizeHeading4}px;
   `,
   btn: css`

@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import {
   WINDOW_HEIGHT,
@@ -6,6 +6,7 @@ import {
   WINDOW_WIDTH
 } from '@common/constants/common';
 import { IBrowserWindow } from '@common/types';
+import configModal from '@main/shared/modal/config';
 
 export class MainBrowser implements IBrowserWindow {
   private win: BrowserWindow;
@@ -26,9 +27,13 @@ export class MainBrowser implements IBrowserWindow {
       center: true,
       show: true,
       skipTaskbar: true,
+      alwaysOnTop: false,
       webPreferences: {
+        // contextIsolation: false,
+        // nodeIntegration: true,
+        nodeIntegrationInWorker: true,
         webgl: false,
-        preload: path.join(__dirname, '../preload/index.js'),
+        preload: path.join(__dirname, '../preload/index.js')
       }
     });
 
@@ -43,7 +48,7 @@ export class MainBrowser implements IBrowserWindow {
     this.handle();
     // and load the index.html of the app.
     // Open the DevTools.
-    // this.win.webContents.openDevTools();
+    this.win.webContents.openDevTools();
   }
 
   getWindow() {
@@ -56,16 +61,29 @@ export class MainBrowser implements IBrowserWindow {
 
   private handle() {
     ipcMain.on('search', (event, phrase) => {
-      console.log(event,phrase);
+      console.log(event, phrase);
       const _valueList = new Array(Number(phrase)).fill(1);
-        console.log(_valueList);
-      this.win.webContents.send('searchList', _valueList)
+      console.log(_valueList);
+      this.win.webContents.send('searchList', _valueList);
     });
 
     ipcMain.on('setWindowHeight', (event, height) => {
-      console.log(height);
-      this.win.setSize(WINDOW_WIDTH, WINDOW_MIN_HEIGHT+height,true);
-    })
+      this.win.setSize(WINDOW_WIDTH, WINDOW_MIN_HEIGHT + height, true);
+    });
+
+    ipcMain.handle('getConfig', (event) => {
+      return configModal.getAll();
+    });
+
+    ipcMain.on('setConfig', (event, key, value) => {
+      console.log(key, value);
+      configModal.set(key, value);
+    });
+
+    ipcMain.on('search', (event, phrase) => {
+      const _valueList = new Array(Number(phrase)).fill(1);
+      this.win.webContents.send('searchList', _valueList);
+    });
   }
 }
 

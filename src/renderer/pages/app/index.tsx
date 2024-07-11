@@ -13,12 +13,12 @@ function AppPage() {
   const onSearchChange = (event: any) => {
     const _value = event.target.value;
     setValue(_value);
-    window.ipcRenderer?.send('search', _value);
+    window.apeak?.trigger('search', _value);
   };
 
   const onToPlugin = () => {
-    navigate('/plugins');
-    window.ipcRenderer?.send('changeWindowResize', { type: 'maximize' });
+    // navigate('/plugins');
+    window.apeak?.trigger('changeWindowResize', { type: 'maximize' });
   };
 
   return (

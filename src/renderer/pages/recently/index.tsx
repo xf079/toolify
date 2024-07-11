@@ -19,14 +19,14 @@ function RecentlyPage() {
   useMutationObserver(
     () => {
       const height = ref.current?.offsetHeight;
-      window.ipcRenderer?.send('setWindowHeight', height > 400 ? 400 : height);
+      window.apeak?.trigger('setWindowHeight', height > 400 ? 400 : height);
     },
     ref,
     { attributes: true, childList: true, characterData: true, subtree: true }
   );
 
   useMount(() => {
-    window.ipcRenderer?.on('searchList', (event, value) => {
+    window.apeak?.on('searchList', (event, value) => {
       setList(value);
     });
   });

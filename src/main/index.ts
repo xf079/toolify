@@ -1,8 +1,8 @@
 import { app, globalShortcut, protocol } from 'electron';
 import device from '@common/utils/device';
 import env from '@common/utils/env';
-import { CONFIG_GUIDE } from '@main/shared/db/constants';
-import configModal from '@main/shared/db/modal/config';
+import { CONFIG_GUIDE } from '@common/constants/config-constants';
+import configModal from '@main/shared/modal/config';
 import createShortcut from '@main/common/shortcut';
 import MainBrowser from '@main/browser/main';
 import PanelBrowser from '@main/browser/panel';
@@ -17,10 +17,10 @@ async function appReadyHandle() {
   try {
     const main = new MainBrowser();
     const panel = new PanelBrowser();
-    const isGuide = await configModal.getConfig(CONFIG_GUIDE);
+    const isGuide = await configModal.get(CONFIG_GUIDE);
     console.log(isGuide, 'isGuide');
     if (!isGuide) {
-      await configModal.setConfig(CONFIG_GUIDE, '1');
+      await configModal.set(CONFIG_GUIDE, '1');
     } else {
     }
 
