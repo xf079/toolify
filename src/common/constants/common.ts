@@ -1,6 +1,6 @@
-export const WINDOW_WIDTH = 1160;
-export const WINDOW_HEIGHT = 564;
-export const WINDOW_MIN_HEIGHT = 564;
+export const WINDOW_WIDTH = 1060;
+export const WINDOW_HEIGHT = 64;
+export const WINDOW_MIN_HEIGHT = 64;
 
 export const WINDOW_PLUGIN_WIDTH = 800;
 export const WINDOW_PLUGIN_HEIGHT = 600;

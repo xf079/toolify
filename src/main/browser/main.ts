@@ -28,6 +28,7 @@ export class MainBrowser implements IBrowserWindow {
       show: true,
       skipTaskbar: true,
       alwaysOnTop: false,
+      backgroundColor:'#fff',
       webPreferences: {
         // contextIsolation: false,
         // nodeIntegration: true,
@@ -61,14 +62,12 @@ export class MainBrowser implements IBrowserWindow {
 
   private handle() {
     ipcMain.on('search', (event, phrase) => {
-      console.log(event, phrase);
-      const _valueList = new Array(Number(phrase)).fill(1);
-      console.log(_valueList);
-      this.win.webContents.send('searchList', _valueList);
+      // const _valueList = new Array((phrase).toString().length+10).fill(1);
+      this.win.webContents.send('searchList', [123]);
     });
 
     ipcMain.on('setWindowHeight', (event, height) => {
-      this.win.setSize(WINDOW_WIDTH, WINDOW_MIN_HEIGHT + height, true);
+      this.win.setSize(WINDOW_WIDTH, WINDOW_MIN_HEIGHT + height);
     });
 
     ipcMain.handle('getConfig', (event) => {
@@ -76,8 +75,14 @@ export class MainBrowser implements IBrowserWindow {
     });
 
     ipcMain.on('setConfig', (event, key, value) => {
-      console.log(key, value);
-      configModal.set(key, value);
+      if(key === 'theme'){
+        if(value === 'dark'){
+          this.win.setBackgroundColor('#141414')
+        }else{
+          this.win.setBackgroundColor('#fff')
+        }
+      }
+      configModal.update(key, value);
     });
 
     ipcMain.on('search', (event, phrase) => {

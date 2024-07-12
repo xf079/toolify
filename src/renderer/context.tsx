@@ -39,7 +39,8 @@ const reducer = (
   switch (action.type) {
     case 'CHANGE':
       void window.apeak?.trigger('setConfig', action.payload);
-      return { ...state, ...action.payload };
+      console.log(action.payload);
+      return { ...state, [action.payload.type]: action.payload.value };
     default:
       return state;
   }

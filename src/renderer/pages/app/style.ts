@@ -16,6 +16,7 @@ export const useStyles = createStyles(({ token, css }) => ({
     background-color: ${token.colorBgContainer};
     padding-inline: ${token.paddingXS}px;
     align-items: center;
+      flex-shrink: 0;
   `,
   search: css`
     flex: 1;
@@ -33,7 +34,7 @@ export const useStyles = createStyles(({ token, css }) => ({
     font-weight: 200;
     background-color: transparent;
     color: ${token.colorTextBase};
-    font-size: ${token.fontSizeHeading4}px;
+    font-size: ${token.fontSizeHeading3}px;
   `,
   btn: css`
     height: 42px;
@@ -52,7 +53,6 @@ export const useStyles = createStyles(({ token, css }) => ({
     font-size: ${token.fontSizeHeading4}px;
   `,
   content: {
-    flex: 1,
-    overflow: 'hidden'
+    flex: 1
   }
 }));

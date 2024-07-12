@@ -1,26 +1,37 @@
-import { ConfigProvider, App as AntdApp, theme } from 'antd';
+import { ConfigProvider, theme } from 'antd';
 import { RouterProvider } from 'react-router-dom';
-import router from './router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import useSystemTheme from '@/hooks/useSyetemTheme';
 import { AppProvider, IAppContext, useAppContext } from '@/context';
+import router from './router';
 
-function Container() {
+function AppContainer() {
   const { store } = useAppContext();
+  const { theme: systemTheme } = useSystemTheme();
+  const themeVal = useMemo(
+    () => (store.theme === 'system' ? systemTheme : store.theme),
+    [store.theme, systemTheme]
+  );
+  const themeAlgorithm = useMemo(
+    () => (themeVal === 'dark' ? [theme.darkAlgorithm] : null),
+    [themeVal]
+  );
+
   return (
     <ConfigProvider
+      prefixCls='apeak'
       theme={{
         cssVar: true,
-        algorithm: store.theme === 'dark' ? [theme.darkAlgorithm] : null,
+        algorithm: themeAlgorithm,
         token: {
+          colorPrimary: store.primaryColor,
           borderRadius: 16
         }
       }}
       variant='filled'
       componentSize='large'
     >
-      <AntdApp style={{ height: '100vh' }}>
-        <RouterProvider router={router} />
-      </AntdApp>
+      <RouterProvider router={router} />
     </ConfigProvider>
   );
 }
@@ -29,19 +40,14 @@ function App() {
   const [value, setValue] = useState<IAppContext>();
   const getConfig = async () => {
     const result = await window.apeak?.sync('getConfig');
-    console.log(result);
-    const _value: Recordable = {};
-
-    result.forEach((item: any) => {
-      _value[item.type] = item.value;
-    });
-
-    console.log(_value);
-    setValue(_value as IAppContext);
+    const configList = Object.fromEntries(
+      result.map((item: any) => [item.type, item.value])
+    );
+    setValue(configList as IAppContext);
   };
 
   useEffect(() => {
-    getConfig();
+    void getConfig();
   }, []);
 
   if (!value) {
@@ -49,7 +55,7 @@ function App() {
   }
   return (
     <AppProvider value={value}>
-      <Container />
+      <AppContainer />
     </AppProvider>
   );
 }

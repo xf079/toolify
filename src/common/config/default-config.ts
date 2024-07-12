@@ -11,7 +11,7 @@ export const defaultConfig: Recordable = {
   [CONFIG_START]: false,
   [CONFIG_GUIDE]: false,
   [CONFIG_LANGUAGE]: 'zh-CN',
-  [CONFIG_THEME]: 'auto',
+  [CONFIG_THEME]: 'system',
   [CONFIG_PRIMARY_COLOR]: '#1890ff',
   [CONFIG_PLACEHOLDER]: 'Hi, Apeak'
 };
