@@ -19,11 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "electron-squirrel-startup": "^1.0.1",
-    "lodash": "^4.17.21",
-    "normalize.css": "^8.0.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.24.1"
+    "iconv-lite": "^0.6.3"
   },
   "devDependencies": {
     "@ant-design/icons": "^5.3.7",
@@ -46,7 +42,6 @@
     "ahooks": "^3.8.0",
     "antd": "^5.19.0",
     "antd-style": "^3.6.2",
-    "clsx": "^2.1.1",
     "dayjs": "^1.11.11",
     "dexie": "^4.0.7",
     "electron": "^31.1.0",
@@ -54,15 +49,19 @@
     "eslint-plugin-import": "^2.25.0",
     "fake-indexeddb": "^6.0.0",
     "less": "^4.2.0",
+    "lodash": "^4.17.21",
+    "normalize.css": "^8.0.1",
     "prettier": "^3.3.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.24.1",
     "rollup-plugin-copy": "^3.5.0",
-    "rubick-native": "^0.0.16-beta",
-    "rubick-native-addon": "^0.0.16-beta",
+    "sequelize": "^6.37.3",
+    "sqlite3": "^5.1.7",
     "ts-node": "^10.9.2",
     "typescript": "~4.5.4",
     "vite": "^5.0.12",
-    "vite-plugin-svgr": "^4.2.0",
-    "yarn": "^1.22.22"
+    "vite-plugin-svgr": "^4.2.0"
   },
   "volta": {
     "node": "20.14.0"

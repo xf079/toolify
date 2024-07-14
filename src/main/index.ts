@@ -1,33 +1,27 @@
-import { app, globalShortcut, protocol } from 'electron';
-import device from '@common/utils/device';
-import env from '@common/utils/env';
-import { CONFIG_GUIDE } from '@common/constants/config-constants';
-import configModal from '@main/shared/modal/config';
-import createShortcut from '@main/common/shortcut';
+import { app, protocol } from 'electron';
 import MainBrowser from '@main/browser/main';
 import PanelBrowser from '@main/browser/panel';
 
+import { sequelizeSync } from '@main/shared/db';
+import createShortcut from '@main/common/shortcut';
+import initDefaultConfig from '@main/common/init-data-config';
+
+void sequelizeSync();
+void initDefaultConfig();
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-
 async function appReadyHandle() {
   try {
     const main = new MainBrowser();
     const panel = new PanelBrowser();
-    const isGuide = await configModal.get(CONFIG_GUIDE);
-    console.log(isGuide, 'isGuide');
-    if (!isGuide) {
-      await configModal.set(CONFIG_GUIDE, '1');
-    } else {
-    }
-
     createShortcut({
       mainWin: main,
       panelWin: panel
     });
+
   } catch (e) {
     console.log(e);
   }
@@ -48,46 +42,46 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 }
-
-// 系统托盘
-if (device.macOS()) {
-  if (env.production() && !app.isInApplicationsFolder()) {
-    app.moveToApplicationsFolder();
-  } else {
-    app.dock.hide();
-  }
-} else {
-  // app.disableHardwareAcceleration();
-}
-
-/**
- * 监听退出
- */
-if (env.dev()) {
-  if (device.windows()) {
-    process.on('message', (data) => {
-      if (data === 'graceful-exit') {
-        app.quit();
-      }
-    });
-  } else {
-    process.on('SIGTERM', () => {
-      app.quit();
-    });
-  }
-}
-
+//
+// // 系统托盘
+// if (device.macOS()) {
+//   if (env.production() && !app.isInApplicationsFolder()) {
+//     app.moveToApplicationsFolder();
+//   } else {
+//     app.dock.hide();
+//   }
+// } else {
+//   // app.disableHardwareAcceleration();
+// }
+//
+// /**
+//  * 监听退出
+//  */
+// if (env.dev()) {
+//   if (device.windows()) {
+//     process.on('message', (data) => {
+//       if (data === 'graceful-exit') {
+//         app.quit();
+//       }
+//     });
+//   } else {
+//     process.on('SIGTERM', () => {
+//       app.quit();
+//     });
+//   }
+// }
+//
 app.on('ready', () => {
   void appReadyHandle();
 });
-
-app.on('window-all-closed', () => {
-  if (!device.macOS()) app.quit();
-});
-
-app.on('will-quit', () => {
-  /**
-   * 应用退出前 取消所有快捷键
-   */
-  globalShortcut.unregisterAll();
-});
+//
+// app.on('window-all-closed', () => {
+//   if (!device.macOS()) app.quit();
+// });
+//
+// app.on('will-quit', () => {
+//   /**
+//    * 应用退出前 取消所有快捷键
+//    */
+//   globalShortcut.unregisterAll();
+// });

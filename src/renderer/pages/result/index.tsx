@@ -1,13 +1,18 @@
 import { useRef, useState } from 'react';
 import { useMount, useMutationObserver, useUpdateEffect } from 'ahooks';
-import { useStyles } from '@/pages/recently/style';
-import { Typography, Flex, Tag, Segmented } from 'antd';
+import { Typography, Flex, Tag, Segmented, Image } from 'antd';
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
   EnterOutlined
 } from '@ant-design/icons';
-import { useAppContext } from '@/context';
+import {
+  MAIN_CHANGE_WINDOW_HEIGHT,
+  MAIN_SEARCH_RESULT,
+  MAIN_SYNC_FORM_DATA
+} from '@common/constants/event-main';
+import { useConfig } from '@/context';
+import { useStyles } from './style';
 
 import FanYiIcon from '@/assets/icon/fanyi-icon.svg?react';
 
@@ -21,7 +26,7 @@ const themeOptions = [
 
 function RecentlyPage() {
   const { styles, cx } = useStyles();
-  const { store, dispatch } = useAppContext();
+  const { theme } = useConfig();
   const [list, setList] = useState([]);
   const listRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -29,13 +34,9 @@ function RecentlyPage() {
   const [listHeight, setListHeight] = useState(0);
   const [toolbarHeight, setToolbarHeight] = useState(0);
 
-  const [historyList, setHistoryList] = useState([]);
-  const [fixedList, setFixedList] = useState([]);
-
   useUpdateEffect(() => {
-    console.log(listHeight);
-    window.apeak?.trigger(
-      'setWindowHeight',
+    apeak?.trigger(
+      MAIN_CHANGE_WINDOW_HEIGHT,
       listHeight ? listHeight + toolbarHeight : 0
     );
   }, [listHeight, toolbarHeight]);
@@ -53,7 +54,8 @@ function RecentlyPage() {
   );
 
   useMount(() => {
-    window.apeak?.on('searchList', (event, value) => {
+    apeak?.on(MAIN_SEARCH_RESULT, (event, value) => {
+      console.log(value);
       setList(value);
     });
   });
@@ -63,8 +65,10 @@ function RecentlyPage() {
         <div className={cx(styles.list, 'scroll')} ref={listRef}>
           {list.map((item, index) => (
             <div className={styles.item} key={index}>
-              <FanYiIcon width={34} height={34} />
-              <span>翻译</span>
+              {item.icon ? (
+                <Image src={item.icon} style={{ width: 32, height: 32 }} />
+              ) : null}
+              {item.fileName ? <span>{item.fileName}</span> : null}
             </div>
           ))}
         </div>
@@ -87,12 +91,14 @@ function RecentlyPage() {
         </Flex>
         <Segmented
           options={themeOptions}
-          value={store.theme}
+          value={theme.theme}
           size='middle'
           onChange={(value) => {
-            dispatch({
-              type: 'CHANGE',
-              payload: { type: 'theme', value: value }
+            apeak.trigger(MAIN_SYNC_FORM_DATA, {
+              type: 'theme',
+              value: {
+                theme: value
+              }
             });
           }}
         />

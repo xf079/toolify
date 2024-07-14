@@ -51,6 +51,7 @@ export const useStyles = createStyles(({ token, css }) => ({
   `,
   btnIcon: css`
     font-size: ${token.fontSizeHeading4}px;
+      color: ${token.colorTextTertiary};
   `,
   content: {
     flex: 1

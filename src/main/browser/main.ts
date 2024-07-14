@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow, ipcMain, nativeTheme } from 'electron';
 import path from 'node:path';
 import {
   WINDOW_HEIGHT,
@@ -6,7 +6,17 @@ import {
   WINDOW_WIDTH
 } from '@common/constants/common';
 import { IBrowserWindow } from '@common/types';
-import configModal from '@main/shared/modal/config';
+import {
+  MAIN_CHANGE_WINDOW_HEIGHT,
+  MAIN_SEARCH,
+  MAIN_SEARCH_RESULT,
+  MAIN_SYNC_FORM_DATA
+} from '@common/constants/event-main';
+import ThemeModal from '@main/shared/db/modal/theme';
+import SettingsModal from '@main/shared/db/modal/settings';
+import PluginsModal from '@main/shared/db/modal/plugins';
+import { Op } from 'sequelize';
+import { Application } from '@main/common/application';
 
 export class MainBrowser implements IBrowserWindow {
   private win: BrowserWindow;
@@ -22,16 +32,14 @@ export class MainBrowser implements IBrowserWindow {
       useContentSize: true,
       resizable: false,
       width: WINDOW_WIDTH,
-      frame: false,
+      frame: true,
       title: 'Apeak',
       center: true,
       show: true,
       skipTaskbar: true,
       alwaysOnTop: false,
-      backgroundColor:'#fff',
+      backgroundColor: '#fff',
       webPreferences: {
-        // contextIsolation: false,
-        // nodeIntegration: true,
         nodeIntegrationInWorker: true,
         webgl: false,
         preload: path.join(__dirname, '../preload/index.js')
@@ -46,6 +54,7 @@ export class MainBrowser implements IBrowserWindow {
         path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
       );
     }
+
     this.handle();
     // and load the index.html of the app.
     // Open the DevTools.
@@ -60,34 +69,103 @@ export class MainBrowser implements IBrowserWindow {
     this.win.show();
   }
 
-  private handle() {
-    ipcMain.on('search', (event, phrase) => {
-      // const _valueList = new Array((phrase).toString().length+10).fill(1);
-      this.win.webContents.send('searchList', [123]);
-    });
+  async getConfig() {
+    try {
+      const theme = await ThemeModal.findOne({
+        where: {
+          type: 'default'
+        },
+        attributes: ['theme', 'compact', 'colorPrimary']
+      });
 
-    ipcMain.on('setWindowHeight', (event, height) => {
-      this.win.setSize(WINDOW_WIDTH, WINDOW_MIN_HEIGHT + height);
-    });
+      const settings = await SettingsModal.findOne({
+        where: {
+          type: 'default'
+        },
+        attributes: ['start', 'guide', 'language', 'placeholder']
+      });
 
-    ipcMain.handle('getConfig', (event) => {
-      return configModal.getAll();
-    });
+      console.log(theme,settings);
+      return {
+        theme: theme.dataValues,
+        settings: settings.dataValues
+      };
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
-    ipcMain.on('setConfig', (event, key, value) => {
-      if(key === 'theme'){
-        if(value === 'dark'){
-          this.win.setBackgroundColor('#141414')
-        }else{
-          this.win.setBackgroundColor('#fff')
+
+  async onSearch(value:string){
+    try {
+      const list = await PluginsModal.findAll({
+        where: {
+          name: {
+            [Op.like]: `%${value}%`
+          }
         }
-      }
-      configModal.update(key, value);
+      })
+
+      return list.map(item=>item.dataValues);
+    }catch (error) {
+      console.log(error);
+    }
+
+  }
+
+  private handle() {
+    /**
+     * 主页面渲染完成
+     */
+    this.win.webContents.on('did-finish-load', async () => {
+      const data = await this.getConfig();
+      this.win.webContents.send(MAIN_SYNC_FORM_DATA, data);
     });
 
-    ipcMain.on('search', (event, phrase) => {
-      const _valueList = new Array(Number(phrase)).fill(1);
-      this.win.webContents.send('searchList', _valueList);
+    /**
+     * 配置页面同步
+     */
+    ipcMain.on(MAIN_SYNC_FORM_DATA, async (event, data) => {
+      try {
+        if (data.type === 'theme') {
+          await ThemeModal.update(data.value, {
+            where: {
+              type: 'default'
+            }
+          });
+          // 修改主题需要同步系统主题
+          if (data.value.theme) {
+            nativeTheme.themeSource = data.value.theme;
+          }
+        }
+
+        if (data.type === 'settings') {
+          await SettingsModal.update(data.value, {
+            where: {
+              type: 'default'
+            }
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      const configData = await this.getConfig();
+
+      this.win.webContents.send(MAIN_SYNC_FORM_DATA, configData);
+    });
+
+    ipcMain.on(MAIN_SEARCH, async (event, phrase) => {
+      const list = await this.onSearch(phrase)
+
+      const app = new Application();
+      const appList = await app.init();
+
+      this.win.webContents.send(MAIN_SEARCH_RESULT, appList);
+    });
+
+    ipcMain.on(MAIN_CHANGE_WINDOW_HEIGHT, (event, height) => {
+      this.win.setSize(WINDOW_WIDTH, WINDOW_MIN_HEIGHT + height);
     });
   }
 }

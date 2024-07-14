@@ -3,17 +3,17 @@ import path from 'node:path';
 import { PANEL_HEIGHT, PANEL_WIDTH } from '@common/constants/common';
 import { IBrowserWindow, ICreateWindowOption } from '@common/types';
 import device from '@common/utils/device';
-import {
-  sendKeyboardSimulation,
-  getClipboardContent,
-  ClipboardContent
-} from 'rubick-native';
+// import {
+//   sendKeyboardSimulation,
+//   getClipboardContent,
+//   ClipboardContent
+// } from 'rubick-native';
 
 class PanelBrowser implements IBrowserWindow {
   private win: BrowserWindow;
 
-  originValue: ClipboardContent;
-  currentValue: ClipboardContent;
+  // originValue: ClipboardContent;
+  // currentValue: ClipboardContent;
 
   constructor() {
     this.createWindow();
@@ -54,13 +54,13 @@ class PanelBrowser implements IBrowserWindow {
   }
 
   async init(position: ICreateWindowOption) {
-    const hasClipboardValueEquals = await this.hasClipboardValueEquals();
-    if (hasClipboardValueEquals) {
-      this.start(position);
-    } else {
-      this.start(position);
-    }
-    this.resetClipboard();
+    // const hasClipboardValueEquals = await this.hasClipboardValueEquals();
+    // if (hasClipboardValueEquals) {
+    //   this.start(position);
+    // } else {
+    //   this.start(position);
+    // }
+    // this.resetClipboard();
   }
 
   getWindow() {
@@ -91,30 +91,30 @@ class PanelBrowser implements IBrowserWindow {
   private async hasClipboardValueEquals() {
     await this.getOriginValue();
     await this.getCurrentValue();
-    return this.originValue === this.currentValue;
+    // return this.originValue === this.currentValue;
   }
 
   private async getOriginValue() {
-    this.originValue = getClipboardContent();
+    // this.originValue = getClipboardContent();
   }
 
   private async getCurrentValue() {
-    try {
-      if (device.windows()) {
-        sendKeyboardSimulation('{+CTRL}c{-CTRL}');
-        // await keyboard.pressKey(Key.LeftControl, Key.C);
-        // await keyboard.releaseKey(Key.LeftControl, Key.C);
-      } else {
-        sendKeyboardSimulation('{+CTRL}c{-CTRL}');
-        // await keyboard.pressKey(Key.LeftCmd, Key.C);
-        // await keyboard.releaseKey(Key.LeftCmd, Key.C);
-      }
-
-      const s = getClipboardContent();
-      console.log('====>', s);
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   if (device.windows()) {
+    //     sendKeyboardSimulation('{+CTRL}c{-CTRL}');
+    //     // await keyboard.pressKey(Key.LeftControl, Key.C);
+    //     // await keyboard.releaseKey(Key.LeftControl, Key.C);
+    //   } else {
+    //     sendKeyboardSimulation('{+CTRL}c{-CTRL}');
+    //     // await keyboard.pressKey(Key.LeftCmd, Key.C);
+    //     // await keyboard.releaseKey(Key.LeftCmd, Key.C);
+    //   }
+    //
+    //   const s = getClipboardContent();
+    //   console.log('====>', s);
+    // } catch (error) {
+    //   console.log(error);
+    // }
   }
 
   private resetClipboard() {

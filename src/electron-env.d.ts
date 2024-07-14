@@ -1,4 +1,3 @@
-
 declare namespace NodeJS {
   interface ProcessEnv {
     /**
@@ -14,13 +13,8 @@ declare namespace NodeJS {
      * │
      * ```
      */
-    APP_ROOT: string
+    APP_ROOT: string;
     /** /dist/ or /public/ */
-    VITE_PUBLIC: string
+    VITE_PUBLIC: string;
   }
-}
-
-// Used in Renderer process, expose in `preload.ts`
-interface Window {
-  apeak: IMainEvent
 }

@@ -1,9 +1,12 @@
 import { createHashRouter } from 'react-router-dom';
 import AppPage from '@/pages/app';
-import PluginsPage from '@/pages/plugins';
-import RecentlyPage from '@/pages/recently';
-import PanelPage from '@/pages/panel';
-import MinePage from '@/pages/mine';
+import Result from '@/pages/result';
+import Panel from '@/pages/panel';
+import Detach from '@/pages/detach';
+
+import Mine from '@/pages/system/mine';
+import Developer from '@/pages/system/developer';
+import Plugins from '@/pages/system/plugins';
 
 const routes = [
   {
@@ -12,21 +15,34 @@ const routes = [
     children: [
       {
         index: true,
-        element: <RecentlyPage />
-      },
-      {
-        path: 'mine',
-        element: <MinePage />
-      },
-      {
-        path: 'plugins',
-        element: <PluginsPage />
+        element: <Result />
       }
     ]
   },
   {
     path: 'panel',
-    element: <PanelPage />
+    element: <Panel />
+  },
+  {
+    path: 'detach',
+    element: <Detach />
+  },
+  {
+    path: 'system',
+    children: [
+      {
+        path: 'plugins',
+        element: <Plugins />
+      },
+      {
+        path: 'mine',
+        element: <Mine />
+      },
+      {
+        path: 'developer',
+        element: <Developer />
+      }
+    ]
   }
 ];
 

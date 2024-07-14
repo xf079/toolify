@@ -1,12 +1,32 @@
-import {builtinModules} from 'node:module';
-import type {AddressInfo} from 'node:net';
-import type {ConfigEnv, Plugin, UserConfig} from 'vite';
+import { builtinModules } from 'node:module';
+import type { AddressInfo } from 'node:net';
+import type { ConfigEnv, Plugin, UserConfig } from 'vite';
 import pkg from './package.json';
 import path from 'node:path';
 
-export const builtins = ['electron','rubick-native', ...builtinModules.map((m) => [m, `node:${m}`]).flat()];
+export const builtins = [
+  'electron',
+  'sequelize',
+  'sqlite3',
+  'antd',
+  'ahooks',
+  'antd-style',
+  'dayjs',
+  'lodash',
+  'normalize.css',
+  'react',
+  'react-dom',
+  'react-router-dom',
+  'vite-plugin-svgr',
+  ...builtinModules.map((m) => [m, `node:${m}`]).flat()
+];
 
-export const external = [...builtins, ...Object.keys('dependencies' in pkg ? (pkg.dependencies as Record<string, unknown>) : {})];
+export const external = [
+  ...builtins,
+  ...Object.keys(
+    'dependencies' in pkg ? (pkg.dependencies as Record<string, unknown>) : {}
+  )
+];
 
 export function getBuildConfig(env: ConfigEnv<'build'>): UserConfig {
   const { root, mode, command } = env;
@@ -20,7 +40,7 @@ export function getBuildConfig(env: ConfigEnv<'build'>): UserConfig {
       // 🚧 Multiple builds may conflict.
       outDir: '.vite/build',
       watch: command === 'serve' ? {} : null,
-      minify: command === 'build',
+      minify: command === 'build'
     },
     clearScreen: false,
     resolve: {
@@ -28,9 +48,9 @@ export function getBuildConfig(env: ConfigEnv<'build'>): UserConfig {
         '@': path.join(__dirname, 'src/renderer'),
         '@common': path.join(__dirname, 'src/common'),
         '@main': path.join(__dirname, 'src/main'),
-        '@preload': path.join(__dirname, 'src/preload'),
+        '@preload': path.join(__dirname, 'src/preload')
       }
-    },
+    }
   };
 }
 
@@ -41,7 +61,7 @@ export function getDefineKeys(names: string[]) {
     const NAME = name.toUpperCase();
     const keys: VitePluginRuntimeKeys = {
       VITE_DEV_SERVER_URL: `${NAME}_VITE_DEV_SERVER_URL`,
-      VITE_NAME: `${NAME}_VITE_NAME`,
+      VITE_NAME: `${NAME}_VITE_NAME`
     };
 
     return { ...acc, [name]: keys };
@@ -50,16 +70,24 @@ export function getDefineKeys(names: string[]) {
 
 export function getBuildDefine(env: ConfigEnv<'build'>) {
   const { command, forgeConfig } = env;
-  const names = forgeConfig.renderer.filter(({ name }) => name != null).map(({ name }) => name!);
+  const names = forgeConfig.renderer
+    .filter(({ name }) => name != null)
+    .map(({ name }) => name!);
   const defineKeys = getDefineKeys(names);
-  return Object.entries(defineKeys).reduce((acc, [name, keys]) => {
-    const {VITE_DEV_SERVER_URL, VITE_NAME} = keys;
-    const def = {
-      [VITE_DEV_SERVER_URL]: command === 'serve' ? JSON.stringify(process.env[VITE_DEV_SERVER_URL]) : undefined,
-      [VITE_NAME]: JSON.stringify(name),
-    };
-    return {...acc, ...def};
-  }, {} as Record<string, never>);
+  return Object.entries(defineKeys).reduce(
+    (acc, [name, keys]) => {
+      const { VITE_DEV_SERVER_URL, VITE_NAME } = keys;
+      const def = {
+        [VITE_DEV_SERVER_URL]:
+          command === 'serve'
+            ? JSON.stringify(process.env[VITE_DEV_SERVER_URL])
+            : undefined,
+        [VITE_NAME]: JSON.stringify(name)
+      };
+      return { ...acc, ...def };
+    },
+    {} as Record<string, never>
+  );
 }
 
 export function pluginExposeRenderer(name: string): Plugin {
@@ -75,9 +103,10 @@ export function pluginExposeRenderer(name: string): Plugin {
       server.httpServer?.once('listening', () => {
         const addressInfo = server.httpServer.address() as AddressInfo;
         // Expose env constant for main process use.
-        process.env[VITE_DEV_SERVER_URL] = `http://localhost:${addressInfo?.port}`;
+        process.env[VITE_DEV_SERVER_URL] =
+          `http://localhost:${addressInfo?.port}`;
       });
-    },
+    }
   };
 }
 
@@ -95,6 +124,6 @@ export function pluginHotRestart(command: 'reload' | 'restart'): Plugin {
         // https://github.com/electron/forge/blob/v7.2.0/packages/api/core/src/api/start.ts#L216-L223
         process.stdin.emit('data', 'rs');
       }
-    },
+    }
   };
 }

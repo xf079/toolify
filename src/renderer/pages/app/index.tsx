@@ -1,24 +1,24 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { UserOutlined } from '@ant-design/icons';
-
 import { useStyles } from '@/pages/app/style';
-
+import { useConfig } from '@/context';
+import { MAIN_SEARCH } from '@common/constants/event-main';
 
 function AppPage() {
-  const {styles} = useStyles();
+  const { styles } = useStyles();
+  const { settings } = useConfig();
   const navigate = useNavigate();
   const [value, setValue] = useState('');
 
   const onSearchChange = (event: any) => {
     const _value = event.target.value;
     setValue(_value);
-    window.apeak?.trigger('search', _value);
+    apeak?.trigger(MAIN_SEARCH, _value);
   };
 
-  const onToPlugin = () => {
-    // navigate('/plugins');
-    window.apeak?.trigger('changeWindowResize', { type: 'maximize' });
+  const onToMine = () => {
+    navigate('/mine');
   };
 
   return (
@@ -29,10 +29,10 @@ function AppPage() {
             value={value}
             onChange={onSearchChange}
             className={styles.searchValue}
-            placeholder='Hi, Apeak'
+            placeholder={settings.placeholder}
           />
         </div>
-        <div className={styles.btn} onClick={onToPlugin}>
+        <div className={styles.btn} onClick={onToMine}>
           <UserOutlined className={styles.btnIcon} />
         </div>
       </div>

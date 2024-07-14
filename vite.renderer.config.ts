@@ -24,7 +24,7 @@ export default defineConfig((env) => {
         '@': path.join(__dirname, 'src/renderer'),
         '@common': path.join(__dirname, 'src/common'),
         '@main': path.join(__dirname, 'src/main'),
-        '@preload': path.join(__dirname, 'src/preload'),
+        '@preload': path.join(__dirname, 'src/preload')
       }
     },
     clearScreen: false

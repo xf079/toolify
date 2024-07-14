@@ -24,7 +24,15 @@ export default defineConfig((env) => {
       rollupOptions: {
         external,
         plugins: [
-          commonjs()
+          commonjs(),
+          copyPlugin({
+            targets: [
+              {
+                src: './plugins',
+                dest: '.vite/build'
+              }
+            ]
+          })
         ]
       }
     },

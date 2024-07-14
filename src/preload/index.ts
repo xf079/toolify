@@ -9,7 +9,6 @@ const apeakExpose: IMainEvent = {
   },
   trigger(...args: Parameters<typeof ipcRenderer.send>) {
     const [channel, ...omit] = args;
-    console.log(channel, ...omit);
     return ipcRenderer.send(channel, ...omit);
   },
   off(...args: Parameters<typeof ipcRenderer.off>) {

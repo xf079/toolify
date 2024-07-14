@@ -6,3 +6,7 @@ interface IMainEvent {
   trigger(event: string, ...args: any[]): void;
   sync(event: string, ...args: any[]): Promise<any>;
 }
+
+type ITheme = 'system' | 'light' | 'dark';
+
+declare const apeak: IMainEvent;
