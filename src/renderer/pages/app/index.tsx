@@ -1,10 +1,16 @@
 import { KeyboardEvent, useEffect, useState } from 'react';
 import { UserOutlined } from '@ant-design/icons';
-import { useEventTarget, useMemoizedFn, useUpdateEffect } from 'ahooks';
+import {
+  useEventTarget,
+  useMemoizedFn,
+  useThrottleFn,
+  useUpdateEffect
+} from 'ahooks';
 import { useStyles } from '@/pages/app/style';
 import { useConfig } from '@/context';
 import Result from '@/components/Result';
 import { MAIN_SEARCH } from '@common/constants/event-main';
+import pinyin from 'pinyin';
 
 function AppPage() {
   const { styles } = useStyles();
@@ -29,10 +35,25 @@ function AppPage() {
     }
   });
 
+  const { run } = useThrottleFn(
+    () => {
+      apeak.sync(MAIN_SEARCH, value).then((res) => {
+        const _formatList = res.map((item: IApplication) => {
+          return {
+            ...item,
+          };
+        });
+        setList(res);
+        console.log(_formatList);
+      });
+    },
+    {
+      wait: 500
+    }
+  );
+
   useUpdateEffect(() => {
-    apeak.sync(MAIN_SEARCH, value).then((res) => {
-      setList(res);
-    });
+    run();
   }, [value]);
 
   useEffect(() => {}, []);

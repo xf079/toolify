@@ -13,6 +13,7 @@ class ApplicationModal extends Model<
   declare id: number; // 您可以使用 `declare` 关键字添加键入信息, 而无需添加实际的公共类字段.
   declare type: string;
   declare name: string;
+  declare pinYinName: string;
   declare icon: string;
   declare target: string;
 }
@@ -29,6 +30,10 @@ ApplicationModal.init(
       allowNull: false
     },
     name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    pinYinName:{
       type: DataTypes.STRING,
       allowNull: false
     },

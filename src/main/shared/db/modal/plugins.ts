@@ -19,6 +19,7 @@ class PluginsModal extends Model<
    * 插件名称
    */
   declare name: string;
+  declare pinYinName: string;
   /**
    * 插件描述
    */
@@ -66,6 +67,10 @@ PluginsModal.init(
       allowNull: false
     },
     name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    pinYinName: {
       type: DataTypes.STRING,
       allowNull: false
     },

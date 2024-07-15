@@ -1,47 +1,17 @@
 import { app, shell } from 'electron';
-import { spawn } from 'node:child_process';
 import fs from 'node:fs';
-import iconv from 'iconv-lite';
 import {
   copyFile,
   getDataPath,
   getFilenameWithoutExtension
 } from '@common/utils/os';
-import { IApplication } from '@common/types';
+import { unionBy } from 'lodash';
+import path from 'node:path';
+import * as os from 'node:os';
 
 export class WindowsApplication {
   async init() {
     return await this.getApps();
-  }
-
-  /**
-   * 使用 powershell 获取app列表
-   * @param cmd
-   */
-  private powershell(cmd: string) {
-    return new Promise<any>((resolve) => {
-      const ps = spawn('powershell', ['-NoProfile', '-Command', cmd], {});
-      const chunks: string[] = [];
-      ps.stdout.on('data', (chunk) => {
-        chunks.push(iconv.decode(chunk, 'cp936'));
-      });
-      ps.on('close', () => {
-        const stdout = chunks.join('');
-        resolve(stdout);
-      });
-    });
-  }
-
-  private formatPathsToObjects(pathsText: string): string[] {
-    const lines = pathsText.split('\n').filter((line) => line.trim() !== '');
-    const pathObjects: string[] = [];
-
-    for (const line of lines) {
-      if (line.startsWith('Name')) continue;
-      pathObjects.push(line.trim());
-    }
-
-    return pathObjects;
   }
 
   /**
@@ -93,19 +63,47 @@ export class WindowsApplication {
     return null;
   }
 
+  private getFileDisplay(filePath: string) {
+    const list: string[] = [];
+    function getFiles(_filePath: string) {
+      const files = fs.readdirSync(_filePath);
+      files.forEach((file) => {
+        const fileDir = path.join(_filePath, file);
+        const stats = fs.statSync(fileDir);
+        if (stats.isDirectory()) {
+          getFiles(fileDir);
+        } else {
+          list.push(fileDir);
+        }
+      });
+    }
+    getFiles(filePath);
+    return list;
+  }
+
   /**
    * 获取app列表
    * @private
    */
   private getApps() {
     return new Promise<IApplication[]>(async (resolve) => {
-      const stdout = await this.powershell(
-        'Get-CimInstance Win32_ShortcutFile | select Name'
+      const filePath = path.resolve(
+        'C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs'
       );
-      const list: string[] = this.formatPathsToObjects(stdout);
-      const appPromises = list.map(this.getApplicationDetail);
-      Promise.all(appPromises).then((data) => {
-        resolve(data.filter(Boolean));
+      const appData = path.join(os.homedir(), './AppData/Roaming');
+      const startMenu = path.join(
+        appData,
+        'Microsoft\\Windows\\Start Menu\\Programs'
+      );
+      const programsList = this.getFileDisplay(filePath);
+      const startList = this.getFileDisplay(startMenu);
+
+      const programsPromises = programsList.map(this.getApplicationDetail);
+      const startPromises = startList.map(this.getApplicationDetail);
+      Promise.all([...programsPromises, ...startPromises]).then((data) => {
+        resolve(
+          unionBy(data.filter(Boolean), (item) => item.target.toLowerCase())
+        );
       });
     });
   }

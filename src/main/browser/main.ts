@@ -30,6 +30,8 @@ export class MainBrowser implements IBrowserWindow {
       height: WINDOW_HEIGHT,
       minHeight: WINDOW_MIN_HEIGHT,
       useContentSize: true,
+      y: 0,
+      x: 0,
       resizable: false,
       width: WINDOW_WIDTH,
       frame: false,
@@ -58,7 +60,7 @@ export class MainBrowser implements IBrowserWindow {
     this.handle();
     // and load the index.html of the app.
     // Open the DevTools.
-    // this.win.webContents.openDevTools();
+    this.win.webContents.openDevTools();
   }
 
   getWindow() {
@@ -97,20 +99,31 @@ export class MainBrowser implements IBrowserWindow {
 
   async onSearch(value: string) {
     try {
+      console.log(value);
       const list = [];
       const pluginList = await PluginsModal.findAll({
         where: {
-          name: {
-            [Op.like]: `%${value}%`
-          }
+          [Op.or]: [
+            {
+              name: { [Op.like]: `%${value}%` }
+            },
+            {
+              pinYinName: { [Op.like]: `%${value}%` }
+            }
+          ]
         }
       });
 
       const appList = await ApplicationModal.findAll({
         where: {
-          name: {
-            [Op.like]: `%${value}%`
-          }
+          [Op.or]: [
+            {
+              name: { [Op.like]: `%${value}%` }
+            },
+            {
+              pinYinName: { [Op.like]: `%${value}%` }
+            }
+          ]
         }
       });
 
@@ -171,19 +184,7 @@ export class MainBrowser implements IBrowserWindow {
     });
 
     ipcMain.handle(MAIN_SEARCH, async (event, phrase) => {
-      if (phrase) {
-        return await this.onSearch(phrase);
-      }
-      return [];
-    });
-
-    ipcMain.on(MAIN_SEARCH, async (event, phrase) => {
-      if (phrase) {
-        const list = await this.onSearch(phrase);
-        this.win.webContents.send(MAIN_SEARCH_RESULT, list);
-      } else {
-        this.win.webContents.send(MAIN_SEARCH_RESULT, []);
-      }
+      return await this.onSearch(phrase);
     });
 
     ipcMain.on(MAIN_CHANGE_WINDOW_HEIGHT, (event, height) => {
