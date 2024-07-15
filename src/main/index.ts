@@ -4,16 +4,19 @@ import PanelBrowser from '@main/browser/panel';
 
 import { sequelizeSync } from '@main/shared/db';
 import createShortcut from '@main/common/shortcut';
-import initDefaultConfig from '@main/common/init-data-config';
+import initApplication from '@main/shared/application';
+import initDefaultConfig from '@main/shared/config';
 
-void sequelizeSync();
-void initDefaultConfig();
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
 async function appReadyHandle() {
+  await sequelizeSync();
+  void initDefaultConfig();
+  void initApplication()
   try {
     const main = new MainBrowser();
     const panel = new PanelBrowser();

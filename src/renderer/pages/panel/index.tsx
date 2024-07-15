@@ -1,8 +1,7 @@
 import { MenuOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { createStyles } from 'antd-style';
-
-import { PanelResultList } from '@/components/PanelResultList';
+import { PanelList } from '@/components/PanelList';
 
 const useStyles = createStyles(({ token, css }) => ({
   panel: css`
@@ -47,7 +46,7 @@ function PanelPage() {
         <Button icon={<SearchOutlined />} size='middle' type='text' />
       </div>
       <div className={styles.body}>
-        <PanelResultList />
+        <PanelList />
       </div>
     </div>
   );

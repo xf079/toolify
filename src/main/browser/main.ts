@@ -12,11 +12,11 @@ import {
   MAIN_SEARCH_RESULT,
   MAIN_SYNC_FORM_DATA
 } from '@common/constants/event-main';
+import { Op } from 'sequelize';
 import ThemeModal from '@main/shared/db/modal/theme';
 import SettingsModal from '@main/shared/db/modal/settings';
 import PluginsModal from '@main/shared/db/modal/plugins';
-import { Op } from 'sequelize';
-import { Application } from '@main/common/application';
+import ApplicationModal from '@main/shared/db/modal/application';
 
 export class MainBrowser implements IBrowserWindow {
   private win: BrowserWindow;
@@ -32,7 +32,7 @@ export class MainBrowser implements IBrowserWindow {
       useContentSize: true,
       resizable: false,
       width: WINDOW_WIDTH,
-      frame: true,
+      frame: false,
       title: 'Apeak',
       center: true,
       show: true,
@@ -58,7 +58,7 @@ export class MainBrowser implements IBrowserWindow {
     this.handle();
     // and load the index.html of the app.
     // Open the DevTools.
-    this.win.webContents.openDevTools();
+    // this.win.webContents.openDevTools();
   }
 
   getWindow() {
@@ -85,7 +85,7 @@ export class MainBrowser implements IBrowserWindow {
         attributes: ['start', 'guide', 'language', 'placeholder']
       });
 
-      console.log(theme,settings);
+      console.log(theme, settings);
       return {
         theme: theme.dataValues,
         settings: settings.dataValues
@@ -95,22 +95,37 @@ export class MainBrowser implements IBrowserWindow {
     }
   }
 
-
-  async onSearch(value:string){
+  async onSearch(value: string) {
     try {
-      const list = await PluginsModal.findAll({
+      const list = [];
+      const pluginList = await PluginsModal.findAll({
         where: {
           name: {
             [Op.like]: `%${value}%`
           }
         }
-      })
+      });
 
-      return list.map(item=>item.dataValues);
-    }catch (error) {
+      const appList = await ApplicationModal.findAll({
+        where: {
+          name: {
+            [Op.like]: `%${value}%`
+          }
+        }
+      });
+
+      if (pluginList && pluginList.length) {
+        list.push(...pluginList.map((item) => item.dataValues));
+      }
+
+      if (appList && appList.length) {
+        list.push(...appList.map((item) => item.dataValues));
+      }
+
+      return list;
+    } catch (error) {
       console.log(error);
     }
-
   }
 
   private handle() {
@@ -155,13 +170,20 @@ export class MainBrowser implements IBrowserWindow {
       this.win.webContents.send(MAIN_SYNC_FORM_DATA, configData);
     });
 
+    ipcMain.handle(MAIN_SEARCH, async (event, phrase) => {
+      if (phrase) {
+        return await this.onSearch(phrase);
+      }
+      return [];
+    });
+
     ipcMain.on(MAIN_SEARCH, async (event, phrase) => {
-      const list = await this.onSearch(phrase)
-
-      const app = new Application();
-      const appList = await app.init();
-
-      this.win.webContents.send(MAIN_SEARCH_RESULT, appList);
+      if (phrase) {
+        const list = await this.onSearch(phrase);
+        this.win.webContents.send(MAIN_SEARCH_RESULT, list);
+      } else {
+        this.win.webContents.send(MAIN_SEARCH_RESULT, []);
+      }
     });
 
     ipcMain.on(MAIN_CHANGE_WINDOW_HEIGHT, (event, height) => {

@@ -1,25 +1,41 @@
-import { Outlet, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { KeyboardEvent, useEffect, useState } from 'react';
 import { UserOutlined } from '@ant-design/icons';
+import { useEventTarget, useMemoizedFn, useUpdateEffect } from 'ahooks';
 import { useStyles } from '@/pages/app/style';
 import { useConfig } from '@/context';
+import Result from '@/components/Result';
 import { MAIN_SEARCH } from '@common/constants/event-main';
 
 function AppPage() {
   const { styles } = useStyles();
   const { settings } = useConfig();
-  const navigate = useNavigate();
-  const [value, setValue] = useState('');
+  const [value, { reset, onChange }] = useEventTarget({ initialValue: '' });
+  const [list, setList] = useState<(IPlugin | IApplication)[]>([]);
+  const [current, setCurrent] = useState(0);
 
-  const onSearchChange = (event: any) => {
-    const _value = event.target.value;
-    setValue(_value);
-    apeak?.trigger(MAIN_SEARCH, _value);
-  };
+  const onKeyDown = useMemoizedFn((event: KeyboardEvent) => {
+    if (event.code === 'ArrowDown') {
+      event.preventDefault();
+      setCurrent(current + 1);
+    }
+    if (event.code === 'ArrowUp') {
+      event.preventDefault();
+      if (current !== 0) {
+        setCurrent(current - 1);
+      }
+    }
+    if (event.code === 'Enter') {
+      event.preventDefault();
+    }
+  });
 
-  const onToMine = () => {
-    navigate('/mine');
-  };
+  useUpdateEffect(() => {
+    apeak.sync(MAIN_SEARCH, value).then((res) => {
+      setList(res);
+    });
+  }, [value]);
+
+  useEffect(() => {}, []);
 
   return (
     <div className={styles.app}>
@@ -27,17 +43,24 @@ function AppPage() {
         <div className={styles.search}>
           <input
             value={value}
-            onChange={onSearchChange}
+            onChange={onChange}
             className={styles.searchValue}
             placeholder={settings.placeholder}
+            onKeyDown={onKeyDown}
           />
         </div>
-        <div className={styles.btn} onClick={onToMine}>
+        <div className={styles.btn}>
           <UserOutlined className={styles.btnIcon} />
         </div>
       </div>
       <div className={styles.content}>
-        <Outlet />
+        <Result
+          list={list}
+          current={current}
+          onResetCurrent={() => {
+            setCurrent(0);
+          }}
+        />
       </div>
     </div>
   );

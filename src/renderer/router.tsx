@@ -1,7 +1,9 @@
 import { createHashRouter } from 'react-router-dom';
+
 import AppPage from '@/pages/app';
-import Result from '@/pages/result';
+
 import Panel from '@/pages/panel';
+
 import Detach from '@/pages/detach';
 
 import Mine from '@/pages/system/mine';
@@ -11,13 +13,7 @@ import Plugins from '@/pages/system/plugins';
 const routes = [
   {
     path: '',
-    element: <AppPage />,
-    children: [
-      {
-        index: true,
-        element: <Result />
-      }
-    ]
+    element: <AppPage />
   },
   {
     path: 'panel',

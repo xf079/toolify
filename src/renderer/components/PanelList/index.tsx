@@ -1,5 +1,5 @@
 import { createStyles } from 'antd-style';
-import { PanelResultRow } from '@/components/PanelResultRow';
+import { PanelRow } from '@/components/PanelRow';
 
 const useStyles = createStyles(({ token }) => ({
   list: {
@@ -11,13 +11,13 @@ const useStyles = createStyles(({ token }) => ({
   }
 }));
 
-export const PanelResultList = () => {
+export const PanelList = () => {
   const { styles, cx } = useStyles();
   return (
     <div className={styles.list}>
-      <PanelResultRow />
-      <PanelResultRow />
-      <PanelResultRow />
+      <PanelRow />
+      <PanelRow />
+      <PanelRow />
     </div>
   );
 };

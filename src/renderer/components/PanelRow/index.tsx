@@ -27,7 +27,7 @@ const useStyles = createStyles(({ token }) => ({
   }
 }));
 
-export const PanelResultRow = () => {
+export const PanelRow = () => {
   const { styles, cx } = useStyles();
   return (
     <div className={styles.row}>

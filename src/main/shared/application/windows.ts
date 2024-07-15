@@ -2,38 +2,20 @@ import { app, shell } from 'electron';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import iconv from 'iconv-lite';
-import device from '@common/utils/device';
 import {
   copyFile,
-  createFolderIfNotExists,
   getDataPath,
   getFilenameWithoutExtension
 } from '@common/utils/os';
+import { IApplication } from '@common/types';
 
-/**
- *
- * @param pathsText
- */
-function formatPathsToObjects(pathsText: string): string[] {
-  const lines = pathsText.split('\n').filter((line) => line.trim() !== '');
-  const pathObjects: string[] = [];
-
-  for (const line of lines) {
-    if (line.startsWith('Name')) continue;
-    pathObjects.push(line.trim());
-  }
-
-  return pathObjects;
-}
-
-export class Application {
+export class WindowsApplication {
   async init() {
-    if (device.windows()) {
-      createFolderIfNotExists(getDataPath('/image'));
-      return await this.getWindowsApps();
-    }
+    return await this.getApps();
   }
+
   /**
+   * 使用 powershell 获取app列表
    * @param cmd
    */
   private powershell(cmd: string) {
@@ -50,11 +32,23 @@ export class Application {
     });
   }
 
+  private formatPathsToObjects(pathsText: string): string[] {
+    const lines = pathsText.split('\n').filter((line) => line.trim() !== '');
+    const pathObjects: string[] = [];
+
+    for (const line of lines) {
+      if (line.startsWith('Name')) continue;
+      pathObjects.push(line.trim());
+    }
+
+    return pathObjects;
+  }
+
   /**
-   *
+   * 获取app详情
    * @param path
    */
-  private async getApplicationDetails(path: string) {
+  private async getApplicationDetail(path: string) {
     try {
       if (path.indexOf('.lnk') === -1) {
         return null;
@@ -77,7 +71,7 @@ export class Application {
           fs.writeFileSync(iconPath, dataBuffer);
           return {
             icon: iconPath,
-            fileName,
+            name: fileName,
             target: detail.target,
             type: 'application'
           };
@@ -86,7 +80,7 @@ export class Application {
           copyFile(detail.icon, iconPath);
           return {
             icon: iconPath,
-            fileName,
+            name: fileName,
             target: detail.target,
             type: 'application'
           };
@@ -99,13 +93,17 @@ export class Application {
     return null;
   }
 
-  private getWindowsApps() {
-    return new Promise(async (resolve) => {
+  /**
+   * 获取app列表
+   * @private
+   */
+  private getApps() {
+    return new Promise<IApplication[]>(async (resolve) => {
       const stdout = await this.powershell(
         'Get-CimInstance Win32_ShortcutFile | select Name'
       );
-      const list: string[] = formatPathsToObjects(stdout);
-      const appPromises = list.map(this.getApplicationDetails);
+      const list: string[] = this.formatPathsToObjects(stdout);
+      const appPromises = list.map(this.getApplicationDetail);
       Promise.all(appPromises).then((data) => {
         resolve(data.filter(Boolean));
       });

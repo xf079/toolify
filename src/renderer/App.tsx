@@ -6,8 +6,9 @@ import router from './router';
 import { ConfigProvider, useConfig } from '@/context';
 
 const AppContainer = () => {
-  const { theme, settings } = useConfig();
+  const { theme } = useConfig();
   const { theme: systemTheme } = useSystemTheme();
+
   const themeVal = useMemo(
     () => (theme.theme === 'system' ? systemTheme : theme.theme),
     [theme.theme, systemTheme]

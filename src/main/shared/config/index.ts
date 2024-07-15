@@ -7,22 +7,13 @@ export default async function initDefaultConfig() {
   try {
 
     const theme = await ThemeModal.findOne({
-      where: {
-        type: 'default'
-      }
+      where: { type: 'default' }
     });
-
     const settings = await SettingsModal.findOne({
-      where: {
-        type: 'default'
-      }
+      where: { type: 'default' }
     });
-
-
     const plugins = await ThemeModal.findAll({
-      where: {
-        type: 'system'
-      }
+      where: { type: 'system' }
     });
 
     if (!theme) {

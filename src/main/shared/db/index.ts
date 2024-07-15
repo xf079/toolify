@@ -1,11 +1,10 @@
 import { Sequelize } from 'sequelize';
 import { getDataPath } from '@common/utils/os';
-import initDefaultConfig from '@main/common/init-data-config';
 
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: getDataPath('data/database.sqlite'),
+  storage: getDataPath('/data/database.sqlite'),
   // 选择一种日志记录参数
   logging: false
 });
