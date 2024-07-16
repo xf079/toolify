@@ -9,14 +9,16 @@ import {
 import { useStyles } from '@/pages/app/style';
 import { useConfig } from '@/context';
 import Result from '@/components/Result';
-import { MAIN_SEARCH } from '@common/constants/event-main';
-import pinyin from 'pinyin';
+import { match } from 'pinyin-pro';
+import { useTheme } from 'antd-style';
+import { MAIN_OPEN_PLUGIN } from '@common/constants/event-main';
 
 function AppPage() {
   const { styles } = useStyles();
-  const { settings } = useConfig();
+  const { colorPrimary } = useTheme();
+  const { settings, plugins } = useConfig();
   const [value, { reset, onChange }] = useEventTarget({ initialValue: '' });
-  const [list, setList] = useState<(IPlugin | IApplication)[]>([]);
+  const [list, setList] = useState<IPlugin[]>([]);
   const [current, setCurrent] = useState(0);
 
   const onKeyDown = useMemoizedFn((event: KeyboardEvent) => {
@@ -32,23 +34,43 @@ function AppPage() {
     }
     if (event.code === 'Enter') {
       event.preventDefault();
+      if (list[current]) {
+        onOpen(list[current]);
+      }
     }
   });
 
+  const onOpen = (item: IPlugin) => {
+    apeak.trigger(MAIN_OPEN_PLUGIN, item);
+    setList([]);
+    reset();
+  };
+
   const { run } = useThrottleFn(
     () => {
-      apeak.sync(MAIN_SEARCH, value).then((res) => {
-        const _formatList = res.map((item: IApplication) => {
-          return {
-            ...item,
-          };
+      if (!value) {
+        console.log(plugins);
+        setList([]);
+        return;
+      }
+      const resultList: IPlugin[] = [];
+      plugins.forEach((item: IPlugin) => {
+        const indexList = match(item.name, value);
+        if (!(indexList || []).length) return;
+
+        const nameList = item.name.split('');
+        const nameFormat = nameList.map((val, index) => {
+          if ((indexList || []).includes(index)) {
+            return `<span style="color: ${colorPrimary};">${val}</span>`;
+          }
+          return val;
         });
-        setList(res);
-        console.log(_formatList);
+        resultList.push({ ...item, name: nameFormat.join('') });
       });
+      setList(resultList);
     },
     {
-      wait: 500
+      wait: 300
     }
   );
 
@@ -75,13 +97,7 @@ function AppPage() {
         </div>
       </div>
       <div className={styles.content}>
-        <Result
-          list={list}
-          current={current}
-          onResetCurrent={() => {
-            setCurrent(0);
-          }}
-        />
+        <Result list={list} current={current} onOpen={onOpen} />
       </div>
     </div>
   );

@@ -21,10 +21,11 @@ interface IApplication {
 interface IPlugin {
   type: string;
   name: string;
-  desc: string;
-  version: string;
+  main:string;
   logo: string;
-  platform: string;
-  single: boolean;
-  features: string;
+  desc?: string;
+  version?: string;
+  platform?: string;
+  single?: boolean;
+  features?: string;
 }

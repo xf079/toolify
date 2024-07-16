@@ -15,6 +15,7 @@ import {
 interface IStoreType {
   theme: ThemeConfigType;
   settings: SettingsConfigType;
+  plugins:IPlugin[]
 }
 
 const StoreContext = createContext<IStoreType>(null);

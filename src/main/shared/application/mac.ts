@@ -1,8 +1,7 @@
 import { spawn } from 'node:child_process';
-import { IApplication } from '@common/types';
+import fs from 'node:fs';
 import { nativeImage } from 'electron';
 import { getDataPath } from '@common/utils/os';
-import fs from 'node:fs';
 
 export class MacosApplication {
   async init() {
@@ -28,10 +27,10 @@ export class MacosApplication {
     const path = '/System/Library/PreferencePanes';
     return fs.readdirSync(path).map((file) => {
       return {
+        type: 'app',
         name: file.split('.')[0],
-        target: path + '/' + file,
-        icon: '',
-        type: 'application'
+        main: path + '/' + file,
+        logo: ''
       };
     });
   }
@@ -59,16 +58,16 @@ export class MacosApplication {
     return list
       .filter((item) => item.name && item.Location)
       .map((item) => ({
-        icon: '',
+        type: 'app',
         name: item.name,
-        target: item.Location,
-        type: 'application'
+        logo: '',
+        main: item.Location
       }));
   }
 
-  async getApplicationDetail(item: IApplication) {
+  async getApplicationDetail(item: IPlugin) {
     try {
-      const image = await nativeImage.createThumbnailFromPath(item.target, {
+      const image = await nativeImage.createThumbnailFromPath(item.main, {
         width: 48,
         height: 48
       });
@@ -81,10 +80,7 @@ export class MacosApplication {
       const dataBuffer = image.toPNG();
       const iconPath = getDataPath('/image/' + item.name + '.png');
       fs.writeFileSync(iconPath, dataBuffer);
-      return {
-        ...item,
-        icon: iconPath
-      };
+      return { ...item, logo: iconPath };
     } catch (error) {
       console.log(error);
     }
@@ -92,7 +88,7 @@ export class MacosApplication {
   }
 
   async getApps() {
-    return new Promise<IApplication[]>(async (resolve) => {
+    return new Promise<IPlugin[]>(async (resolve) => {
       const appData = await this.profilerShell();
 
       const appList = this.formatStringToArrayObj(appData);

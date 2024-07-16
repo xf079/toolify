@@ -40,19 +40,19 @@ export class WindowsApplication {
           const iconPath = getDataPath('/image/' + fileName + '.png');
           fs.writeFileSync(iconPath, dataBuffer);
           return {
-            icon: iconPath,
+            type: 'app',
             name: fileName,
-            target: detail.target,
-            type: 'application'
+            main: detail.target,
+            logo: iconPath
           };
         } else {
           const iconPath = getDataPath('/image/' + fileName + '.ico');
           copyFile(detail.icon, iconPath);
           return {
-            icon: iconPath,
+            type: 'app',
             name: fileName,
-            target: detail.target,
-            type: 'application'
+            main: detail.target,
+            logo: iconPath
           };
         }
       }
@@ -63,6 +63,11 @@ export class WindowsApplication {
     return null;
   }
 
+  /**
+   * 获取文件夹下所有文件
+   * @param filePath
+   * @private
+   */
   private getFileDisplay(filePath: string) {
     const list: string[] = [];
     function getFiles(_filePath: string) {
@@ -86,7 +91,7 @@ export class WindowsApplication {
    * @private
    */
   private getApps() {
-    return new Promise<IApplication[]>(async (resolve) => {
+    return new Promise<IPlugin[]>(async (resolve) => {
       const filePath = path.resolve(
         'C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs'
       );
@@ -102,7 +107,7 @@ export class WindowsApplication {
       const startPromises = startList.map(this.getApplicationDetail);
       Promise.all([...programsPromises, ...startPromises]).then((data) => {
         resolve(
-          unionBy(data.filter(Boolean), (item) => item.target.toLowerCase())
+          unionBy(data.filter(Boolean), (item) => item.main.toLowerCase())
         );
       });
     });

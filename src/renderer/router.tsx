@@ -1,4 +1,4 @@
-import { createHashRouter } from 'react-router-dom';
+import { createHashRouter, Outlet } from 'react-router-dom';
 
 import AppPage from '@/pages/app';
 
@@ -9,6 +9,10 @@ import Detach from '@/pages/detach';
 import Mine from '@/pages/system/mine';
 import Developer from '@/pages/system/developer';
 import Plugins from '@/pages/system/plugins';
+
+function Layout(){
+  return <div>123<Outlet /></div>
+}
 
 const routes = [
   {
@@ -25,6 +29,7 @@ const routes = [
   },
   {
     path: 'system',
+    element: <Layout />,
     children: [
       {
         path: 'plugins',

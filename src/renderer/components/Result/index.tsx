@@ -1,4 +1,4 @@
-import { FC, Fragment, useRef, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import { useMutationObserver, useUpdateEffect } from 'ahooks';
 import { Typography, Flex, Tag, Segmented } from 'antd';
 import {
@@ -13,14 +13,14 @@ import {
 import { useConfig } from '@/context';
 import { useStyles } from './style';
 import { ThemeOptions } from '@/config/enum';
-import { RowItemApp, RowItemPlugin } from '@/components/RowItem';
+import { RowItemPlugin } from '@/components/RowItem';
 
 const { Text } = Typography;
 
 export interface IResultProps {
-  list: (IApplication | IPlugin)[];
+  list: IPlugin[];
   current: number;
-  onOpen: (item: IApplication | IPlugin) => void;
+  onOpen: (item: IPlugin) => void;
 }
 
 const Result: FC<IResultProps> = ({ list, current, onOpen }) => {
@@ -45,7 +45,7 @@ const Result: FC<IResultProps> = ({ list, current, onOpen }) => {
         setToolbarHeight(toolbarRef.current?.offsetHeight);
       }
       const _listHeight = listRef.current?.offsetHeight;
-      setListHeight(_listHeight > 400 ? 400 : _listHeight);
+      setListHeight(_listHeight > 400 ? 400 : 400);
     },
     listRef,
     { attributes: true, childList: true, characterData: true, subtree: true }
@@ -56,23 +56,13 @@ const Result: FC<IResultProps> = ({ list, current, onOpen }) => {
       <div className={styles.content} style={{ height: listHeight }}>
         <div className={cx(styles.list, 'scroll')} ref={listRef}>
           {list.map((item, index) => (
-            <Fragment key={index}>
-              {item.type === 'application' ? (
-                <RowItemApp
-                  source={item as IApplication}
-                  index={index}
-                  current={current}
-                  onClick={onOpen}
-                />
-              ) : (
-                <RowItemPlugin
-                  source={item as IPlugin}
-                  index={index}
-                  current={current}
-                  onClick={onOpen}
-                />
-              )}
-            </Fragment>
+            <RowItemPlugin
+              key={index}
+              source={item}
+              index={index}
+              current={current}
+              onClick={onOpen}
+            />
           ))}
         </div>
       </div>

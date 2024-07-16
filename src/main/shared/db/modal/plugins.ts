@@ -19,7 +19,15 @@ class PluginsModal extends Model<
    * 插件名称
    */
   declare name: string;
-  declare pinYinName: string;
+
+  /**
+   * 入口
+   */
+  declare main: string;
+  /**
+   * 插件logo
+   */
+  declare logo: string;
   /**
    * 插件描述
    */
@@ -28,11 +36,6 @@ class PluginsModal extends Model<
    * 插件版本
    */
   declare version: string;
-
-  /**
-   * 插件logo
-   */
-  declare logo: string;
 
   /**
    * 插件平台
@@ -70,7 +73,11 @@ PluginsModal.init(
       type: DataTypes.STRING,
       allowNull: false
     },
-    pinYinName: {
+    main: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    logo: {
       type: DataTypes.STRING,
       allowNull: false
     },
@@ -80,15 +87,11 @@ PluginsModal.init(
     },
     version: {
       type: DataTypes.STRING,
-      allowNull: false
-    },
-    logo: {
-      type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     platform: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     single: {
       type: DataTypes.BOOLEAN,

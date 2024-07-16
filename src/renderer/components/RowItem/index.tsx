@@ -14,7 +14,8 @@ export interface IRowItemPluginProps {
 export const RowItemPlugin: FC<IRowItemPluginProps> = ({
   source,
   index,
-  current
+  current,
+  onClick
 }) => {
   const { styles, cx } = useStyles();
   return (
@@ -22,6 +23,7 @@ export const RowItemPlugin: FC<IRowItemPluginProps> = ({
       className={cx(styles.item, index === current ? 'active' : '')}
       gap={8}
       align='center'
+      onClick={() => onClick(source)}
     >
       <Image
         src={source.logo}
@@ -31,46 +33,13 @@ export const RowItemPlugin: FC<IRowItemPluginProps> = ({
       />
       <Flex vertical justify='center' className={styles.content}>
         <Title level={5} style={{ margin: 0 }}>
-          {source.name}
+          <div dangerouslySetInnerHTML={{ __html: source.name }}></div>
         </Title>
-        <Text type='secondary'>{source.desc}</Text>
+        <Text type='secondary'>
+          {source.type === 'app' ? source.main : source.desc}
+        </Text>
       </Flex>
       <Text type='secondary'>{source.desc}</Text>
-    </Flex>
-  );
-};
-
-export interface IRowItemAppProps {
-  source: IApplication;
-  index: number;
-  current: number;
-  onClick: (item: IApplication) => void;
-}
-
-export const RowItemApp: FC<IRowItemAppProps> = ({
-  source,
-  index,
-  current
-}) => {
-  const { styles, cx } = useStyles();
-  return (
-    <Flex
-      className={cx(styles.item, index === current ? 'active' : '')}
-      gap={8}
-      align='center'
-    >
-      <Image
-        src={source.icon}
-        width={42}
-        className={styles.logo}
-        preview={false}
-      />
-      <Flex vertical justify='center' className={styles.content}>
-        <Title level={5} style={{ margin: 0 }}>
-          {source.name}
-        </Title>
-        <Text type='secondary'>{source.target}</Text>
-      </Flex>
     </Flex>
   );
 };

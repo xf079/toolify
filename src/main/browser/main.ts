@@ -1,22 +1,22 @@
-import { BrowserWindow, ipcMain, nativeTheme } from 'electron';
+import { BrowserWindow, BrowserView, ipcMain, nativeTheme } from 'electron';
 import path from 'node:path';
 import {
   WINDOW_HEIGHT,
   WINDOW_MIN_HEIGHT,
+  WINDOW_PLUGIN_HEIGHT,
   WINDOW_WIDTH
 } from '@common/constants/common';
 import { IBrowserWindow } from '@common/types';
 import {
   MAIN_CHANGE_WINDOW_HEIGHT,
-  MAIN_SEARCH,
-  MAIN_SEARCH_RESULT,
+  MAIN_OPEN_PLUGIN,
   MAIN_SYNC_FORM_DATA
 } from '@common/constants/event-main';
 import { Op } from 'sequelize';
 import ThemeModal from '@main/shared/db/modal/theme';
 import SettingsModal from '@main/shared/db/modal/settings';
 import PluginsModal from '@main/shared/db/modal/plugins';
-import ApplicationModal from '@main/shared/db/modal/application';
+import { spawn } from 'node:child_process';
 
 export class MainBrowser implements IBrowserWindow {
   private win: BrowserWindow;
@@ -30,8 +30,6 @@ export class MainBrowser implements IBrowserWindow {
       height: WINDOW_HEIGHT,
       minHeight: WINDOW_MIN_HEIGHT,
       useContentSize: true,
-      y: 0,
-      x: 0,
       resizable: false,
       width: WINDOW_WIDTH,
       frame: false,
@@ -60,7 +58,7 @@ export class MainBrowser implements IBrowserWindow {
     this.handle();
     // and load the index.html of the app.
     // Open the DevTools.
-    this.win.webContents.openDevTools();
+    // this.win.webContents.openDevTools();
   }
 
   getWindow() {
@@ -86,11 +84,11 @@ export class MainBrowser implements IBrowserWindow {
         },
         attributes: ['start', 'guide', 'language', 'placeholder']
       });
-
-      console.log(theme, settings);
+      const plugins = await PluginsModal.findAll();
       return {
         theme: theme.dataValues,
-        settings: settings.dataValues
+        settings: settings.dataValues,
+        plugins: plugins.map((item) => item.dataValues)
       };
     } catch (err) {
       console.log(err);
@@ -99,45 +97,50 @@ export class MainBrowser implements IBrowserWindow {
 
   async onSearch(value: string) {
     try {
-      console.log(value);
-      const list = [];
       const pluginList = await PluginsModal.findAll({
         where: {
-          [Op.or]: [
-            {
-              name: { [Op.like]: `%${value}%` }
-            },
-            {
-              pinYinName: { [Op.like]: `%${value}%` }
-            }
-          ]
-        }
-      });
-
-      const appList = await ApplicationModal.findAll({
-        where: {
-          [Op.or]: [
-            {
-              name: { [Op.like]: `%${value}%` }
-            },
-            {
-              pinYinName: { [Op.like]: `%${value}%` }
-            }
-          ]
+          name: { [Op.like]: `%${value}%` }
         }
       });
 
       if (pluginList && pluginList.length) {
-        list.push(...pluginList.map((item) => item.dataValues));
+        return pluginList.map((item) => item.dataValues);
       }
-
-      if (appList && appList.length) {
-        list.push(...appList.map((item) => item.dataValues));
-      }
-
-      return list;
+      return [];
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  openPlugin(item: IPlugin) {
+    const view = new BrowserView({
+      webPreferences: {
+        nodeIntegrationInWorker: true,
+        webgl: false,
+        preload: path.join(__dirname, '../preload/index.js')
+      }
+    });
+    this.win.setBrowserView(view);
+    view.setBounds({
+      x: 0,
+      y: WINDOW_MIN_HEIGHT,
+      width: WINDOW_WIDTH,
+      height: WINDOW_PLUGIN_HEIGHT
+    });
+    view.webContents.openDevTools()
+    view.setBackgroundColor('red');
+    // and load the index.html of the app.
+    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+      console.log('111');
+      view.webContents.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL+'#/detach');
+    } else {
+      console.log('222');
+      view.webContents.loadFile(
+        path.join(
+          __dirname,
+          `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html#/system/${item.main}`
+        )
+      );
     }
   }
 
@@ -183,12 +186,16 @@ export class MainBrowser implements IBrowserWindow {
       this.win.webContents.send(MAIN_SYNC_FORM_DATA, configData);
     });
 
-    ipcMain.handle(MAIN_SEARCH, async (event, phrase) => {
-      return await this.onSearch(phrase);
-    });
-
     ipcMain.on(MAIN_CHANGE_WINDOW_HEIGHT, (event, height) => {
       this.win.setSize(WINDOW_WIDTH, WINDOW_MIN_HEIGHT + height);
+    });
+
+    ipcMain.on(MAIN_OPEN_PLUGIN, (event, item: IPlugin) => {
+      if (item.type === 'app') {
+        spawn('open', ['-a', item.main]);
+      } else if (item.type === 'system') {
+        this.openPlugin(item);
+      }
     });
   }
 }
