@@ -10,7 +10,7 @@ class SettingsModal extends Model<
   InferAttributes<SettingsModal>,
   InferCreationAttributes<SettingsModal>
 > {
-  declare id: number; // 您可以使用 `declare` 关键字添加键入信息, 而无需添加实际的公共类字段.
+  declare id: number;
   /**
    * 配置类型
    */

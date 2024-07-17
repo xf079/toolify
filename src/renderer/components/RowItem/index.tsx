@@ -33,7 +33,7 @@ export const RowItemPlugin: FC<IRowItemPluginProps> = ({
       />
       <Flex vertical justify='center' className={styles.content}>
         <Title level={5} style={{ margin: 0 }}>
-          <div dangerouslySetInnerHTML={{ __html: source.name }}></div>
+          <div dangerouslySetInnerHTML={{ __html: source.nameFormat }}></div>
         </Title>
         <Text type='secondary'>
           {source.type === 'app' ? source.main : source.desc}

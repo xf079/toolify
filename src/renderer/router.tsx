@@ -10,10 +10,6 @@ import Mine from '@/pages/system/mine';
 import Developer from '@/pages/system/developer';
 import Plugins from '@/pages/system/plugins';
 
-function Layout(){
-  return <div>123<Outlet /></div>
-}
-
 const routes = [
   {
     path: '',
@@ -29,7 +25,7 @@ const routes = [
   },
   {
     path: 'system',
-    element: <Layout />,
+    element: <Outlet />,
     children: [
       {
         path: 'plugins',

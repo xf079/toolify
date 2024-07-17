@@ -5,7 +5,6 @@ export const WINDOW_MIN_HEIGHT = 64;
 export const WINDOW_TOOLBAR_WIDTH = 800;
 export const WINDOW_TOOLBAR_HEIGHT = 40;
 
-export const WINDOW_PLUGIN_WIDTH = 800;
 export const WINDOW_PLUGIN_HEIGHT = 600;
 
 export const GUIDE_WIDTH = 800;

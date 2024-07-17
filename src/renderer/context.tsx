@@ -6,32 +6,16 @@ import {
   useEffect,
   useState
 } from 'react';
-import { MAIN_SYNC_FORM_DATA } from '@common/constants/event-main';
-import {
-  SettingsConfigType,
-  ThemeConfigType
-} from '@common/config/default-config';
+import { MAIN_SYNC_CONFIG } from '@common/constants/event-main';
 
-interface IStoreType {
-  theme: ThemeConfigType;
-  settings: SettingsConfigType;
-  plugins:IPlugin[]
-}
-
-const StoreContext = createContext<IStoreType>(null);
+const StoreContext = createContext<GlobalConfigs>(null);
 
 export const ConfigProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [value, setValue] = useState<IStoreType>();
-
+  const [value, setValue] = useState();
   useEffect(() => {
-    apeak.on(MAIN_SYNC_FORM_DATA, (event, formData) => {
-      setValue(formData);
+    apeak.on(MAIN_SYNC_CONFIG, (_,data) => {
+      setValue(data);
     });
-    return () => {
-      apeak.off(MAIN_SYNC_FORM_DATA, () => {
-        console.log('off MAIN_SYNC_FORM_DATA');
-      });
-    };
   }, []);
   return (
     <StoreContext.Provider value={value}>

@@ -5,34 +5,23 @@ import { defaultConfig } from '@common/config/default-config';
 
 export default async function initDefaultConfig() {
   await ThemeModal.destroy({
-    where:{
-      type:'default'
-    },
-    truncate:true
-  })
+    where: {
+      type: 'default'
+    }
+  });
   await ThemeModal.create(defaultConfig.theme);
 
   await SettingsModal.destroy({
-    where:{
-      type:'default'
-    },
-    truncate:true
-  })
+    where: {
+      type: 'default'
+    }
+  });
   await SettingsModal.create(defaultConfig.settings);
 
   await PluginsModal.destroy({
     where: {
       type: 'system'
-    },
-    truncate: true
-  });
-  console.log(defaultConfig.plugins);
-  await PluginsModal.bulkCreate(defaultConfig.plugins);
-
-  const list = await PluginsModal.findAll({
-    where:{
-      type:'system'
     }
-  })
-  console.log(list);
+  });
+  await PluginsModal.bulkCreate(defaultConfig.plugins);
 }

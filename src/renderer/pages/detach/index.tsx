@@ -16,21 +16,21 @@ export default function Detach() {
   const [isMaximize, setIsMaximize] = useState(false);
 
   const onMinimize = () => {
-    apeak.trigger(DETACH_SERVICE, { type: 'size:minimize' });
+    apeak.send(DETACH_SERVICE, { type: 'size:minimize' });
   };
 
   const onToggleSize = () => {
     if (isMaximize) {
-      apeak.trigger(DETACH_SERVICE, { type: 'size:default' });
+      apeak.send(DETACH_SERVICE, { type: 'size:default' });
     } else {
       setIsMaximize(true)
-      apeak.trigger(DETACH_SERVICE, { type: 'size:maximize' });
+      apeak.send(DETACH_SERVICE, { type: 'size:maximize' });
     }
-    apeak.trigger(DETACH_SERVICE, { type: 'size:toggle' });
+    apeak.send(DETACH_SERVICE, { type: 'size:toggle' });
   };
 
   const onClose = () => {
-    apeak.trigger(DETACH_SERVICE, { type: 'close' });
+    apeak.send(DETACH_SERVICE, { type: 'close' });
   };
 
   return (

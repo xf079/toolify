@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons';
 import {
   MAIN_CHANGE_WINDOW_HEIGHT,
-  MAIN_SYNC_FORM_DATA
+  MAIN_SYNC_CONFIG
 } from '@common/constants/event-main';
 import { useConfig } from '@/context';
 import { useStyles } from './style';
@@ -33,7 +33,7 @@ const Result: FC<IResultProps> = ({ list, current, onOpen }) => {
   const [toolbarHeight, setToolbarHeight] = useState(0);
 
   useUpdateEffect(() => {
-    apeak.trigger(
+    apeak.send(
       MAIN_CHANGE_WINDOW_HEIGHT,
       listHeight ? listHeight + toolbarHeight : 0
     );
@@ -45,7 +45,7 @@ const Result: FC<IResultProps> = ({ list, current, onOpen }) => {
         setToolbarHeight(toolbarRef.current?.offsetHeight);
       }
       const _listHeight = listRef.current?.offsetHeight;
-      setListHeight(_listHeight > 400 ? 400 : 400);
+      setListHeight(_listHeight > 400 ? 400 : _listHeight);
     },
     listRef,
     { attributes: true, childList: true, characterData: true, subtree: true }
@@ -87,7 +87,7 @@ const Result: FC<IResultProps> = ({ list, current, onOpen }) => {
           value={theme.theme}
           size='middle'
           onChange={(value) => {
-            apeak.trigger(MAIN_SYNC_FORM_DATA, {
+            apeak.send(MAIN_SYNC_CONFIG, {
               type: 'theme',
               value: {
                 theme: value

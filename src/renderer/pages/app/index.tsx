@@ -1,5 +1,5 @@
 import { KeyboardEvent, useEffect, useState } from 'react';
-import { UserOutlined } from '@ant-design/icons';
+import { CloseOutlined, UserOutlined } from '@ant-design/icons';
 import {
   useEventTarget,
   useMemoizedFn,
@@ -9,17 +9,23 @@ import {
 import { useStyles } from '@/pages/app/style';
 import { useConfig } from '@/context';
 import Result from '@/components/Result';
-import { match } from 'pinyin-pro';
-import { useTheme } from 'antd-style';
-import { MAIN_OPEN_PLUGIN } from '@common/constants/event-main';
+import {
+  MAIN_CLOSE_PLUGIN,
+  MAIN_OPEN_PLUGIN,
+  MAIN_SEARCH
+} from '@common/constants/event-main';
+import { delayTime } from '@/utils/utils';
+
+import Logo from '@/assets/logo.svg?react';
 
 function AppPage() {
-  const { styles } = useStyles();
-  const { colorPrimary } = useTheme();
-  const { settings, plugins } = useConfig();
+  const { styles, cx } = useStyles();
+  const { settings } = useConfig();
   const [value, { reset, onChange }] = useEventTarget({ initialValue: '' });
   const [list, setList] = useState<IPlugin[]>([]);
   const [current, setCurrent] = useState(0);
+  const [currentPlugin, setCurrentPlugin] = useState<IPlugin>();
+  const [pluginLoading, setPluginLoading] = useState(false);
 
   const onKeyDown = useMemoizedFn((event: KeyboardEvent) => {
     if (event.code === 'ArrowDown') {
@@ -35,39 +41,38 @@ function AppPage() {
     if (event.code === 'Enter') {
       event.preventDefault();
       if (list[current]) {
-        onOpen(list[current]);
+        void onOpenPlugin(list[current]);
       }
     }
   });
 
-  const onOpen = (item: IPlugin) => {
-    apeak.trigger(MAIN_OPEN_PLUGIN, item);
+  const onOpenPlugin = useMemoizedFn(async (item: IPlugin) => {
     setList([]);
     reset();
-  };
+    setPluginLoading(true);
+    await delayTime(120);
+    await apeak.sendSync(MAIN_OPEN_PLUGIN, item);
+    setPluginLoading(false);
+    setCurrentPlugin(item);
+  });
+
+  const onClosePlugin = useMemoizedFn(async () => {
+    setCurrentPlugin(undefined);
+    setCurrent(0);
+    setList([]);
+    reset();
+    await apeak.sendSync(MAIN_CLOSE_PLUGIN, undefined);
+  });
 
   const { run } = useThrottleFn(
-    () => {
+    async () => {
       if (!value) {
-        console.log(plugins);
         setList([]);
         return;
       }
-      const resultList: IPlugin[] = [];
-      plugins.forEach((item: IPlugin) => {
-        const indexList = match(item.name, value);
-        if (!(indexList || []).length) return;
-
-        const nameList = item.name.split('');
-        const nameFormat = nameList.map((val, index) => {
-          if ((indexList || []).includes(index)) {
-            return `<span style="color: ${colorPrimary};">${val}</span>`;
-          }
-          return val;
-        });
-        resultList.push({ ...item, name: nameFormat.join('') });
-      });
-      setList(resultList);
+      const result = await apeak.sendSync(MAIN_SEARCH, value);
+      console.log(result);
+      setList(result);
     },
     {
       wait: 300
@@ -83,6 +88,22 @@ function AppPage() {
   return (
     <div className={styles.app}>
       <div className={styles.wrapper}>
+        <div
+          className={cx(
+            styles.logo,
+            pluginLoading && 'loading',
+            currentPlugin && 'active'
+          )}
+        >
+          <Logo style={{ width: '100%', height: '100%' }} />
+          {currentPlugin ? (
+            <div className={styles.plugin}>
+              <div className={styles.pluginName}>{currentPlugin.name}</div>
+              <CloseOutlined onClick={onClosePlugin} className={styles.pluginClose} />
+            </div>
+          ) : null}
+        </div>
+
         <div className={styles.search}>
           <input
             value={value}
@@ -92,12 +113,9 @@ function AppPage() {
             onKeyDown={onKeyDown}
           />
         </div>
-        <div className={styles.btn}>
-          <UserOutlined className={styles.btnIcon} />
-        </div>
       </div>
       <div className={styles.content}>
-        <Result list={list} current={current} onOpen={onOpen} />
+        <Result list={list} current={current} onOpen={onOpenPlugin} />
       </div>
     </div>
   );

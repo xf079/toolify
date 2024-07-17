@@ -7,15 +7,15 @@ const apeakExpose: IMainEvent = {
       listener(event, ...args)
     );
   },
-  trigger(...args: Parameters<typeof ipcRenderer.send>) {
-    const [channel, ...omit] = args;
-    return ipcRenderer.send(channel, ...omit);
-  },
   off(...args: Parameters<typeof ipcRenderer.off>) {
     const [channel, ...omit] = args;
     return ipcRenderer.off(channel, ...omit);
   },
-  sync(...args: Parameters<typeof ipcRenderer.invoke>) {
+  send(...args: Parameters<typeof ipcRenderer.send>) {
+    const [channel, ...omit] = args;
+    return ipcRenderer.send(channel, ...omit);
+  },
+  sendSync(...args: Parameters<typeof ipcRenderer.invoke>) {
     const [channel, ...omit] = args;
     return ipcRenderer.invoke(channel, ...omit);
   }

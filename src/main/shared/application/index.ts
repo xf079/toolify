@@ -19,8 +19,7 @@ export default async function initApplication() {
   await PluginsModal.destroy({
     where: {
       type: 'app'
-    },
-    truncate: true
+    }
   });
   await PluginsModal.bulkCreate(application);
 }

@@ -1,31 +1,40 @@
-type Recordable = Record<string, any>;
+import type {
+  ThemeConfigType,
+  SettingsConfigType
+} from '@common/config/default-config';
 
-interface IMainEvent {
-  on(event: string, listener: (...args: any[]) => void): void;
-  off(event: string, listener: (...args: any[]) => void): void;
-  trigger(event: string, ...args: any[]): void;
-  sync(event: string, ...args: any[]): Promise<any>;
-}
+export {};
 
-declare const apeak: IMainEvent;
+declare global {
+  type Recordable = Record<string, any>;
 
-type ITheme = 'system' | 'light' | 'dark';
+  interface IMainEvent {
+    on(event: string, listener: (...args: any[]) => void): void;
+    off(event: string, listener: (...args: any[]) => void): void;
+    send(event: string, ...args: any[]): void;
+    sendSync(event: string, ...args: any[]): Promise<any>;
+  }
+  declare const apeak: IMainEvent;
 
-interface IApplication {
-  type: string;
-  name: string;
-  icon: string;
-  target: string;
-}
+  type ThemeConfig = ThemeConfigType;
 
-interface IPlugin {
-  type: string;
-  name: string;
-  main:string;
-  logo: string;
-  desc?: string;
-  version?: string;
-  platform?: string;
-  single?: boolean;
-  features?: string;
+  type SettingsConfig = SettingsConfigType;
+
+  interface GlobalConfigs {
+    theme: ThemeConfig;
+    settings: SettingsConfig;
+  }
+
+  interface IPlugin {
+    type: string;
+    name: string;
+    main: string;
+    logo: string;
+    desc?: string;
+    version?: string;
+    platform?: string;
+    single?: boolean;
+    features?: string;
+    [key: string]: any;
+  }
 }

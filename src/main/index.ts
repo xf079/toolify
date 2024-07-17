@@ -3,9 +3,10 @@ import MainBrowser from '@main/browser/main';
 import PanelBrowser from '@main/browser/panel';
 
 import { sequelizeSync } from '@main/shared/db';
-import createShortcut from '@main/common/shortcut';
 import initApplication from '@main/shared/application';
 import initDefaultConfig from '@main/shared/config/init-config';
+import device from '@common/utils/device';
+import env from '@common/utils/env';
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -16,15 +17,12 @@ if (require('electron-squirrel-startup')) {
 async function appReadyHandle() {
   await sequelizeSync();
   await initDefaultConfig();
-  // await initApplication()
+  setTimeout(()=>{
+    initApplication()
+  },3000)
   try {
     const main = new MainBrowser();
     const panel = new PanelBrowser();
-    createShortcut({
-      mainWin: main,
-      panelWin: panel
-    });
-
   } catch (e) {
     console.log(e);
   }
@@ -45,18 +43,18 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 }
-//
-// // 系统托盘
-// if (device.macOS()) {
-//   if (env.production() && !app.isInApplicationsFolder()) {
-//     app.moveToApplicationsFolder();
-//   } else {
-//     app.dock.hide();
-//   }
-// } else {
-//   // app.disableHardwareAcceleration();
-// }
-//
+
+// 系统托盘
+if (device.macOS()) {
+  if (env.production() && !app.isInApplicationsFolder()) {
+    app.moveToApplicationsFolder();
+  } else {
+    app.dock.hide();
+  }
+} else {
+  app.disableHardwareAcceleration();
+}
+
 // /**
 //  * 监听退出
 //  */

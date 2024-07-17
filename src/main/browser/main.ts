@@ -1,110 +1,143 @@
-import { BrowserWindow, BrowserView, ipcMain, nativeTheme } from 'electron';
+import { BaseWindow, ipcMain, nativeTheme, WebContentsView } from 'electron';
 import path from 'node:path';
+import { spawn } from 'node:child_process';
+import { match } from 'pinyin-pro';
 import {
   WINDOW_HEIGHT,
-  WINDOW_MIN_HEIGHT,
   WINDOW_PLUGIN_HEIGHT,
   WINDOW_WIDTH
 } from '@common/constants/common';
-import { IBrowserWindow } from '@common/types';
 import {
   MAIN_CHANGE_WINDOW_HEIGHT,
+  MAIN_CLOSE_PLUGIN,
   MAIN_OPEN_PLUGIN,
-  MAIN_SYNC_FORM_DATA
+  MAIN_SEARCH,
+  MAIN_SYNC_CONFIG
 } from '@common/constants/event-main';
-import { Op } from 'sequelize';
 import ThemeModal from '@main/shared/db/modal/theme';
 import SettingsModal from '@main/shared/db/modal/settings';
 import PluginsModal from '@main/shared/db/modal/plugins';
-import { spawn } from 'node:child_process';
+import { setContentsUrl } from '@common/utils/window-path';
 
-export class MainBrowser implements IBrowserWindow {
-  private win: BrowserWindow;
+export class MainBrowser {
+  private baseWindow: BaseWindow;
+  private searchView: WebContentsView;
+  private pluginView: WebContentsView;
+
+  private configs: GlobalConfigs;
+  private theme: ThemeConfig;
+  private settings: SettingsConfig;
+  private backgroundColor: string;
 
   constructor() {
+    void this.initWindowSettings();
+  }
+
+  async initWindowSettings() {
+    await this.getSystemSettings();
+    this.getWindowBgColor();
     this.createMainWindow();
   }
 
+  async getSystemSettings() {
+    try {
+      const theme = await ThemeModal.findOne({
+        where: { type: 'default' }
+      });
+      const settings = await SettingsModal.findOne({
+        where: { type: 'default' }
+      });
+
+      if (theme) {
+        this.theme = theme.dataValues;
+      }
+      if (settings) {
+        this.settings = settings.dataValues;
+      }
+
+      this.configs = { theme: this.theme, settings: this.settings };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  private getWindowBgColor() {
+    const nativeColor = nativeTheme.shouldUseDarkColors ? '#000000' : '#FFFFFF';
+    if (this.theme.theme === 'system') {
+      this.backgroundColor = nativeColor;
+    }
+    this.backgroundColor = this.theme.theme === 'dark' ? '#000000' : '#FFFFFF';
+
+    nativeTheme.on('updated', () => {
+      this.backgroundColor = nativeColor;
+    });
+  }
+
   private createMainWindow() {
-    this.win = new BrowserWindow({
-      height: WINDOW_HEIGHT,
-      minHeight: WINDOW_MIN_HEIGHT,
-      useContentSize: true,
-      resizable: false,
+    this.baseWindow = new BaseWindow({
       width: WINDOW_WIDTH,
+      height: WINDOW_HEIGHT,
+      x: 120,
+      y: 20,
+      useContentSize: false,
+      resizable: false,
+      fullscreenable: false,
       frame: false,
       title: 'Apeak',
       center: true,
       show: true,
       skipTaskbar: true,
       alwaysOnTop: false,
-      backgroundColor: '#fff',
+      backgroundColor: this.backgroundColor
+    });
+
+    this.searchView = new WebContentsView({
       webPreferences: {
         nodeIntegrationInWorker: true,
-        webgl: false,
         preload: path.join(__dirname, '../preload/index.js')
       }
     });
 
-    // and load the index.html of the app.
-    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-      this.win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
-    } else {
-      this.win.loadFile(
-        path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
-      );
-    }
+    this.searchView.setBounds({
+      x: 0,
+      y: 0,
+      width: WINDOW_WIDTH,
+      height: WINDOW_PLUGIN_HEIGHT + WINDOW_HEIGHT
+    });
+    setContentsUrl(this.searchView.webContents);
+    this.baseWindow.contentView.addChildView(this.searchView);
 
-    this.handle();
+    this.searchView.webContents.on('did-finish-load', () => {
+      this.searchView.webContents.send(MAIN_SYNC_CONFIG, this.configs);
+    });
+
     // and load the index.html of the app.
     // Open the DevTools.
-    // this.win.webContents.openDevTools();
-  }
+    this.searchView.webContents.openDevTools();
 
-  getWindow() {
-    return this.win;
-  }
-
-  init() {
-    this.win.show();
-  }
-
-  async getConfig() {
-    try {
-      const theme = await ThemeModal.findOne({
-        where: {
-          type: 'default'
-        },
-        attributes: ['theme', 'compact', 'colorPrimary']
-      });
-
-      const settings = await SettingsModal.findOne({
-        where: {
-          type: 'default'
-        },
-        attributes: ['start', 'guide', 'language', 'placeholder']
-      });
-      const plugins = await PluginsModal.findAll();
-      return {
-        theme: theme.dataValues,
-        settings: settings.dataValues,
-        plugins: plugins.map((item) => item.dataValues)
-      };
-    } catch (err) {
-      console.log(err);
-    }
+    this.handle();
   }
 
   async onSearch(value: string) {
     try {
-      const pluginList = await PluginsModal.findAll({
-        where: {
-          name: { [Op.like]: `%${value}%` }
-        }
-      });
-
+      const pluginList = await PluginsModal.findAll();
       if (pluginList && pluginList.length) {
-        return pluginList.map((item) => item.dataValues);
+        const list = pluginList.map((item) => item.dataValues);
+        const resultList: IPlugin[] = [];
+        list.forEach((item: IPlugin) => {
+          const indexList = match(item.name, value);
+          if (!(indexList || []).length) return;
+
+          const nameList = item.name.split('');
+          const nameFormat = nameList.map((val, index) => {
+            if ((indexList || []).includes(index)) {
+              return `<span style="color: ${this.theme.colorPrimary}">${val}</span>`;
+            }
+            return val;
+          });
+          resultList.push({ ...item, nameFormat: nameFormat.join('') });
+        });
+        return resultList;
       }
       return [];
     } catch (error) {
@@ -113,88 +146,61 @@ export class MainBrowser implements IBrowserWindow {
   }
 
   openPlugin(item: IPlugin) {
-    const view = new BrowserView({
-      webPreferences: {
-        nodeIntegrationInWorker: true,
-        webgl: false,
-        preload: path.join(__dirname, '../preload/index.js')
+    return new Promise((resolve) => {
+      this.pluginView = new WebContentsView({
+        webPreferences: {
+          nodeIntegrationInWorker: true,
+          webgl: false,
+          preload: path.join(__dirname, '../preload/index.js')
+        }
+      });
+      this.baseWindow.contentView.addChildView(this.pluginView);
+      this.pluginView.setBounds({
+        x: 0,
+        y: WINDOW_HEIGHT,
+        width: WINDOW_WIDTH,
+        height: WINDOW_PLUGIN_HEIGHT
+      });
+      this.pluginView.setBackgroundColor(this.backgroundColor);
+      if (item.type === 'system') {
+        console.log(222);
+        setContentsUrl(this.pluginView.webContents, item.main);
+        this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT);
+        this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT);
+        this.pluginView.webContents.on('did-finish-load', () => {
+          console.log('333');
+          this.pluginView.webContents.send(MAIN_SYNC_CONFIG, this.configs);
+          resolve(true)
+        });
       }
+      this.pluginView.webContents.openDevTools();
     });
-    this.win.setBrowserView(view);
-    view.setBounds({
-      x: 0,
-      y: WINDOW_MIN_HEIGHT,
-      width: WINDOW_WIDTH,
-      height: WINDOW_PLUGIN_HEIGHT
-    });
-    view.webContents.openDevTools()
-    view.setBackgroundColor('red');
-    // and load the index.html of the app.
-    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-      console.log('111');
-      view.webContents.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL+'#/detach');
-    } else {
-      console.log('222');
-      view.webContents.loadFile(
-        path.join(
-          __dirname,
-          `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html#/system/${item.main}`
-        )
-      );
-    }
   }
 
   private handle() {
-    /**
-     * 主页面渲染完成
-     */
-    this.win.webContents.on('did-finish-load', async () => {
-      const data = await this.getConfig();
-      this.win.webContents.send(MAIN_SYNC_FORM_DATA, data);
-    });
-
-    /**
-     * 配置页面同步
-     */
-    ipcMain.on(MAIN_SYNC_FORM_DATA, async (event, data) => {
-      try {
-        if (data.type === 'theme') {
-          await ThemeModal.update(data.value, {
-            where: {
-              type: 'default'
-            }
-          });
-          // 修改主题需要同步系统主题
-          if (data.value.theme) {
-            nativeTheme.themeSource = data.value.theme;
-          }
-        }
-
-        if (data.type === 'settings') {
-          await SettingsModal.update(data.value, {
-            where: {
-              type: 'default'
-            }
-          });
-        }
-      } catch (error) {
-        console.log(error);
-      }
-
-      const configData = await this.getConfig();
-
-      this.win.webContents.send(MAIN_SYNC_FORM_DATA, configData);
+    ipcMain.handle(MAIN_SEARCH, async (event, value: string) => {
+      return await this.onSearch(value);
     });
 
     ipcMain.on(MAIN_CHANGE_WINDOW_HEIGHT, (event, height) => {
-      this.win.setSize(WINDOW_WIDTH, WINDOW_MIN_HEIGHT + height);
+      this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+      this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
     });
 
-    ipcMain.on(MAIN_OPEN_PLUGIN, (event, item: IPlugin) => {
+    ipcMain.handle(MAIN_OPEN_PLUGIN, async (event, item: IPlugin) => {
       if (item.type === 'app') {
         spawn('open', ['-a', item.main]);
       } else if (item.type === 'system') {
-        this.openPlugin(item);
+        await this.openPlugin(item);
+      }
+    });
+
+    ipcMain.handle(MAIN_CLOSE_PLUGIN, async () => {
+      if (this.pluginView) {
+        this.baseWindow.contentView.removeChildView(this.pluginView);
+        this.pluginView = null;
+        this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT);
       }
     });
   }

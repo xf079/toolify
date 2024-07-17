@@ -1,7 +1,6 @@
-import { IBrowserWindow } from '@common/types';
 import { BrowserWindow } from 'electron';
 
-export class DetachBrowser implements IBrowserWindow {
+class DetachBrowser{
   win: BrowserWindow;
   constructor() {
   }
@@ -17,3 +16,9 @@ export class DetachBrowser implements IBrowserWindow {
     return this.win;
   }
 }
+
+
+const detachBrowser = new DetachBrowser();
+
+
+export default detachBrowser;

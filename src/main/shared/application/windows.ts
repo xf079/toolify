@@ -1,13 +1,13 @@
 import { app, shell } from 'electron';
 import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { unionBy } from 'lodash';
 import {
   copyFile,
   getDataPath,
   getFilenameWithoutExtension
 } from '@common/utils/os';
-import { unionBy } from 'lodash';
-import path from 'node:path';
-import * as os from 'node:os';
 
 export class WindowsApplication {
   async init() {
