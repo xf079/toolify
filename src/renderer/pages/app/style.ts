@@ -25,6 +25,7 @@ export const useStyles = createStyles(({ token, css }) => {
       align-items: center;
       flex-shrink: 0;
       gap: 12px;
+      -webkit-app-region: drag;
     `,
     logo: css`
       width: ${WINDOW_HEIGHT - 22}px;
@@ -67,6 +68,7 @@ export const useStyles = createStyles(({ token, css }) => {
         ${token.paddingXS}px;
       border-radius: ${token.borderRadius}px;
       background-color: ${token.colorBgLayout};
+      -webkit-app-region: no-drag;
     `,
     pluginLogo: css``,
     pluginName: css`
@@ -96,22 +98,8 @@ export const useStyles = createStyles(({ token, css }) => {
       color: ${token.colorTextBase};
       font-size: ${token.fontSizeHeading3}px;
     `,
-    btn: css`
-      height: 42px;
-      width: 42px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.1s;
-      border-radius: ${token.borderRadius}px;
-      &:hover {
-        background-color: ${token.colorBgLayout};
-      }
-    `,
-    btnIcon: css`
-      font-size: ${token.fontSizeHeading4}px;
-      color: ${token.colorTextTertiary};
+    menu: css`
+      -webkit-app-region: no-drag;
     `,
     content: {
       flex: 1

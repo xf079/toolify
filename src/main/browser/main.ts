@@ -4,7 +4,8 @@ import {
   ipcMain,
   nativeTheme,
   WebContentsView,
-  screen
+  screen,
+  Menu
 } from 'electron';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
@@ -17,8 +18,8 @@ import {
 import {
   MAIN_CHANGE_WINDOW_HEIGHT,
   MAIN_CLOSE_PLUGIN,
-  MAIN_HIDE,
   MAIN_OPEN_PLUGIN,
+  MAIN_OPEN_PLUGIN_MENU,
   MAIN_SEARCH,
   MAIN_SEARCH_FOCUS,
   MAIN_SYNC_CONFIG
@@ -110,8 +111,7 @@ export class MainBrowser {
       fullscreenable: false,
       frame: false,
       title: 'Apeak',
-      center: true,
-      show: false,
+      show: true,
       skipTaskbar: true,
       alwaysOnTop: true,
       backgroundColor: this.backgroundColor
@@ -234,11 +234,6 @@ export class MainBrowser {
       return await this.onSearch(value);
     });
 
-    ipcMain.on(MAIN_CHANGE_WINDOW_HEIGHT, (event, height) => {
-      this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
-      this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
-    });
-
     ipcMain.handle(MAIN_OPEN_PLUGIN, async (event, item: IPlugin) => {
       if (item.type === 'app') {
         spawn('open', ['-a', item.main]);
@@ -254,6 +249,49 @@ export class MainBrowser {
         this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT);
       }
+    });
+
+    ipcMain.on(MAIN_CHANGE_WINDOW_HEIGHT, (event, height) => {
+      this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+      this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+    });
+
+    ipcMain.on(MAIN_SEARCH_FOCUS, () => {
+      this.baseWindow.focus();
+      this.searchView.webContents.focus();
+      this.searchView.webContents.send(MAIN_SEARCH_FOCUS);
+    });
+
+    ipcMain.on(MAIN_OPEN_PLUGIN_MENU, () => {
+      const template = [
+        {
+          label: '分离为独立窗口',
+          click: () => {
+            console.log(123);
+          }
+        },
+        {
+          label: '插件应用设置',
+          click: () => {
+            console.log(123);
+          }
+        },
+        {
+          label: '退出到后台',
+          click: () => {
+            console.log(123);
+          }
+        },
+        {
+          label: '结束运行',
+          click: () => {
+            console.log(123);
+          }
+        },
+      ]
+      const menu = Menu.buildFromTemplate(template)
+      menu.popup({
+      });
     });
   }
   private shortcut() {

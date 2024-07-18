@@ -11,4 +11,7 @@ export const MAIN_CLOSE_PLUGIN = 'main:closePlugin'
 
 export const MAIN_HIDE = 'main:hide'
 
+
 export const MAIN_SEARCH_FOCUS = 'main:searchFocus'
+
+export const MAIN_OPEN_PLUGIN_MENU = 'main:openPluginMenu'

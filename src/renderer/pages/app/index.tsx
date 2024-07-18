@@ -1,24 +1,19 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { MenuOutlined, PoweroffOutlined } from '@ant-design/icons';
-import {
-  useDrop,
-  useEventTarget,
-  useMemoizedFn,
-  useUpdateEffect
-} from 'ahooks';
+import { useEventTarget, useMemoizedFn, useUpdateEffect } from 'ahooks';
 import { useStyles } from '@/pages/app/style';
+import { Avatar, Button } from 'antd';
 import { useConfig } from '@/context';
 import Result from '@/components/Result';
 import { WINDOW_HEIGHT } from '@common/constants/common';
 import {
   MAIN_CLOSE_PLUGIN,
   MAIN_HIDE,
-  MAIN_OPEN_PLUGIN,
+  MAIN_OPEN_PLUGIN, MAIN_OPEN_PLUGIN_MENU,
   MAIN_SEARCH,
   MAIN_SEARCH_FOCUS
 } from '@common/constants/event-main';
 import { delayTime } from '@/utils/utils';
-import { Avatar, Button } from 'antd';
 
 import Logo from '@/assets/logo.svg?react';
 
@@ -32,12 +27,6 @@ function AppPage() {
   const [current, setCurrent] = useState(0);
   const [currentPlugin, setCurrentPlugin] = useState<IPlugin>();
   const [pluginLoading, setPluginLoading] = useState(false);
-
-  useDrop(wrapperRef, {
-    onDrop: (e) => {
-      console.log(e);
-    }
-  });
 
   const onKeyDown = useMemoizedFn((event: KeyboardEvent) => {
     if (event.code === 'Backspace') {
@@ -91,9 +80,21 @@ function AppPage() {
     setCurrentPlugin(undefined);
   };
 
+  const onOpenMenu = () => {
+    apeak.send(MAIN_OPEN_PLUGIN_MENU);
+  };
+
+  const onBlur = () => {
+    apeak.send(MAIN_SEARCH_FOCUS);
+  };
+
   useUpdateEffect(() => {
     if (!value) {
       setList([]);
+      return;
+    }
+    if(currentPlugin){
+      console.log('通知到插件');
       return;
     }
     apeak.sendSync(MAIN_SEARCH, value).then((data) => {
@@ -134,7 +135,12 @@ function AppPage() {
           </div>
         )}
 
-        <div className={styles.search}>
+        <div
+          className={styles.search}
+          onClick={() => {
+            inputRef.current?.focus();
+          }}
+        >
           <input
             ref={inputRef}
             value={value}
@@ -143,12 +149,10 @@ function AppPage() {
             className={styles.searchValue}
             placeholder={settings.placeholder}
             onKeyDown={onKeyDown}
-            onBlur={() => {
-              inputRef.current?.focus();
-            }}
+            onBlur={onBlur}
           />
         </div>
-        {currentPlugin && <Button icon={<MenuOutlined />} type='text' />}
+        {currentPlugin && <Button icon={<MenuOutlined />} className={styles.menu} type='text' onClick={onOpenMenu} />}
       </div>
       <div className={styles.content}>
         <Result list={list} current={current} onOpen={onOpenPlugin} />
