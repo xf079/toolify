@@ -17,9 +17,7 @@ if (require('electron-squirrel-startup')) {
 async function appReadyHandle() {
   await sequelizeSync();
   await initDefaultConfig();
-  setTimeout(()=>{
-    initApplication()
-  },3000)
+  await initApplication()
   try {
     const main = new MainBrowser();
     const panel = new PanelBrowser();

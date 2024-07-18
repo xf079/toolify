@@ -1,33 +1,51 @@
-import { KeyboardEvent, useEffect, useState } from 'react';
-import { CloseOutlined, UserOutlined } from '@ant-design/icons';
+import { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { MenuOutlined, PoweroffOutlined } from '@ant-design/icons';
 import {
+  useDrop,
   useEventTarget,
   useMemoizedFn,
-  useThrottleFn,
   useUpdateEffect
 } from 'ahooks';
 import { useStyles } from '@/pages/app/style';
 import { useConfig } from '@/context';
 import Result from '@/components/Result';
+import { WINDOW_HEIGHT } from '@common/constants/common';
 import {
   MAIN_CLOSE_PLUGIN,
+  MAIN_HIDE,
   MAIN_OPEN_PLUGIN,
-  MAIN_SEARCH
+  MAIN_SEARCH,
+  MAIN_SEARCH_FOCUS
 } from '@common/constants/event-main';
 import { delayTime } from '@/utils/utils';
+import { Avatar, Button } from 'antd';
 
 import Logo from '@/assets/logo.svg?react';
 
 function AppPage() {
   const { styles, cx } = useStyles();
   const { settings } = useConfig();
+  const wrapperRef = useRef<HTMLDivElement>();
+  const inputRef = useRef<HTMLInputElement>();
   const [value, { reset, onChange }] = useEventTarget({ initialValue: '' });
   const [list, setList] = useState<IPlugin[]>([]);
   const [current, setCurrent] = useState(0);
   const [currentPlugin, setCurrentPlugin] = useState<IPlugin>();
   const [pluginLoading, setPluginLoading] = useState(false);
 
+  useDrop(wrapperRef, {
+    onDrop: (e) => {
+      console.log(e);
+    }
+  });
+
   const onKeyDown = useMemoizedFn((event: KeyboardEvent) => {
+    if (event.code === 'Backspace') {
+      if (!value && currentPlugin) {
+        event.preventDefault();
+        void onClosePlugin();
+      }
+    }
     if (event.code === 'ArrowDown') {
       event.preventDefault();
       setCurrent(current + 1);
@@ -53,66 +71,84 @@ function AppPage() {
     await delayTime(120);
     await apeak.sendSync(MAIN_OPEN_PLUGIN, item);
     setPluginLoading(false);
-    setCurrentPlugin(item);
+    if (item.type !== 'app') {
+      setCurrentPlugin(item);
+    }
   });
 
-  const onClosePlugin = useMemoizedFn(async () => {
-    setCurrentPlugin(undefined);
-    setCurrent(0);
-    setList([]);
-    reset();
+  const onClosePlugin = useMemoizedFn(async (event?: any) => {
+    if (event) {
+      event.stopPropagation();
+    }
+    onReset();
     await apeak.sendSync(MAIN_CLOSE_PLUGIN, undefined);
   });
 
-  const { run } = useThrottleFn(
-    async () => {
-      if (!value) {
-        setList([]);
-        return;
-      }
-      const result = await apeak.sendSync(MAIN_SEARCH, value);
-      console.log(result);
-      setList(result);
-    },
-    {
-      wait: 300
-    }
-  );
+  const onReset = () => {
+    setList([]);
+    setCurrent(0);
+    reset();
+    setCurrentPlugin(undefined);
+  };
 
   useUpdateEffect(() => {
-    run();
+    if (!value) {
+      setList([]);
+      return;
+    }
+    apeak.sendSync(MAIN_SEARCH, value).then((data) => {
+      setList(data);
+    });
   }, [value]);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    apeak.on(MAIN_HIDE, () => {
+      onReset();
+    });
+    apeak.on(MAIN_SEARCH_FOCUS, () => {
+      inputRef.current?.focus();
+    });
+  }, []);
 
   return (
     <div className={styles.app}>
-      <div className={styles.wrapper}>
-        <div
-          className={cx(
-            styles.logo,
-            pluginLoading && 'loading',
-            currentPlugin && 'active'
-          )}
-        >
-          <Logo style={{ width: '100%', height: '100%' }} />
-          {currentPlugin ? (
-            <div className={styles.plugin}>
-              <div className={styles.pluginName}>{currentPlugin.name}</div>
-              <CloseOutlined onClick={onClosePlugin} className={styles.pluginClose} />
-            </div>
-          ) : null}
-        </div>
+      <div className={styles.wrapper} ref={wrapperRef}>
+        {currentPlugin ? (
+          <div className={styles.plugin}>
+            <Avatar
+              src={currentPlugin.logo}
+              size={WINDOW_HEIGHT * 0.5}
+              className={styles.pluginLogo}
+            >
+              {currentPlugin.name.substring(0, 1)}
+            </Avatar>
+            <div className={styles.pluginName}>{currentPlugin.name}</div>
+            <PoweroffOutlined
+              className={styles.pluginClose}
+              onClick={onClosePlugin}
+            />
+          </div>
+        ) : (
+          <div className={cx(styles.logo, pluginLoading && 'loading')}>
+            <Logo style={{ width: '100%', height: '100%' }} />
+          </div>
+        )}
 
         <div className={styles.search}>
           <input
+            ref={inputRef}
             value={value}
+            autoFocus
             onChange={onChange}
             className={styles.searchValue}
             placeholder={settings.placeholder}
             onKeyDown={onKeyDown}
+            onBlur={() => {
+              inputRef.current?.focus();
+            }}
           />
         </div>
+        {currentPlugin && <Button icon={<MenuOutlined />} type='text' />}
       </div>
       <div className={styles.content}>
         <Result list={list} current={current} onOpen={onOpenPlugin} />

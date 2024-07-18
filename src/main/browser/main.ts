@@ -1,4 +1,11 @@
-import { BaseWindow, ipcMain, nativeTheme, WebContentsView } from 'electron';
+import {
+  BaseWindow,
+  globalShortcut,
+  ipcMain,
+  nativeTheme,
+  WebContentsView,
+  screen
+} from 'electron';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { match } from 'pinyin-pro';
@@ -10,8 +17,10 @@ import {
 import {
   MAIN_CHANGE_WINDOW_HEIGHT,
   MAIN_CLOSE_PLUGIN,
+  MAIN_HIDE,
   MAIN_OPEN_PLUGIN,
   MAIN_SEARCH,
+  MAIN_SEARCH_FOCUS,
   MAIN_SYNC_CONFIG
 } from '@common/constants/event-main';
 import ThemeModal from '@main/shared/db/modal/theme';
@@ -73,6 +82,23 @@ export class MainBrowser {
     });
   }
 
+  private getCurrentWindowRect() {
+    const cursorPoint = screen.getCursorScreenPoint();
+    const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
+    let x = currentDisplay.bounds.x;
+    let y = currentDisplay.bounds.y;
+
+    const windowHeight = WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT;
+
+    x += (currentDisplay.bounds.width - WINDOW_WIDTH) / 2;
+    y += (currentDisplay.bounds.height - windowHeight) / 2;
+
+    return {
+      x,
+      y
+    };
+  }
+
   private createMainWindow() {
     this.baseWindow = new BaseWindow({
       width: WINDOW_WIDTH,
@@ -85,9 +111,9 @@ export class MainBrowser {
       frame: false,
       title: 'Apeak',
       center: true,
-      show: true,
+      show: false,
       skipTaskbar: true,
-      alwaysOnTop: false,
+      alwaysOnTop: true,
       backgroundColor: this.backgroundColor
     });
 
@@ -105,6 +131,7 @@ export class MainBrowser {
       height: WINDOW_PLUGIN_HEIGHT + WINDOW_HEIGHT
     });
     setContentsUrl(this.searchView.webContents);
+
     this.baseWindow.contentView.addChildView(this.searchView);
 
     this.searchView.webContents.on('did-finish-load', () => {
@@ -116,6 +143,7 @@ export class MainBrowser {
     this.searchView.webContents.openDevTools();
 
     this.handle();
+    this.shortcut();
   }
 
   async onSearch(value: string) {
@@ -165,12 +193,18 @@ export class MainBrowser {
       if (item.type === 'system') {
         console.log(222);
         setContentsUrl(this.pluginView.webContents, item.main);
-        this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT);
-        this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT);
+        this.baseWindow.setSize(
+          WINDOW_WIDTH,
+          WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
+        );
+        this.baseWindow.setContentSize(
+          WINDOW_WIDTH,
+          WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
+        );
         this.pluginView.webContents.on('did-finish-load', () => {
           console.log('333');
           this.pluginView.webContents.send(MAIN_SYNC_CONFIG, this.configs);
-          resolve(true)
+          resolve(true);
         });
       }
       this.pluginView.webContents.openDevTools();
@@ -178,6 +212,24 @@ export class MainBrowser {
   }
 
   private handle() {
+    /**
+     *
+     */
+    // this.baseWindow.on('blur', () => {
+    //   this.searchView.webContents.send(MAIN_HIDE);
+    //   /**
+    //    * 如果打开了插件
+    //    * 清除插件相关窗口信息
+    //    */
+    //   if (this.pluginView) {
+    //     this.baseWindow.contentView.removeChildView(this.pluginView);
+    //     this.pluginView = null;
+    //     this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    //     this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    //   }
+    //   this.baseWindow.hide();
+    // });
+
     ipcMain.handle(MAIN_SEARCH, async (event, value: string) => {
       return await this.onSearch(value);
     });
@@ -202,6 +254,16 @@ export class MainBrowser {
         this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT);
       }
+    });
+  }
+  private shortcut() {
+    globalShortcut.register('CommandOrControl+0', () => {
+      const point = this.getCurrentWindowRect();
+      this.baseWindow.setPosition(point.x, point.y);
+      this.baseWindow.show();
+      this.baseWindow.focus();
+      this.searchView.webContents.focus();
+      this.searchView.webContents.send(MAIN_SEARCH_FOCUS);
     });
   }
 }

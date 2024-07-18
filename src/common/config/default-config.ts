@@ -10,7 +10,7 @@ export const getSettingsConfig = () => ({
   start: false,
   guide: false,
   language: 'zh-CN',
-  placeholder: '输入关键词搜索'
+  placeholder: 'Hi, Apeak'
 });
 
 export const getPluginsConfig = () => ([
@@ -20,6 +20,12 @@ export const getPluginsConfig = () => ([
     main:'/system/plugins',
     logo: 'https://img.zcool.cn/community/0180b65af0400aa801219b7fe7ee6b.png@1280w_1l_2o_100sh.png',
     desc: '插件中心'
+  },  {
+    type: 'system',
+    name: '开发者中心',
+    main:'/system/developer',
+    logo: 'https://img.zcool.cn/community/0180b65af0400aa801219b7fe7ee6b.png@1280w_1l_2o_100sh.png',
+    desc: '开发者中心'
   },
   {
     type: 'system',

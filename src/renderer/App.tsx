@@ -26,9 +26,10 @@ const AppContainer = () => {
         algorithm: themeAlgorithm,
         token: {
           colorPrimary: theme.colorPrimary,
-          borderRadius: 2
+          borderRadius: 12
         }
       }}
+      wave={{ disabled: true }}
       variant='filled'
       componentSize='large'
     >

@@ -7,3 +7,8 @@ export const MAIN_SEARCH = 'main:search';
 export const MAIN_OPEN_PLUGIN = 'main:openPlugin'
 
 export const MAIN_CLOSE_PLUGIN = 'main:closePlugin'
+
+
+export const MAIN_HIDE = 'main:hide'
+
+export const MAIN_SEARCH_FOCUS = 'main:searchFocus'
