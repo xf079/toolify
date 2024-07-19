@@ -9,7 +9,7 @@ import {
 import {
   MAIN_CHANGE_WINDOW_HEIGHT,
   MAIN_SYNC_CONFIG
-} from '@common/constants/event-main';
+} from '@main/config/constants';
 import { useConfig } from '@/context';
 import { useStyles } from './style';
 import { ThemeOptions } from '@/config/enum';

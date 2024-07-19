@@ -1,6 +1,6 @@
-import device from '@common/utils/device';
-import { createFolderIfNotExists, getDataPath } from '@common/utils/os';
-import PluginsModal from '@main/shared/db/modal/plugins';
+import { createFolderIfNotExists, getDataPath } from '@main/utils/os';
+import PluginsModal from '@main/shared/modal/plugins';
+import device from '@main/utils/device';
 import { MacosApplication } from './mac';
 import { WindowsApplication } from './windows';
 

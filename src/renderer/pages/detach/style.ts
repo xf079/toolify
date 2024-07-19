@@ -1,5 +1,5 @@
 import { createStyles } from 'antd-style';
-import { WINDOW_TOOLBAR_HEIGHT } from '@common/constants/common';
+import { WINDOW_TOOLBAR_HEIGHT } from '@main/config/constants';
 
 export const useStyles = createStyles(({ css, token }) => ({
   toolbar: css`

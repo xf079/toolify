@@ -6,7 +6,7 @@ import {
   useEffect,
   useState
 } from 'react';
-import { MAIN_SYNC_CONFIG } from '@common/constants/event-main';
+import { MAIN_SYNC_CONFIG } from '@main/config/constants';
 
 const StoreContext = createContext<GlobalConfigs>(null);
 

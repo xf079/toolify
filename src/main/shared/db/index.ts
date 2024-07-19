@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { getDataPath } from '@common/utils/os';
+import { getDataPath } from '@main/utils/os';
 
 
 const sequelize = new Sequelize({

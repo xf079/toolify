@@ -20,6 +20,7 @@
   "dependencies": {
     "electron-squirrel-startup": "^1.0.1",
     "iconv-lite": "^0.6.3",
+    "nanoid": "^5.0.7",
     "pinyin-pro": "^3.23.1"
   },
   "devDependencies": {

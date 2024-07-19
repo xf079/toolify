@@ -1,9 +1,9 @@
-import ThemeModal from '@main/shared/db/modal/theme';
-import SettingsModal from '@main/shared/db/modal/settings';
-import PluginsModal from '@main/shared/db/modal/plugins';
-import { defaultConfig } from '@common/config/default-config';
+import ThemeModal from '@main/shared/modal/theme';
+import SettingsModal from '@main/shared/modal/settings';
+import PluginsModal from '@main/shared/modal/plugins';
+import { defaultConfig } from '@main/config/default-config';
 
-export default async function initDefaultConfig() {
+export default async function initialization() {
   await ThemeModal.destroy({
     where: {
       type: 'default'
@@ -20,7 +20,7 @@ export default async function initDefaultConfig() {
 
   await PluginsModal.destroy({
     where: {
-      type: 'system'
+      type: 'built'
     }
   });
   await PluginsModal.bulkCreate(defaultConfig.plugins);

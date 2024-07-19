@@ -8,6 +8,16 @@ export const useStyles = createStyles(({ token, css }) => ({
     display: flex;
     flex-direction: row;
     overflow: hidden;
-      border-top: 1px solid ${token.colorSplit};
+    border-top: 1px solid ${token.colorSplit};
+  `,
+  nav: css`
+    width: 180px;
+    background-color: ${token.colorBgLayout};
+  `,
+  navTitle: css`
+    font-size: 16px;
+    font-weight: 600;
+    padding: ${token.paddingXS}px ${token.paddingSM}px;
+    color: ${token.colorText};
   `
 }));

@@ -7,7 +7,7 @@ import {
   LineOutlined,
   SettingOutlined
 } from '@ant-design/icons';
-import { DETACH_SERVICE } from '@common/constants/event-detach';
+import { DETACH_SERVICE } from '@main/config/constants';
 import { useState } from 'react';
 
 export default function Detach() {

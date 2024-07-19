@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import { nativeImage } from 'electron';
-import { getDataPath } from '@common/utils/os';
+import { getDataPath } from '@main/utils/os';
 
 export class MacosApplication {
   async init() {

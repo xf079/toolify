@@ -13,21 +13,22 @@ import { match } from 'pinyin-pro';
 import {
   WINDOW_HEIGHT,
   WINDOW_PLUGIN_HEIGHT,
-  WINDOW_WIDTH
-} from '@common/constants/common';
-import {
+  WINDOW_WIDTH,
   MAIN_CHANGE_WINDOW_HEIGHT,
   MAIN_CLOSE_PLUGIN,
   MAIN_OPEN_PLUGIN,
   MAIN_OPEN_PLUGIN_MENU,
   MAIN_SEARCH,
   MAIN_SEARCH_FOCUS,
-  MAIN_SYNC_CONFIG
-} from '@common/constants/event-main';
-import ThemeModal from '@main/shared/db/modal/theme';
-import SettingsModal from '@main/shared/db/modal/settings';
-import PluginsModal from '@main/shared/db/modal/plugins';
-import { setContentsUrl } from '@common/utils/window-path';
+  MAIN_SYNC_CONFIG,
+  BUILT_UPDATE_PLUGIN,
+  BUILT_CREATE_PLUGIN,
+  BUILT_REMOVE_PLUGIN
+} from '@main/config/constants';
+import ThemeModal from '@main/shared/modal/theme';
+import SettingsModal from '@main/shared/modal/settings';
+import PluginsModal from '@main/shared/modal/plugins';
+import { setContentsUrl } from '@main/utils/window-path';
 
 export class MainBrowser {
   private baseWindow: BaseWindow;
@@ -104,14 +105,12 @@ export class MainBrowser {
     this.baseWindow = new BaseWindow({
       width: WINDOW_WIDTH,
       height: WINDOW_HEIGHT,
-      x: 120,
-      y: 20,
       useContentSize: false,
       resizable: false,
       fullscreenable: false,
       frame: false,
       title: 'Apeak',
-      show: true,
+      show: false,
       skipTaskbar: true,
       alwaysOnTop: true,
       backgroundColor: this.backgroundColor
@@ -190,7 +189,7 @@ export class MainBrowser {
         height: WINDOW_PLUGIN_HEIGHT
       });
       this.pluginView.setBackgroundColor(this.backgroundColor);
-      if (item.type === 'system') {
+      if (item.type === 'built') {
         console.log(222);
         setContentsUrl(this.pluginView.webContents, item.main);
         this.baseWindow.setSize(
@@ -202,7 +201,6 @@ export class MainBrowser {
           WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
         );
         this.pluginView.webContents.on('did-finish-load', () => {
-          console.log('333');
           this.pluginView.webContents.send(MAIN_SYNC_CONFIG, this.configs);
           resolve(true);
         });
@@ -237,7 +235,7 @@ export class MainBrowser {
     ipcMain.handle(MAIN_OPEN_PLUGIN, async (event, item: IPlugin) => {
       if (item.type === 'app') {
         spawn('open', ['-a', item.main]);
-      } else if (item.type === 'system') {
+      } else if (item.type === 'built') {
         await this.openPlugin(item);
       }
     });
@@ -249,6 +247,30 @@ export class MainBrowser {
         this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT);
       }
+    });
+
+    ipcMain.handle(BUILT_CREATE_PLUGIN, async (event, data) => {
+      const res = await PluginsModal.create(data);
+      console.log(res);
+      return res;
+    });
+
+    ipcMain.handle(BUILT_REMOVE_PLUGIN, async (event, id) => {
+      const res = await PluginsModal.destroy({
+        where: { id }
+      });
+      console.log(res);
+      return res;
+    });
+
+    ipcMain.handle(BUILT_UPDATE_PLUGIN, async (event, data) => {
+      const res = await PluginsModal.update(data, {
+        where: {
+          id: data.id
+        }
+      });
+      console.log(res);
+      return res;
     });
 
     ipcMain.on(MAIN_CHANGE_WINDOW_HEIGHT, (event, height) => {
@@ -287,11 +309,10 @@ export class MainBrowser {
           click: () => {
             console.log(123);
           }
-        },
-      ]
-      const menu = Menu.buildFromTemplate(template)
-      menu.popup({
-      });
+        }
+      ];
+      const menu = Menu.buildFromTemplate(template);
+      menu.popup({});
     });
   }
   private shortcut() {

@@ -1,4 +1,4 @@
-import { Menu, MenuProps } from 'antd';
+import { Button, Menu, MenuProps } from 'antd';
 import { useStyles } from '@/pages/system/mine/style';
 import { PlusOutlined, UserOutlined } from '@ant-design/icons';
 type MenuItem = Required<MenuProps>['items'][number];
@@ -33,7 +33,7 @@ function Mine() {
         inlineCollapsed={true}
         items={items}
       />
-      <h1>Electron Vite</h1>
+      <h1>Electron Vite <Button type='primary'>primary</Button></h1>
     </div>
   );
 }

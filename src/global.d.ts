@@ -1,7 +1,7 @@
 import type {
   ThemeConfigType,
   SettingsConfigType
-} from '@common/config/default-config';
+} from '@main/configs/default-config';
 
 export {};
 
@@ -31,10 +31,17 @@ declare global {
     main: string;
     logo: string;
     desc?: string;
+    unique?: string;
+    running?: boolean;
     version?: string;
     platform?: string;
     single?: boolean;
     features?: string;
     [key: string]: any;
+  }
+  interface IDevPlugin {
+    name:string
+    desc:string;
+    homepage:string
   }
 }

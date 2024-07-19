@@ -1,16 +1,14 @@
 import { createHashRouter, Outlet } from 'react-router-dom';
 
 import AppPage from '@/pages/app';
-
 import Panel from '@/pages/panel';
-
 import Detach from '@/pages/detach';
 
 import Mine from '@/pages/system/mine';
 import Developer from '@/pages/system/developer';
 import Plugins from '@/pages/system/plugins';
 
-const routes = [
+const router = createHashRouter([
   {
     path: '',
     element: <AppPage />
@@ -41,8 +39,6 @@ const routes = [
       }
     ]
   }
-];
-
-const router = createHashRouter(routes);
+]);
 
 export default router;

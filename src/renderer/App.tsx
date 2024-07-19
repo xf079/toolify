@@ -4,6 +4,8 @@ import { useMemo } from 'react';
 import useSystemTheme from '@/hooks/useSyetemTheme';
 import router from './router';
 import { ConfigProvider, useConfig } from '@/context';
+import showInsetEffect from '@/design/insetWare';
+
 
 const AppContainer = () => {
   const { theme } = useConfig();
@@ -26,12 +28,11 @@ const AppContainer = () => {
         algorithm: themeAlgorithm,
         token: {
           colorPrimary: theme.colorPrimary,
-          borderRadius: 12
+          borderRadius: 2
         }
       }}
-      wave={{ disabled: true }}
+      wave={{showEffect: showInsetEffect}}
       variant='filled'
-      componentSize='large'
     >
       <RouterProvider router={router} />
     </AntdConfigProvider>
@@ -43,6 +44,7 @@ const App = () => {
     <ConfigProvider>
       <AppContainer />
     </ConfigProvider>
+    // <RouterProvider router={router} />
   );
 };
 

@@ -5,14 +5,15 @@ import { useStyles } from '@/pages/app/style';
 import { Avatar, Button } from 'antd';
 import { useConfig } from '@/context';
 import Result from '@/components/Result';
-import { WINDOW_HEIGHT } from '@common/constants/common';
 import {
+  WINDOW_HEIGHT,
   MAIN_CLOSE_PLUGIN,
   MAIN_HIDE,
-  MAIN_OPEN_PLUGIN, MAIN_OPEN_PLUGIN_MENU,
+  MAIN_OPEN_PLUGIN,
+  MAIN_OPEN_PLUGIN_MENU,
   MAIN_SEARCH,
   MAIN_SEARCH_FOCUS
-} from '@common/constants/event-main';
+} from '@main/config/constants';
 import { delayTime } from '@/utils/utils';
 
 import Logo from '@/assets/logo.svg?react';
@@ -58,6 +59,7 @@ function AppPage() {
     reset();
     setPluginLoading(true);
     await delayTime(120);
+    console.log(item);
     await apeak.sendSync(MAIN_OPEN_PLUGIN, item);
     setPluginLoading(false);
     if (item.type !== 'app') {
@@ -93,7 +95,7 @@ function AppPage() {
       setList([]);
       return;
     }
-    if(currentPlugin){
+    if (currentPlugin) {
       console.log('通知到插件');
       return;
     }
@@ -107,13 +109,16 @@ function AppPage() {
       onReset();
     });
     apeak.on(MAIN_SEARCH_FOCUS, () => {
-      inputRef.current?.focus();
+      // inputRef.current?.focus();
     });
   }, []);
 
   return (
     <div className={styles.app}>
-      <div className={styles.wrapper} ref={wrapperRef}>
+      <div
+        className={cx(styles.wrapper, currentPlugin && 'border')}
+        ref={wrapperRef}
+      >
         {currentPlugin ? (
           <div className={styles.plugin}>
             <Avatar
@@ -138,7 +143,7 @@ function AppPage() {
         <div
           className={styles.search}
           onClick={() => {
-            inputRef.current?.focus();
+            onBlur();
           }}
         >
           <input
@@ -149,10 +154,18 @@ function AppPage() {
             className={styles.searchValue}
             placeholder={settings.placeholder}
             onKeyDown={onKeyDown}
-            onBlur={onBlur}
+            // onBlur={onBlur}
           />
         </div>
-        {currentPlugin && <Button icon={<MenuOutlined />} className={styles.menu} type='text' onClick={onOpenMenu} />}
+        {currentPlugin && (
+          <Button
+            icon={<MenuOutlined />}
+            className={styles.menu}
+            shape='circle'
+            type='text'
+            onClick={onOpenMenu}
+          />
+        )}
       </div>
       <div className={styles.content}>
         <Result list={list} current={current} onOpen={onOpenPlugin} />

@@ -11,6 +11,11 @@ class PluginsModal extends Model<
   InferCreationAttributes<PluginsModal>
 > {
   declare id: number;
+
+  /**
+   * 唯一标识
+   */
+  declare unique: string;
   /**
    * 插件类型
    */
@@ -38,19 +43,14 @@ class PluginsModal extends Model<
   declare version: string;
 
   /**
+   * 是否运行中
+   */
+  declare running: boolean;
+
+  /**
    * 插件平台
    */
   declare platform: string;
-
-  /**
-   * 插件是否可以多开
-   */
-  declare single: boolean;
-
-  /**
-   * 插件默认高度
-   */
-  declare height: number;
 
   /**
    * 更多信息
@@ -65,6 +65,10 @@ PluginsModal.init(
       autoIncrement: true,
       primaryKey: true
     },
+    unique: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     type: {
       type: DataTypes.STRING,
       allowNull: false
@@ -75,7 +79,7 @@ PluginsModal.init(
     },
     main: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     logo: {
       type: DataTypes.STRING,
@@ -89,18 +93,13 @@ PluginsModal.init(
       type: DataTypes.STRING,
       allowNull: true
     },
-    platform: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    single: {
+    running: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       allowNull: true
     },
-    height: {
-      type: DataTypes.INTEGER,
-      defaultValue: 600,
+    platform: {
+      type: DataTypes.STRING,
       allowNull: true
     },
     features: {

@@ -7,7 +7,7 @@ import {
   copyFile,
   getDataPath,
   getFilenameWithoutExtension
-} from '@common/utils/os';
+} from '@main/utils/os';
 
 export class WindowsApplication {
   async init() {

@@ -1,13 +1,6 @@
 import { globalShortcut } from 'electron';
-import { IBrowserWindow } from '@common/types';
-// import { mouseLocaion } from 'rubick-native';
 
-export interface IShortcutOption {
-  mainWin: IBrowserWindow;
-  panelWin: IBrowserWindow;
-}
-
-export default function createShortcut(option: IShortcutOption) {
+export default function createShortcut(option:any) {
   /**
    * 注册超级面板快捷键
    * @param {string} 'CommandOrControl+Q' - 快捷键

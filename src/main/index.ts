@@ -1,12 +1,11 @@
 import { app, protocol } from 'electron';
 import MainBrowser from '@main/browser/main';
-import PanelBrowser from '@main/browser/panel';
 
 import { sequelizeSync } from '@main/shared/db';
 import initApplication from '@main/shared/application';
-import initDefaultConfig from '@main/shared/config/init-config';
-import device from '@common/utils/device';
-import env from '@common/utils/env';
+import initialization from '@main/shared/config/initialization';
+import device from '@main/utils/device';
+import env from '@main/utils/env';
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -16,11 +15,10 @@ if (require('electron-squirrel-startup')) {
 
 async function appReadyHandle() {
   await sequelizeSync();
-  await initDefaultConfig();
+  await initialization();
   await initApplication()
   try {
     const main = new MainBrowser();
-    const panel = new PanelBrowser();
   } catch (e) {
     console.log(e);
   }
