@@ -30,6 +30,10 @@ export default defineConfig((env) => {
               {
                 src: './plugins',
                 dest: '.vite/build'
+              },
+              {
+                src: './resources',
+                dest: '.vite/build'
               }
             ]
           })

@@ -26,10 +26,12 @@ declare global {
   }
 
   interface IPlugin {
+    id: number;
     type: string;
     name: string;
     main: string;
     logo: string;
+    separation: boolean;
     desc?: string;
     unique?: string;
     running?: boolean;
@@ -39,9 +41,13 @@ declare global {
     features?: string;
     [key: string]: any;
   }
-  interface IDevPlugin {
-    name:string
-    desc:string;
-    homepage:string
+
+  interface IDeveloperPlugin {
+    unique: string;
+    name: string;
+    desc: string;
+    homepage: string;
+    source: string;
+    running: boolean;
   }
 }

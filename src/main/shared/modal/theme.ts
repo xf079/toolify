@@ -4,7 +4,7 @@ import {
   InferCreationAttributes,
   DataTypes
 } from 'sequelize';
-import sequelize from '@main/shared/db';
+import { sequelize } from '@main/shared/db';
 
 class ThemeModal extends Model<
   InferAttributes<ThemeModal>,
@@ -55,7 +55,7 @@ ThemeModal.init(
     }
   },
   {
-    sequelize,
+    sequelize: sequelize,
     tableName: 'theme',
     timestamps: true,
     createdAt: true,

@@ -85,6 +85,7 @@ export const useStyles = createStyles(({ token, css }) => {
       font-size: 14px;
       font-weight: 600;
       white-space: nowrap;
+      color: ${token.colorTextBase};
     `,
     pluginClose: css`
       font-size: 16px;

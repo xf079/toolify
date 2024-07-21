@@ -6,7 +6,6 @@ import router from './router';
 import { ConfigProvider, useConfig } from '@/context';
 import showInsetEffect from '@/design/insetWare';
 
-
 const AppContainer = () => {
   const { theme } = useConfig();
   const { theme: systemTheme } = useSystemTheme();
@@ -16,7 +15,10 @@ const AppContainer = () => {
     [theme.theme, systemTheme]
   );
   const themeAlgorithm = useMemo(
-    () => (themeVal === 'dark' ? [antdTheme.darkAlgorithm] : null),
+    () =>
+      themeVal === 'dark'
+        ? [antdTheme.darkAlgorithm]
+        : [antdTheme.defaultAlgorithm],
     [themeVal]
   );
 
@@ -31,8 +33,9 @@ const AppContainer = () => {
           borderRadius: 2
         }
       }}
-      wave={{showEffect: showInsetEffect}}
+      wave={{ showEffect: showInsetEffect }}
       variant='filled'
+      componentSize='large'
     >
       <RouterProvider router={router} />
     </AntdConfigProvider>

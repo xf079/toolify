@@ -8,7 +8,8 @@ import {
 } from '@ant-design/icons';
 import {
   MAIN_CHANGE_WINDOW_HEIGHT,
-  MAIN_SYNC_CONFIG
+  MAIN_SYNC_CONFIG,
+  WINDOW_PLUGIN_HEIGHT
 } from '@main/config/constants';
 import { useConfig } from '@/context';
 import { useStyles } from './style';
@@ -41,11 +42,17 @@ const Result: FC<IResultProps> = ({ list, current, onOpen }) => {
 
   useMutationObserver(
     () => {
-      if (!toolbarHeight) {
-        setToolbarHeight(toolbarRef.current?.offsetHeight);
+      let _toolbarHeight = toolbarHeight;
+      if (!_toolbarHeight) {
+        _toolbarHeight = toolbarRef.current?.offsetHeight || 0;
       }
       const _listHeight = listRef.current?.offsetHeight;
-      setListHeight(_listHeight > 400 ? 400 : _listHeight);
+      setListHeight(
+        _listHeight > WINDOW_PLUGIN_HEIGHT - _toolbarHeight
+          ? WINDOW_PLUGIN_HEIGHT - _toolbarHeight
+          : _listHeight
+      );
+      setToolbarHeight(_toolbarHeight);
     },
     listRef,
     { attributes: true, childList: true, characterData: true, subtree: true }

@@ -2,10 +2,12 @@ import { app, protocol } from 'electron';
 import MainBrowser from '@main/browser/main';
 
 import { sequelizeSync } from '@main/shared/db';
+import initialization from '@main/config/initialization';
 import initApplication from '@main/shared/application';
-import initialization from '@main/shared/config/initialization';
-import device from '@main/utils/device';
-import env from '@main/utils/env';
+
+import createTray from '@main/common/tray';
+import createBuilt from '@main/common/built';
+import createShortcut from '@main/common/shortcut';
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -19,37 +21,40 @@ async function appReadyHandle() {
   await initApplication()
   try {
     const main = new MainBrowser();
+    void createBuilt();
+    void createTray(main);
+    void createShortcut(main)
   } catch (e) {
     console.log(e);
   }
 }
-
-/**
- * 注册协议
- */
-protocol.registerSchemesAsPrivileged([
-  { scheme: 'app', privileges: { secure: true, standard: true } }
-]);
-
-/**
- * 应用程序实例是否成功取得了锁。
- * 如果它取得锁失败，你可以假设另一个应用实例已经取得了锁并且仍旧在运行，并立即退出
- */
-const gotTheLock = app.requestSingleInstanceLock();
-if (!gotTheLock) {
-  app.quit();
-}
-
-// 系统托盘
-if (device.macOS()) {
-  if (env.production() && !app.isInApplicationsFolder()) {
-    app.moveToApplicationsFolder();
-  } else {
-    app.dock.hide();
-  }
-} else {
-  app.disableHardwareAcceleration();
-}
+//
+// /**
+//  * 注册协议
+//  */
+// protocol.registerSchemesAsPrivileged([
+//   { scheme: 'app', privileges: { secure: true, standard: true } }
+// ]);
+//
+// /**
+//  * 应用程序实例是否成功取得了锁。
+//  * 如果它取得锁失败，你可以假设另一个应用实例已经取得了锁并且仍旧在运行，并立即退出
+//  */
+// const gotTheLock = app.requestSingleInstanceLock();
+// if (!gotTheLock) {
+//   app.quit();
+// }
+//
+// // 系统托盘
+// if (device.macOS()) {
+//   if (env.production() && !app.isInApplicationsFolder()) {
+//     app.moveToApplicationsFolder();
+//   } else {
+//     app.dock.hide();
+//   }
+// } else {
+//   app.disableHardwareAcceleration();
+// }
 
 // /**
 //  * 监听退出

@@ -4,7 +4,7 @@ import {
   InferCreationAttributes,
   DataTypes
 } from 'sequelize';
-import sequelize from '@main/shared/db';
+import { sequelize } from '@main/shared/db';
 
 class DeveloperModal extends Model<
   InferAttributes<DeveloperModal>,
@@ -36,6 +36,16 @@ class DeveloperModal extends Model<
    * 插件描述
    */
   declare desc: string;
+
+  /**
+   * 插件目录位置
+   */
+  declare source: string;
+
+  /**
+   * 是否运行
+   */
+  declare running: boolean;
 }
 
 DeveloperModal.init(
@@ -64,10 +74,19 @@ DeveloperModal.init(
     desc: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    source: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    running: {
+      type: DataTypes.BOOLEAN,
+      defaultValue:false,
+      allowNull: true
     }
   },
   {
-    sequelize,
+    sequelize:sequelize,
     tableName: 'developer',
     timestamps: true,
     createdAt: true,

@@ -20,6 +20,7 @@
     "no-case-declarations": "off",
     "no-constant-condition": "off",
     "no-empty": "off",
+    "no-var": "off",
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-explicit-any": "off"
   }

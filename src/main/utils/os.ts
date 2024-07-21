@@ -1,5 +1,6 @@
-import { app } from 'electron';
+import { app, nativeTheme } from 'electron';
 import fs from 'node:fs';
+import path from 'node:path';
 
 export function getDataPath(path: string) {
   const isPackaged = app.isPackaged;
@@ -37,4 +38,10 @@ export function copyFile(src: string, dest: string) {
   if (_buffer) {
     fs.writeFileSync(dest, _buffer);
   }
+}
+
+
+export const getPublicIcon = (name: string) => {
+  const iconType = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
+  return path.join(__dirname, `../resources/icon/${iconType}/${name}.png`)
 }

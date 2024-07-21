@@ -4,7 +4,7 @@ import {
   InferCreationAttributes,
   DataTypes
 } from 'sequelize';
-import sequelize from '@main/shared/db';
+import { sequelize } from '@main/shared/db';
 
 class PluginsModal extends Model<
   InferAttributes<PluginsModal>,
@@ -37,6 +37,11 @@ class PluginsModal extends Model<
    * 插件描述
    */
   declare desc: string;
+
+  /**
+   * 是否分离
+   */
+  declare separation: boolean;
   /**
    * 插件版本
    */
@@ -89,6 +94,11 @@ PluginsModal.init(
       type: DataTypes.STRING,
       allowNull: true
     },
+    separation: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true
+    },
     version: {
       type: DataTypes.STRING,
       allowNull: true
@@ -108,7 +118,7 @@ PluginsModal.init(
     }
   },
   {
-    sequelize,
+    sequelize: sequelize,
     tableName: 'plugins',
     timestamps: true,
     createdAt: true,

@@ -30,7 +30,7 @@ const router = createHashRouter([
         element: <Plugins />
       },
       {
-        path: 'mine',
+        path: 'settings',
         element: <Mine />
       },
       {

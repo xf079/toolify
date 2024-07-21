@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import { nativeImage } from 'electron';
 import { getDataPath } from '@main/utils/os';
+import { PUBLIC_PATH } from '@main/config/constants';
 
 export class MacosApplication {
   async init() {
@@ -78,7 +79,7 @@ export class MacosApplication {
         return null;
       }
       const dataBuffer = image.toPNG();
-      const iconPath = getDataPath('/image/' + item.name + '.png');
+      const iconPath = getDataPath(PUBLIC_PATH + 'image/' + item.name + '.png');
       fs.writeFileSync(iconPath, dataBuffer);
       return { ...item, logo: iconPath };
     } catch (error) {

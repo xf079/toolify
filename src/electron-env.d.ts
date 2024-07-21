@@ -18,3 +18,15 @@ declare namespace NodeJS {
     VITE_PUBLIC: string;
   }
 }
+
+declare global {
+  declare var theme: ThemeConfig;
+  declare var settings: SettingsConfig;
+  declare var configs: {
+    theme: ThemeConfig;
+    settings: SettingsConfig;
+  };
+  declare var bgColor: string;
+}
+
+export {};

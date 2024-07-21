@@ -8,6 +8,7 @@ import {
   getDataPath,
   getFilenameWithoutExtension
 } from '@main/utils/os';
+import { PUBLIC_PATH } from '@main/config/constants';
 
 export class WindowsApplication {
   async init() {
@@ -37,7 +38,9 @@ export class WindowsApplication {
             return null;
           }
           const dataBuffer = nativeImage.toPNG();
-          const iconPath = getDataPath('/image/' + fileName + '.png');
+          const iconPath = getDataPath(
+            PUBLIC_PATH + '/image/' + fileName + '.png'
+          );
           fs.writeFileSync(iconPath, dataBuffer);
           return {
             type: 'app',
@@ -46,7 +49,9 @@ export class WindowsApplication {
             logo: iconPath
           };
         } else {
-          const iconPath = getDataPath('/image/' + fileName + '.ico');
+          const iconPath = getDataPath(
+            PUBLIC_PATH + '/image/' + fileName + '.ico'
+          );
           copyFile(detail.icon, iconPath);
           return {
             type: 'app',

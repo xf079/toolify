@@ -4,7 +4,7 @@ import {
   InferCreationAttributes,
   DataTypes
 } from 'sequelize';
-import sequelize from '@main/shared/db';
+import { sequelize } from '@main/shared/db';
 
 class SettingsModal extends Model<
   InferAttributes<SettingsModal>,
@@ -62,7 +62,7 @@ SettingsModal.init(
     }
   },
   {
-    sequelize,
+    sequelize: sequelize,
     tableName: 'settings',
     timestamps: true,
     createdAt: true,

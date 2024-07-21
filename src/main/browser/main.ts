@@ -2,7 +2,6 @@ import {
   BaseWindow,
   globalShortcut,
   ipcMain,
-  nativeTheme,
   WebContentsView,
   screen,
   Menu
@@ -15,137 +14,150 @@ import {
   WINDOW_PLUGIN_HEIGHT,
   WINDOW_WIDTH,
   MAIN_CHANGE_WINDOW_HEIGHT,
-  MAIN_CLOSE_PLUGIN,
-  MAIN_OPEN_PLUGIN,
   MAIN_OPEN_PLUGIN_MENU,
   MAIN_SEARCH,
   MAIN_SEARCH_FOCUS,
   MAIN_SYNC_CONFIG,
   BUILT_UPDATE_PLUGIN,
   BUILT_CREATE_PLUGIN,
-  BUILT_REMOVE_PLUGIN
+  BUILT_REMOVE_PLUGIN,
+  BUILT_PLUGIN_LIST,
+  SYSTEM_PLUGIN_SETTINGS,
+  SYSTEM_PLUGIN_CENTER,
+  MAIN_HIDE,
+  MAIN_SYNC_PLUGIN,
+  MAIN_PLUGIN_OPEN,
+  MAIN_PLUGIN_CLOSE
 } from '@main/config/constants';
-import ThemeModal from '@main/shared/modal/theme';
-import SettingsModal from '@main/shared/modal/settings';
 import PluginsModal from '@main/shared/modal/plugins';
 import { setContentsUrl } from '@main/utils/window-path';
+import DeveloperModal from '@main/shared/modal/developer';
+import env from '@main/utils/env';
+
+export interface IPluginItem {
+  id: number;
+  detail: IPlugin;
+  plugin: WebContentsView;
+}
 
 export class MainBrowser {
-  private baseWindow: BaseWindow;
-  private searchView: WebContentsView;
-  private pluginView: WebContentsView;
+  private main: BaseWindow;
+  private search: WebContentsView;
 
-  private configs: GlobalConfigs;
-  private theme: ThemeConfig;
-  private settings: SettingsConfig;
-  private backgroundColor: string;
+  private pluginList: IPluginItem[] = [];
+  private currentPlugin: number;
 
   constructor() {
-    void this.initWindowSettings();
-  }
-
-  async initWindowSettings() {
-    await this.getSystemSettings();
-    this.getWindowBgColor();
     this.createMainWindow();
   }
 
-  async getSystemSettings() {
-    try {
-      const theme = await ThemeModal.findOne({
-        where: { type: 'default' }
-      });
-      const settings = await SettingsModal.findOne({
-        where: { type: 'default' }
-      });
-
-      if (theme) {
-        this.theme = theme.dataValues;
-      }
-      if (settings) {
-        this.settings = settings.dataValues;
-      }
-
-      this.configs = { theme: this.theme, settings: this.settings };
-    } catch (err) {
-      console.log(err);
-    }
+  /**
+   * 打开系统设置
+   */
+  public async openSystemSettings() {
+    this.show();
+    const systemSettings = await this.queryPluginInfo(SYSTEM_PLUGIN_SETTINGS);
+    void this.openPlugin(systemSettings);
   }
 
-  private getWindowBgColor() {
-    const nativeColor = nativeTheme.shouldUseDarkColors ? '#000000' : '#FFFFFF';
-    if (this.theme.theme === 'system') {
-      this.backgroundColor = nativeColor;
-    }
-    this.backgroundColor = this.theme.theme === 'dark' ? '#000000' : '#FFFFFF';
+  /**
+   * 打开插件中心
+   */
+  public async openPluginCenter() {
+    this.show();
+    const systemSettings = await this.queryPluginInfo(SYSTEM_PLUGIN_CENTER);
+    void this.openPlugin(systemSettings);
+  }
+  /**
+   * 显示窗口
+   */
+  public show() {
+    this.main.show();
+    this.search.webContents.focus();
+    this.search.webContents.send(MAIN_SEARCH_FOCUS);
+  }
 
-    nativeTheme.on('updated', () => {
-      this.backgroundColor = nativeColor;
+  /**
+   * 隐藏窗口
+   */
+  public hide() {
+    this.main.hide();
+  }
+
+  /**
+   * 查询指定插件信息
+   * @param key
+   * @private
+   */
+  private async queryPluginInfo(key: string) {
+    const value = await PluginsModal.findOne({
+      where: {
+        unique: key
+      }
     });
+    if (!value) return;
+    return value.dataValues as unknown as IPlugin;
   }
 
-  private getCurrentWindowRect() {
-    const cursorPoint = screen.getCursorScreenPoint();
-    const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
-    let x = currentDisplay.bounds.x;
-    let y = currentDisplay.bounds.y;
-
-    const windowHeight = WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT;
-
-    x += (currentDisplay.bounds.width - WINDOW_WIDTH) / 2;
-    y += (currentDisplay.bounds.height - windowHeight) / 2;
-
-    return {
-      x,
-      y
-    };
+  private createSearchView() {
+    return this.search;
   }
 
+  /**
+   * 创建主窗口
+   * @private
+   */
   private createMainWindow() {
-    this.baseWindow = new BaseWindow({
+    this.main = new BaseWindow({
       width: WINDOW_WIDTH,
       height: WINDOW_HEIGHT,
-      useContentSize: false,
+      minWidth: WINDOW_WIDTH,
+      maxWidth: WINDOW_WIDTH,
+      minHeight: WINDOW_HEIGHT,
+      maxHeight: WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT,
+      x: 100,
+      y: 100,
+      useContentSize: true,
       resizable: false,
       fullscreenable: false,
       frame: false,
       title: 'Apeak',
-      show: false,
+      show: true,
       skipTaskbar: true,
       alwaysOnTop: true,
-      backgroundColor: this.backgroundColor
+      backgroundColor: global.bgColor
     });
-
-    this.searchView = new WebContentsView({
+    this.search = new WebContentsView({
       webPreferences: {
         nodeIntegrationInWorker: true,
         preload: path.join(__dirname, '../preload/index.js')
       }
     });
 
-    this.searchView.setBounds({
+    this.search.setBounds({
       x: 0,
       y: 0,
       width: WINDOW_WIDTH,
       height: WINDOW_PLUGIN_HEIGHT + WINDOW_HEIGHT
     });
-    setContentsUrl(this.searchView.webContents);
 
-    this.baseWindow.contentView.addChildView(this.searchView);
+    setContentsUrl(this.search.webContents);
 
-    this.searchView.webContents.on('did-finish-load', () => {
-      this.searchView.webContents.send(MAIN_SYNC_CONFIG, this.configs);
-    });
+    this.main.contentView.addChildView(this.search);
 
-    // and load the index.html of the app.
-    // Open the DevTools.
-    this.searchView.webContents.openDevTools();
-
+    if (env.dev()) {
+      this.search.webContents.openDevTools();
+    }
     this.handle();
     this.shortcut();
   }
 
-  async onSearch(value: string) {
+  /**
+   * 搜索
+   * @param value
+   * @private
+   */
+  private async onSearch(value: string) {
     try {
       const pluginList = await PluginsModal.findAll();
       if (pluginList && pluginList.length) {
@@ -158,7 +170,7 @@ export class MainBrowser {
           const nameList = item.name.split('');
           const nameFormat = nameList.map((val, index) => {
             if ((indexList || []).includes(index)) {
-              return `<span style="color: ${this.theme.colorPrimary}">${val}</span>`;
+              return `<span style="color: ${global.theme.colorPrimary}">${val}</span>`;
             }
             return val;
           });
@@ -172,116 +184,194 @@ export class MainBrowser {
     }
   }
 
-  openPlugin(item: IPlugin) {
+  /**
+   * 创建系统插件窗口
+   * @param item
+   * @private
+   */
+  private createBuiltPluginView(item: IPlugin) {
     return new Promise((resolve) => {
-      this.pluginView = new WebContentsView({
+      const pluginView = new WebContentsView({
         webPreferences: {
           nodeIntegrationInWorker: true,
-          webgl: false,
           preload: path.join(__dirname, '../preload/index.js')
         }
       });
-      this.baseWindow.contentView.addChildView(this.pluginView);
-      this.pluginView.setBounds({
+      pluginView.setBounds({
         x: 0,
         y: WINDOW_HEIGHT,
         width: WINDOW_WIDTH,
         height: WINDOW_PLUGIN_HEIGHT
       });
-      this.pluginView.setBackgroundColor(this.backgroundColor);
-      if (item.type === 'built') {
-        console.log(222);
-        setContentsUrl(this.pluginView.webContents, item.main);
-        this.baseWindow.setSize(
+      pluginView.setBackgroundColor(global.bgColor);
+
+      this.main.contentView.addChildView(pluginView);
+
+      setContentsUrl(pluginView.webContents, item.main);
+
+      pluginView.webContents.on('did-finish-load', () => {
+        // 通知搜索当前打开插件
+        this.search.webContents.send(MAIN_SYNC_PLUGIN, item);
+        // 设置窗体大小
+        this.main.setContentSize(
           WINDOW_WIDTH,
           WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
         );
-        this.baseWindow.setContentSize(
-          WINDOW_WIDTH,
-          WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
-        );
-        this.pluginView.webContents.on('did-finish-load', () => {
-          this.pluginView.webContents.send(MAIN_SYNC_CONFIG, this.configs);
-          resolve(true);
-        });
+        this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT);
+        // 插件加载成功
+        resolve(true);
+      });
+
+      this.currentPlugin = item.id;
+      this.pluginList.push({
+        id: item.id,
+        plugin: pluginView,
+        detail: item
+      });
+      if (env.dev()) {
+        pluginView.webContents.openDevTools();
       }
-      this.pluginView.webContents.openDevTools();
     });
+  }
+
+  /**
+   * 打开插件
+   * @param item
+   * @private
+   */
+  private openPlugin(item: IPlugin) {
+    return new Promise((resolve) => {
+      const current = this.pluginList.find((_item) => _item.id === item.id);
+      if (current) {
+        this.main.contentView.addChildView(current.plugin);
+        current.plugin.webContents.reload();
+        this.currentPlugin = item.id;
+        resolve(true);
+        return;
+      }
+      if (item.type === 'built') {
+        this.createBuiltPluginView(item).then(resolve);
+      }
+    });
+  }
+
+  /**
+   * 关闭当前插件窗口
+   * @private
+   */
+  private closePlugin() {
+    if (this.currentPlugin) {
+      const _currentPlugin = this.pluginList.find(
+        (plugin) => plugin.id === this.currentPlugin
+      );
+      this.main.contentView.removeChildView(_currentPlugin.plugin);
+      this.currentPlugin = undefined;
+      this.main.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+      this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    }
+  }
+
+  /**
+   * 停止插件
+   * @param item
+   * @private
+   */
+  private destroyPlugin(item: IPlugin) {
+    const plugin = this.pluginList.find((plugin) => plugin.id === item.id);
+    if (plugin) {
+      this.main.contentView.removeChildView(plugin.plugin);
+      this.pluginList = this.pluginList.filter(
+        (plugin) => plugin.id !== item.id
+      );
+    }
   }
 
   private handle() {
     /**
-     *
+     * 失去焦点关闭插件
      */
-    // this.baseWindow.on('blur', () => {
-    //   this.searchView.webContents.send(MAIN_HIDE);
-    //   /**
-    //    * 如果打开了插件
-    //    * 清除插件相关窗口信息
-    //    */
-    //   if (this.pluginView) {
-    //     this.baseWindow.contentView.removeChildView(this.pluginView);
-    //     this.pluginView = null;
-    //     this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    //     this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    //   }
-    //   this.baseWindow.hide();
-    // });
+    this.main.on('blur', () => {
+      this.search.webContents.send(MAIN_HIDE);
+      this.closePlugin();
+      this.main.hide();
+    });
 
+    /**
+     * 获取配置
+     */
+    ipcMain.handle(MAIN_SYNC_CONFIG, async () => {
+      return global.configs;
+    });
+
+    /**
+     * 插件搜索
+     */
     ipcMain.handle(MAIN_SEARCH, async (event, value: string) => {
       return await this.onSearch(value);
     });
 
-    ipcMain.handle(MAIN_OPEN_PLUGIN, async (event, item: IPlugin) => {
+    /**
+     * 打开插件
+     */
+    ipcMain.handle(MAIN_PLUGIN_OPEN, async (event, item: IPlugin) => {
       if (item.type === 'app') {
         spawn('open', ['-a', item.main]);
-      } else if (item.type === 'built') {
+      } else {
         await this.openPlugin(item);
       }
     });
 
-    ipcMain.handle(MAIN_CLOSE_PLUGIN, async () => {
-      if (this.pluginView) {
-        this.baseWindow.contentView.removeChildView(this.pluginView);
-        this.pluginView = null;
-        this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-      }
+    /**
+     * 关闭插件
+     */
+    ipcMain.on(MAIN_PLUGIN_CLOSE, () => {
+      this.closePlugin();
     });
 
+    /**
+     * 创建开发者插件
+     */
     ipcMain.handle(BUILT_CREATE_PLUGIN, async (event, data) => {
-      const res = await PluginsModal.create(data);
-      console.log(res);
+      const res = await DeveloperModal.create(data);
       return res;
     });
 
     ipcMain.handle(BUILT_REMOVE_PLUGIN, async (event, id) => {
-      const res = await PluginsModal.destroy({
+      const res = await DeveloperModal.destroy({
         where: { id }
       });
-      console.log(res);
       return res;
     });
 
     ipcMain.handle(BUILT_UPDATE_PLUGIN, async (event, data) => {
-      const res = await PluginsModal.update(data, {
+      const res = await DeveloperModal.update(data, {
         where: {
           id: data.id
         }
       });
-      console.log(res);
       return res;
     });
 
+    ipcMain.handle(BUILT_PLUGIN_LIST, async () => {
+      const res = await DeveloperModal.findAll();
+      if (res) {
+        return res.map((item) => item.dataValues);
+      }
+      return [];
+    });
+
+    /**
+     * 搜索状态 修改窗口大小
+     */
     ipcMain.on(MAIN_CHANGE_WINDOW_HEIGHT, (event, height) => {
-      this.baseWindow.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
-      this.baseWindow.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+      this.main.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+      this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
     });
 
     ipcMain.on(MAIN_SEARCH_FOCUS, () => {
-      this.baseWindow.focus();
-      this.searchView.webContents.focus();
-      this.searchView.webContents.send(MAIN_SEARCH_FOCUS);
+      this.main.focus();
+      this.search.webContents.focus();
+      this.search.webContents.send(MAIN_SEARCH_FOCUS);
     });
 
     ipcMain.on(MAIN_OPEN_PLUGIN_MENU, () => {
@@ -315,14 +405,36 @@ export class MainBrowser {
       menu.popup({});
     });
   }
+
+  /**
+   * 获取当前鼠标位置
+   * @private
+   */
+  private _getCurrentMouseRect() {
+    const cursorPoint = screen.getCursorScreenPoint();
+    const currentDisplay = screen.getDisplayNearestPoint(cursorPoint);
+    let x = currentDisplay.bounds.x;
+    let y = currentDisplay.bounds.y;
+
+    const windowHeight = WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT;
+
+    x += (currentDisplay.bounds.width - WINDOW_WIDTH) / 2;
+    y += (currentDisplay.bounds.height - windowHeight) / 2;
+
+    return {
+      x,
+      y
+    };
+  }
+
   private shortcut() {
-    globalShortcut.register('CommandOrControl+0', () => {
-      const point = this.getCurrentWindowRect();
-      this.baseWindow.setPosition(point.x, point.y);
-      this.baseWindow.show();
-      this.baseWindow.focus();
-      this.searchView.webContents.focus();
-      this.searchView.webContents.send(MAIN_SEARCH_FOCUS);
+    globalShortcut.register('CommandOrControl+U', () => {
+      const point = this._getCurrentMouseRect();
+      // this.main.setPosition(point.x, point.y);
+      // this.main.show();
+      // this.main.focus();
+      // this.search.webContents.focus();
+      // this.search.webContents.send(MAIN_SEARCH_FOCUS);
     });
   }
 }

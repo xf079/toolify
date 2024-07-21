@@ -27,7 +27,7 @@ export const RowItemPlugin: FC<IRowItemPluginProps> = ({
     >
       <Image
         src={source.logo}
-        width={42}
+        width={32}
         className={styles.logo}
         preview={false}
       />

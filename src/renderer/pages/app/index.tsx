@@ -1,20 +1,22 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { MenuOutlined, PoweroffOutlined } from '@ant-design/icons';
+import { PoweroffOutlined } from '@ant-design/icons';
 import { useEventTarget, useMemoizedFn, useUpdateEffect } from 'ahooks';
 import { useStyles } from '@/pages/app/style';
-import { Avatar, Button } from 'antd';
+import { Avatar } from 'antd';
 import { useConfig } from '@/context';
 import Result from '@/components/Result';
 import {
   WINDOW_HEIGHT,
-  MAIN_CLOSE_PLUGIN,
   MAIN_HIDE,
-  MAIN_OPEN_PLUGIN,
+  MAIN_PLUGIN_OPEN,
   MAIN_OPEN_PLUGIN_MENU,
   MAIN_SEARCH,
-  MAIN_SEARCH_FOCUS
+  MAIN_SEARCH_FOCUS,
+  MAIN_SYNC_PLUGIN, MAIN_PLUGIN_CLOSE
 } from '@main/config/constants';
 import { delayTime } from '@/utils/utils';
+import { IconButton } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import Logo from '@/assets/logo.svg?react';
 
@@ -58,28 +60,27 @@ function AppPage() {
     setList([]);
     reset();
     setPluginLoading(true);
+    await apeak.sendSync(MAIN_PLUGIN_OPEN, item);
     await delayTime(120);
-    console.log(item);
-    await apeak.sendSync(MAIN_OPEN_PLUGIN, item);
     setPluginLoading(false);
-    if (item.type !== 'app') {
-      setCurrentPlugin(item);
-    }
   });
 
-  const onClosePlugin = useMemoizedFn(async (event?: any) => {
+  /**
+   * 关闭当前插件
+   */
+  const onClosePlugin = useMemoizedFn((event?: any) => {
     if (event) {
       event.stopPropagation();
     }
     onReset();
-    await apeak.sendSync(MAIN_CLOSE_PLUGIN, undefined);
+    setCurrentPlugin(undefined);
+    apeak.send(MAIN_PLUGIN_CLOSE);
   });
 
   const onReset = () => {
     setList([]);
     setCurrent(0);
     reset();
-    setCurrentPlugin(undefined);
   };
 
   const onOpenMenu = () => {
@@ -110,6 +111,10 @@ function AppPage() {
     });
     apeak.on(MAIN_SEARCH_FOCUS, () => {
       // inputRef.current?.focus();
+    });
+
+    apeak.on(MAIN_SYNC_PLUGIN, (_, data) => {
+      setCurrentPlugin(data);
     });
   }, []);
 
@@ -158,18 +163,12 @@ function AppPage() {
           />
         </div>
         {currentPlugin && (
-          <Button
-            icon={<MenuOutlined />}
-            className={styles.menu}
-            shape='circle'
-            type='text'
-            onClick={onOpenMenu}
-          />
+          <IconButton aria-label='delete' onClick={onOpenMenu}>
+            <MoreVertIcon />
+          </IconButton>
         )}
       </div>
-      <div className={styles.content}>
-        <Result list={list} current={current} onOpen={onOpenPlugin} />
-      </div>
+      <Result list={list} current={current} onOpen={onOpenPlugin} />
     </div>
   );
 }

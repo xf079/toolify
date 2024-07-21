@@ -9,30 +9,27 @@ export const useStyles = createStyles(({ token, css }) => ({
     overflow: hidden;
   `,
   nav: css`
-    width: 220px;
-    padding: ${token.paddingSM}px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
   `,
-  navTitle: css`
-    font-size: 16px;
-    display: block;
-    line-height: 40px;
-    font-weight: 600;
-    padding: 0 ${token.paddingSM}px;
-    color: ${token.colorText};
+  header: css`
+    padding: ${token.padding}px;
+  `,
+  list: css`
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
   `,
   item: css`
-    font-size: 14px;
-    display: block;
-    line-height: 40px;
-    font-weight: 400;
-    padding: 0 ${token.paddingSM}px;
+    padding: ${token.paddingSM}px ${token.padding}px;
     color: ${token.colorText};
     cursor: pointer;
-    border-radius: ${token.borderRadius}px;
+    margin: 0 !important;
     &.active {
-      background-color: ${token.colorPrimary}!important;
-      color: ${token.colorTextLightSolid};
-      font-weight: 600;
+      background-color: ${token.colorBgTextActive}!important;
     }
     &:hover {
       background-color: ${token.colorBgTextHover};
@@ -45,5 +42,6 @@ export const useStyles = createStyles(({ token, css }) => ({
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    padding: ${token.paddingLG}px;
   `
 }));

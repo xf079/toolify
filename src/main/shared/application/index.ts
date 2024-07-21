@@ -5,7 +5,7 @@ import { MacosApplication } from './mac';
 import { WindowsApplication } from './windows';
 
 export default async function initApplication() {
-  createFolderIfNotExists(getDataPath('/image'));
+  createFolderIfNotExists(getDataPath('/resources/image'));
 
   let application: IPlugin[];
   if (device.windows()) {
