@@ -1,8 +1,8 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { PoweroffOutlined } from '@ant-design/icons';
+import { MoreOutlined, PoweroffOutlined } from '@ant-design/icons';
 import { useEventTarget, useMemoizedFn, useUpdateEffect } from 'ahooks';
 import { useStyles } from '@/pages/app/style';
-import { Avatar } from 'antd';
+import { Avatar, Button } from 'antd';
 import { useConfig } from '@/context';
 import Result from '@/components/Result';
 import {
@@ -12,11 +12,10 @@ import {
   MAIN_OPEN_PLUGIN_MENU,
   MAIN_SEARCH,
   MAIN_SEARCH_FOCUS,
-  MAIN_SYNC_PLUGIN, MAIN_PLUGIN_CLOSE
+  MAIN_SYNC_PLUGIN,
+  MAIN_PLUGIN_CLOSE
 } from '@main/config/constants';
 import { delayTime } from '@/utils/utils';
-import { IconButton } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import Logo from '@/assets/logo.svg?react';
 
@@ -163,9 +162,9 @@ function AppPage() {
           />
         </div>
         {currentPlugin && (
-          <IconButton aria-label='delete' onClick={onOpenMenu}>
-            <MoreVertIcon />
-          </IconButton>
+          <Button type='text' onClick={onOpenMenu}>
+            <MoreOutlined />
+          </Button>
         )}
       </div>
       <Result list={list} current={current} onOpen={onOpenPlugin} />

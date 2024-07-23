@@ -17,6 +17,7 @@ import pkg from '../../../package.json';
 export default async function createTray(main: MainBrowser) {
   let icon;
   if (device.macOS()) {
+    icon = '../resources/icon/iconTemplate@2x.png';
   } else if (device.windows()) {
     icon =
       parseInt(os.release()) < 10
