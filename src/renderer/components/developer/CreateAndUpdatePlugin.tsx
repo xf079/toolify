@@ -1,12 +1,4 @@
-import {
-  Button,
-  Drawer,
-  Flex,
-  Form,
-  Input,
-  notification,
-  Typography
-} from 'antd';
+import { Button, Drawer, Flex, Form, Input, message, Typography } from 'antd';
 import { nanoid } from 'nanoid';
 import { useStyles } from './styles';
 import { forwardRef, useImperativeHandle, useState } from 'react';
@@ -44,27 +36,23 @@ export const CreateAndUpdatePlugin = forwardRef<
   }));
 
   const onCreatePlugin = async (data: IPlugin) => {
-    try {
-      if (edit) {
-        await apeak.sendSync(BUILT_UPDATE_PLUGIN, data);
-      } else {
-        await apeak.sendSync(BUILT_CREATE_PLUGIN, {
-          ...data,
-          unique: nanoid()
-        });
-      }
-      setOpen(false);
-      onFinish();
-    } catch (error) {
-      console.log(error);
+    if (edit) {
+      await apeak.sendSync(BUILT_UPDATE_PLUGIN, data);
+    } else {
+      await apeak.sendSync(BUILT_CREATE_PLUGIN, {
+        ...data,
+        unique: nanoid()
+      });
     }
+    setOpen(false);
+    onFinish();
   };
 
   const onConfirm = async () => {
     const values = await form.validateFields();
     await onCreatePlugin(values);
-    notification.success({
-      message: edit ? '更新成功' : '创建成功'
+    message.success({
+      content: edit ? '更新成功' : '创建成功'
     });
   };
   return (

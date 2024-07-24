@@ -138,7 +138,7 @@ export class MainBrowser {
       x: 0,
       y: 0,
       width: WINDOW_WIDTH,
-      height: WINDOW_PLUGIN_HEIGHT + WINDOW_HEIGHT
+      height:WINDOW_HEIGHT
     });
 
     setContentsUrl(this.search.webContents);
@@ -291,8 +291,6 @@ export class MainBrowser {
      * 失去焦点关闭插件
      */
     this.main.on('blur', () => {
-      this.search.webContents.send(MAIN_HIDE);
-      this.closePlugin();
       this.main.hide();
     });
 

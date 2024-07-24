@@ -1,17 +1,17 @@
 import { createHashRouter, Outlet } from 'react-router-dom';
 
-import AppPage from '@/pages/app';
 import Panel from '@/pages/panel';
 import Detach from '@/pages/detach';
 
 import Mine from '@/pages/system/mine';
 import Developer from '@/pages/system/developer';
 import Plugins from '@/pages/system/plugins';
+import Search from '@/pages/search';
 
 const router = createHashRouter([
   {
     path: '',
-    element: <AppPage />
+    element: <Search />
   },
   {
     path: 'panel',

@@ -1,27 +1,25 @@
+import Logo from '@/components/search/logo';
+import { Button } from '@/components/ui/button';
+import { DotsVerticalIcon } from '@radix-ui/react-icons';
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { MoreOutlined, PoweroffOutlined } from '@ant-design/icons';
 import { useEventTarget, useMemoizedFn, useUpdateEffect } from 'ahooks';
-import { useStyles } from '@/pages/app/style';
-import { Avatar, Button } from 'antd';
-import Result from '@/components/Result';
 import {
-  WINDOW_HEIGHT,
   MAIN_HIDE,
-  MAIN_PLUGIN_OPEN,
   MAIN_OPEN_PLUGIN_MENU,
+  MAIN_PLUGIN_CLOSE,
+  MAIN_PLUGIN_OPEN,
   MAIN_SEARCH,
   MAIN_SEARCH_FOCUS,
-  MAIN_SYNC_PLUGIN,
-  MAIN_PLUGIN_CLOSE
+  MAIN_SYNC_PLUGIN
 } from '@main/config/constants';
 import { delayTime } from '@/utils/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { clsx } from 'clsx';
 
-import Logo from '@/assets/logo.svg?react';
-
-function AppPage() {
-  const { styles, cx } = useStyles();
-  const wrapperRef = useRef<HTMLDivElement>();
-  const inputRef = useRef<HTMLInputElement>();
+const Search = () => {
+  const inputRef = useRef();
+  const scrollRef = useRef();
   const [value, { reset, onChange }] = useEventTarget({ initialValue: '' });
   const [list, setList] = useState<IPlugin[]>([]);
   const [current, setCurrent] = useState(0);
@@ -116,56 +114,53 @@ function AppPage() {
   }, []);
 
   return (
-    <div className={styles.app}>
-      <div
-        className={cx(styles.wrapper, currentPlugin && 'border')}
-        ref={wrapperRef}
-      >
-        {currentPlugin ? (
-          <div className={styles.plugin}>
-            <Avatar
-              src={currentPlugin.logo}
-              size={WINDOW_HEIGHT * 0.5}
-              className={styles.pluginLogo}
-            >
-              {currentPlugin.name.substring(0, 1)}
-            </Avatar>
-            <div className={styles.pluginName}>{currentPlugin.name}</div>
-            <PoweroffOutlined
-              className={styles.pluginClose}
-              onClick={onClosePlugin}
-            />
-          </div>
-        ) : (
-          <div className={cx(styles.logo, pluginLoading && 'loading')}>
-            <Logo style={{ width: '100%', height: '100%' }} />
-          </div>
-        )}
-        <div
-          className={styles.search}
-          onClick={() => {
-            onBlur();
-          }}
-        >
+    <div>
+      <div className='search-wrapper'>
+        <Logo />
+        <div className='search-content'>
           <input
             ref={inputRef}
             value={value}
             autoFocus
             onChange={onChange}
-            className={styles.searchValue}
+            className='search-field'
+            placeholder='Hi, what can I do for you?'
             onKeyDown={onKeyDown}
             // onBlur={onBlur}
           />
         </div>
-        {currentPlugin && (
-          <Button type='text' onClick={onOpenMenu}>
-            <MoreOutlined />
-          </Button>
-        )}
+        <Button variant='ghost' size='icon' onClick={onOpenMenu}>
+          <DotsVerticalIcon className='h-4 w-4' />
+        </Button>
       </div>
-      <Result list={list} current={current} onOpen={onOpenPlugin} />
+      <div className='result'>
+        <ScrollArea className='' ref={scrollRef}>
+          <div className='flex flex-col px-2 py-2'>
+            {list.map((item, index) => (
+              <div
+                className={clsx('item', index === current ? 'active' : '')}
+                onClick={() => onOpenPlugin(item)}
+              >
+                <div className='flex flex-row justify-start items-center gap-2'>
+                  <Avatar className='w-5 h-5 rounded-none'>
+                    <AvatarImage src={item.logo} alt='@shadcn' />
+                    <AvatarFallback>{item.name}</AvatarFallback>
+                  </Avatar>
+                  <div
+                    className='title'
+                    dangerouslySetInnerHTML={{ __html: item.nameFormat }}
+                  />
+                </div>
+                <span className='desc'>
+                  {item.type === 'app' ? 'application' : item.desc}
+                </span>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
-}
+};
 
-export default AppPage;
+export default Search;

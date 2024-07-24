@@ -82,14 +82,15 @@ export const useStyles = createStyles(({ token, css }) => {
     `,
     pluginLogo: css``,
     pluginName: css`
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 300;
       white-space: nowrap;
       color: ${token.colorTextBase};
     `,
     pluginClose: css`
       font-size: 16px;
-      color: ${token.colorError};
+      font-weight: 300;
+      color: ${token.colorTextSecondary};
     `,
     search: css`
       flex: 1;

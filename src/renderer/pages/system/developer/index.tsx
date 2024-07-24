@@ -3,23 +3,32 @@ import { useMount } from 'ahooks';
 import {
   Button,
   Descriptions,
-  Flex,
   Tabs,
   TabsProps,
-  Tooltip,
-  Typography
+  Typography, Upload
 } from 'antd';
-import { AppstoreAddOutlined, BookOutlined } from '@ant-design/icons';
+import { AppstoreAddOutlined, BookOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import { CreateAndUpdatePlugin } from '@/components/developer';
 import { ICreateAndUpdatePluginRef } from '@/components/developer/CreateAndUpdatePlugin';
 import { BUILT_PLUGIN_LIST } from '@main/config/constants';
 import { useStyles } from './style';
+const { Dragger } = Upload;
+
 
 const items: TabsProps['items'] = [
   {
     key: '1',
     label: '开发',
-    children: 'Content of Tab Pane 1'
+    children: (
+      <Dragger>
+        <p className='ant-upload-drag-icon'>
+          <CloudUploadOutlined />
+        </p>
+        <p className='ant-upload-text'>
+          单击或拖动文件到此区域进行上传
+        </p>
+      </Dragger>
+    )
   },
   {
     key: '2',
@@ -87,7 +96,9 @@ function Developer() {
             </Typography.Title>
           ))}
         </div>
-        <Button type='text' block icon={<BookOutlined />} >开发文档</Button>
+        <Button type='text' block icon={<BookOutlined />}>
+          开发文档
+        </Button>
       </div>
       {currentPlugin ? (
         <div className={styles.content}>

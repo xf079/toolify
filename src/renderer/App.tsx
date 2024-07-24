@@ -1,52 +1,19 @@
-import { ConfigProvider as AntdConfigProvider, theme as antdTheme } from 'antd';
 import { RouterProvider } from 'react-router-dom';
-import { useMemo } from 'react';
 import useSystemTheme from '@/hooks/useSyetemTheme';
 import router from './router';
-import { ConfigProvider, useConfig } from '@/context';
-import showInsetEffect from '@/design/insetWare';
+import { ThemeProvider } from '@/context';
 
 const AppContainer = () => {
-  const { theme } = useConfig();
   const { theme: systemTheme } = useSystemTheme();
 
-  const themeVal = useMemo(
-    () => (theme.theme === 'system' ? systemTheme : theme.theme),
-    [theme.theme, systemTheme]
-  );
-  const themeAlgorithm = useMemo(
-    () =>
-      themeVal === 'dark'
-        ? [antdTheme.darkAlgorithm]
-        : [antdTheme.defaultAlgorithm],
-    [themeVal]
-  );
-
-  return (
-    <AntdConfigProvider
-      prefixCls='apeak'
-      theme={{
-        cssVar: true,
-        algorithm: themeAlgorithm,
-        token: {
-          colorPrimary: theme.colorPrimary,
-          borderRadius: 2
-        }
-      }}
-      wave={{ showEffect: showInsetEffect }}
-      variant='filled'
-      componentSize='large'
-    >
-      <RouterProvider router={router} />
-    </AntdConfigProvider>
-  );
+  return <RouterProvider router={router} />;
 };
 
 const App = () => {
   return (
-    <ConfigProvider>
+    <ThemeProvider>
       <AppContainer />
-    </ConfigProvider>
+    </ThemeProvider>
     // <RouterProvider router={router} />
   );
 };
