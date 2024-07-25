@@ -138,7 +138,7 @@ export class MainBrowser {
       x: 0,
       y: 0,
       width: WINDOW_WIDTH,
-      height:WINDOW_HEIGHT
+      height: WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
     });
 
     setContentsUrl(this.search.webContents);
@@ -164,13 +164,16 @@ export class MainBrowser {
         const list = pluginList.map((item) => item.dataValues);
         const resultList: IPlugin[] = [];
         list.forEach((item: IPlugin) => {
-          const indexList = match(item.name, value);
+          const indexList = match(item.name, value, {
+            continuous: true,
+            precision: 'every'
+          });
           if (!(indexList || []).length) return;
 
           const nameList = item.name.split('');
           const nameFormat = nameList.map((val, index) => {
             if ((indexList || []).includes(index)) {
-              return `<span style="color: ${global.theme.colorPrimary}">${val}</span>`;
+              return `<span style="color: hsl(var(--primary))">${val}</span>`;
             }
             return val;
           });

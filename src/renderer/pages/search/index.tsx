@@ -13,18 +13,23 @@ import {
   MAIN_SYNC_PLUGIN
 } from '@main/config/constants';
 import { delayTime } from '@/utils/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { clsx } from 'clsx';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { SearchItem } from '@/components/search/item';
+import { useSearchWrapperRect } from '@/hooks/useSearchWrapperRect';
+
+import './search.css';
+import { useSearchScrollViewport } from '@/hooks/useSearchScrollViewport';
 
 const Search = () => {
   const inputRef = useRef();
-  const scrollRef = useRef();
+  const scrollRef = useRef<HTMLDivElement>();
   const [value, { reset, onChange }] = useEventTarget({ initialValue: '' });
   const [list, setList] = useState<IPlugin[]>([]);
   const [current, setCurrent] = useState(0);
   const [currentPlugin, setCurrentPlugin] = useState<IPlugin>();
   const [pluginLoading, setPluginLoading] = useState(false);
+
+  const { listRef, toolbarRef, listHeight } = useSearchWrapperRect();
 
   const onKeyDown = useMemoizedFn((event: KeyboardEvent) => {
     if (event.code === 'Backspace') {
@@ -35,12 +40,20 @@ const Search = () => {
     }
     if (event.code === 'ArrowDown') {
       event.preventDefault();
-      setCurrent(current + 1);
+      const nextNum = current + 1;
+      if (nextNum === list.length - 1) {
+        setCurrent(0);
+      } else {
+        setCurrent(nextNum);
+      }
     }
     if (event.code === 'ArrowUp') {
       event.preventDefault();
-      if (current !== 0) {
-        setCurrent(current - 1);
+      const nextNum = current - 1;
+      if (current === 0) {
+        setCurrent(list.length - 1);
+      } else {
+        setCurrent(nextNum);
       }
     }
     if (event.code === 'Enter') {
@@ -100,6 +113,13 @@ const Search = () => {
     });
   }, [value]);
 
+  useSearchScrollViewport({
+    wrapper: scrollRef,
+    viewportHeight: listHeight,
+    current,
+    setCurrent
+  });
+
   useEffect(() => {
     apeak.on(MAIN_HIDE, () => {
       onReset();
@@ -114,7 +134,7 @@ const Search = () => {
   }, []);
 
   return (
-    <div>
+    <div className='search'>
       <div className='search-wrapper'>
         <Logo />
         <div className='search-content'>
@@ -134,30 +154,26 @@ const Search = () => {
         </Button>
       </div>
       <div className='result'>
-        <ScrollArea className='' ref={scrollRef}>
-          <div className='flex flex-col px-2 py-2'>
+        <ScrollArea
+          className='w-full'
+          style={{ height: listHeight }}
+          ref={scrollRef}
+        >
+          <div className='list' ref={listRef}>
             {list.map((item, index) => (
-              <div
-                className={clsx('item', index === current ? 'active' : '')}
-                onClick={() => onOpenPlugin(item)}
-              >
-                <div className='flex flex-row justify-start items-center gap-2'>
-                  <Avatar className='w-5 h-5 rounded-none'>
-                    <AvatarImage src={item.logo} alt='@shadcn' />
-                    <AvatarFallback>{item.name}</AvatarFallback>
-                  </Avatar>
-                  <div
-                    className='title'
-                    dangerouslySetInnerHTML={{ __html: item.nameFormat }}
-                  />
-                </div>
-                <span className='desc'>
-                  {item.type === 'app' ? 'application' : item.desc}
-                </span>
-              </div>
+              <SearchItem
+                key={item.id}
+                item={item}
+                active={index === current}
+                onOpenPlugin={onOpenPlugin}
+              />
             ))}
           </div>
+          <ScrollBar orientation='vertical' />
         </ScrollArea>
+        <div className='toolbar' ref={toolbarRef}>
+          toolbar
+        </div>
       </div>
     </div>
   );
