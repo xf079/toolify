@@ -50,4 +50,14 @@ declare global {
     source: string;
     running: boolean;
   }
+
+  interface IGroupType {
+    type: string;
+    label: string;
+    orderBy: number;
+    maxNum:number;
+    showAll: boolean;
+    children: IPlugin[];
+    originChildren: IPlugin[];
+  }
 }

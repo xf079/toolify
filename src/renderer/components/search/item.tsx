@@ -29,7 +29,7 @@ export const SearchItem: FC<ISearchItemProps> = ({
         />
       </div>
       <span className='desc'>
-        {item.type === 'app' ? 'application' : item.desc}
+        {item.type === 'app' ? '' : item.desc}
       </span>
     </div>
   );

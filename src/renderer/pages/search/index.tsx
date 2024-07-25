@@ -1,7 +1,7 @@
 import Logo from '@/components/search/logo';
 import { Button } from '@/components/ui/button';
-import { DotsVerticalIcon } from '@radix-ui/react-icons';
-import { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { DotsHorizontalIcon, DotsVerticalIcon } from '@radix-ui/react-icons';
+import { Fragment, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { useEventTarget, useMemoizedFn, useUpdateEffect } from 'ahooks';
 import {
   MAIN_HIDE,
@@ -16,9 +16,12 @@ import { delayTime } from '@/utils/utils';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { SearchItem } from '@/components/search/item';
 import { useSearchWrapperRect } from '@/hooks/useSearchWrapperRect';
+import { useSearchScrollViewport } from '@/hooks/useSearchScrollViewport';
+import { SearchToolbar } from '@/components/search/toolbar';
+import { orderBy } from 'lodash';
+import { clsx } from 'clsx';
 
 import './search.css';
-import { useSearchScrollViewport } from '@/hooks/useSearchScrollViewport';
 
 const Search = () => {
   const inputRef = useRef();
@@ -28,6 +31,7 @@ const Search = () => {
   const [current, setCurrent] = useState(0);
   const [currentPlugin, setCurrentPlugin] = useState<IPlugin>();
   const [pluginLoading, setPluginLoading] = useState(false);
+  const [groupList, setGroupList] = useState<IGroupType[]>([]);
 
   const { listRef, toolbarRef, listHeight } = useSearchWrapperRect();
 
@@ -109,6 +113,54 @@ const Search = () => {
       return;
     }
     apeak.sendSync(MAIN_SEARCH, value).then((data) => {
+      const _groupList: IGroupType[] = [
+        {
+          type: 'app',
+          label: '系统应用',
+          orderBy: 2,
+          showAll: true,
+          maxNum: 5,
+          children: [],
+          originChildren: []
+        },
+        {
+          type: 'plugin',
+          label: '插件应用',
+          orderBy: 1,
+          showAll: true,
+          maxNum: 4,
+          children: [],
+          originChildren: []
+        },
+        {
+          type: 'ai',
+          label: 'AI应用',
+          orderBy: 3,
+          maxNum: 4,
+          showAll: true,
+          children: [],
+          originChildren: []
+        }
+      ];
+      data.forEach((item: IPlugin) => {
+        if (item.type === 'app') {
+          _groupList[0].originChildren.push(item);
+        } else if (item.type === 'built') {
+          _groupList[1].originChildren.push(item);
+        } else if (item.type === 'ai') {
+          _groupList[2].originChildren.push(item);
+        }
+      });
+      _groupList.forEach((item) => {
+        if (item.children.length > item.maxNum) {
+          item.showAll = false;
+          item.children = item.children.slice(0, item.maxNum);
+        } else {
+          item.showAll = true;
+          item.children = item.originChildren;
+        }
+      });
+      setGroupList(orderBy(_groupList, 'orderBy'));
       setList(data);
     });
   }, [value]);
@@ -160,20 +212,45 @@ const Search = () => {
           ref={scrollRef}
         >
           <div className='list' ref={listRef}>
-            {list.map((item, index) => (
-              <SearchItem
-                key={item.id}
-                item={item}
-                active={index === current}
-                onOpenPlugin={onOpenPlugin}
-              />
-            ))}
+            {groupList.map((group) => {
+              if (!group.children.length) {
+                return null;
+              }
+              return (
+                <div>
+                  <div className='group-title'>{group.label}</div>
+                  {group.children.map((item, index) => (
+                    <Fragment>
+                      <SearchItem
+                        key={item.id}
+                        item={item}
+                        active={index === current}
+                        onOpenPlugin={onOpenPlugin}
+                      />
+                      {index === group.children.length - 1 &&
+                        !group.showAll && (
+                          <div
+                            className={clsx('item')}
+                            onClick={() => onOpenPlugin(item)}
+                          >
+                            <div className='flex flex-row justify-start items-center gap-2'>
+                              <DotsHorizontalIcon className='w-4 h-4' />
+                              <div
+                                className='title text-gray-400 ml-1'
+                                children='查看更多'
+                              />
+                            </div>
+                          </div>
+                        )}
+                    </Fragment>
+                  ))}
+                </div>
+              );
+            })}
           </div>
           <ScrollBar orientation='vertical' />
         </ScrollArea>
-        <div className='toolbar' ref={toolbarRef}>
-          toolbar
-        </div>
+        <SearchToolbar ref={toolbarRef} />
       </div>
     </div>
   );
