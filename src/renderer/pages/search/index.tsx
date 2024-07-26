@@ -1,80 +1,111 @@
-import Logo from '@/components/search/logo';
 import { Button } from '@/components/ui/button';
-import { DotsHorizontalIcon, DotsVerticalIcon } from '@radix-ui/react-icons';
-import { Fragment, KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useEventTarget, useMemoizedFn, useUpdateEffect } from 'ahooks';
 import {
-  MAIN_HIDE,
   MAIN_OPEN_PLUGIN_MENU,
   MAIN_PLUGIN_CLOSE,
   MAIN_PLUGIN_OPEN,
-  MAIN_SEARCH,
-  MAIN_SEARCH_FOCUS,
-  MAIN_SYNC_PLUGIN
+  MAIN_SEARCH
 } from '@main/config/constants';
-import { delayTime } from '@/utils/utils';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Logo } from '@/components/search/logo';
 import { SearchItem } from '@/components/search/item';
+import { SearchToolbar } from '@/components/search/toolbar';
+import { SearchPlugin } from '@/components/search/plugin';
+
 import { useSearchWrapperRect } from '@/hooks/useSearchWrapperRect';
 import { useSearchScrollViewport } from '@/hooks/useSearchScrollViewport';
-import { SearchToolbar } from '@/components/search/toolbar';
-import { orderBy } from 'lodash';
-import { clsx } from 'clsx';
+import { generateGroupIndex, generatePluginGroup } from '@/utils/pluginHandler';
+
+import MicrophoneIcon from '@/assets/icon/microphone-icon.svg?react';
 
 import './search.css';
 
 const Search = () => {
   const inputRef = useRef();
   const scrollRef = useRef<HTMLDivElement>();
+
   const [value, { reset, onChange }] = useEventTarget({ initialValue: '' });
-  const [list, setList] = useState<IPlugin[]>([]);
-  const [current, setCurrent] = useState(0);
-  const [currentPlugin, setCurrentPlugin] = useState<IPlugin>();
-  const [pluginLoading, setPluginLoading] = useState(false);
   const [groupList, setGroupList] = useState<IGroupType[]>([]);
+  const [index, setIndex] = useState(1);
+  const [plugin, setPlugin] = useState<IPlugin>();
 
   const { listRef, toolbarRef, listHeight } = useSearchWrapperRect();
 
+  const maxIndex = useMemo(() => {
+    if (!groupList.length) return 0;
+    const lastGroup = groupList[groupList.length - 1];
+    const childList = lastGroup.children.length;
+    return lastGroup.children[childList - 1].index;
+  }, [groupList]);
+
+  const pluginList = useMemo(() => {
+    return groupList.reduce(
+      (accumulator, currentValue) => accumulator.concat(currentValue.children),
+      []
+    );
+  }, [groupList]);
+
   const onKeyDown = useMemoizedFn((event: KeyboardEvent) => {
     if (event.code === 'Backspace') {
-      if (!value && currentPlugin) {
+      if (!value && plugin) {
         event.preventDefault();
         void onClosePlugin();
       }
     }
     if (event.code === 'ArrowDown') {
       event.preventDefault();
-      const nextNum = current + 1;
-      if (nextNum === list.length - 1) {
-        setCurrent(0);
-      } else {
-        setCurrent(nextNum);
-      }
+      const nextNum = index + 1;
+      setIndex(nextNum > maxIndex ? 1 : nextNum);
     }
     if (event.code === 'ArrowUp') {
       event.preventDefault();
-      const nextNum = current - 1;
-      if (current === 0) {
-        setCurrent(list.length - 1);
-      } else {
-        setCurrent(nextNum);
-      }
+      const nextNum = index - 1;
+      setIndex(nextNum < 1 ? maxIndex : nextNum);
     }
     if (event.code === 'Enter') {
       event.preventDefault();
-      if (list[current]) {
-        void onOpenPlugin(list[current]);
+      const _plugin = pluginList.find((item) => item.index === index);
+      if (_plugin) {
+        void onOpenPlugin(_plugin);
       }
     }
   });
 
+  /**
+   * 打开插件
+   */
   const onOpenPlugin = useMemoizedFn(async (item: IPlugin) => {
-    setList([]);
+    /**
+     * 展开更多处理
+     */
+    if (item.type === 'more') {
+      setGroupList((prevState) => {
+        const _state = prevState.map((group) => {
+          if (item.main === group.type) {
+            const hasShowAll = !group.showDisplayed;
+            const children = hasShowAll
+              ? group.origin
+              : group.origin.slice(0, group.maxDisplayedNumber);
+            return {
+              ...group,
+              showDisplayed: hasShowAll,
+              children: children
+            };
+          }
+          return group;
+        });
+
+        return generateGroupIndex(_state);
+      });
+      return;
+    }
+    if(item.type === 'app'){
+      setPlugin(item);
+    }
     reset();
-    setPluginLoading(true);
+    setGroupList([]);
     await apeak.sendSync(MAIN_PLUGIN_OPEN, item);
-    await delayTime(120);
-    setPluginLoading(false);
   });
 
   /**
@@ -85,110 +116,64 @@ const Search = () => {
       event.stopPropagation();
     }
     onReset();
-    setCurrentPlugin(undefined);
+    setPlugin(undefined);
     apeak.send(MAIN_PLUGIN_CLOSE);
   });
 
-  const onReset = () => {
-    setList([]);
-    setCurrent(0);
+  /**
+   * 初始化
+   */
+  const onReset = useMemoizedFn(() => {
+    setGroupList([]);
+    setIndex(1);
     reset();
-  };
+  });
 
-  const onOpenMenu = () => {
+  const onOpenMenu = useMemoizedFn(() => {
     apeak.send(MAIN_OPEN_PLUGIN_MENU);
-  };
-
-  const onBlur = () => {
-    apeak.send(MAIN_SEARCH_FOCUS);
-  };
-
-  useUpdateEffect(() => {
-    if (!value) {
-      setList([]);
-      return;
-    }
-    if (currentPlugin) {
-      console.log('通知到插件');
-      return;
-    }
-    apeak.sendSync(MAIN_SEARCH, value).then((data) => {
-      const _groupList: IGroupType[] = [
-        {
-          type: 'app',
-          label: '系统应用',
-          orderBy: 2,
-          showAll: true,
-          maxNum: 5,
-          children: [],
-          originChildren: []
-        },
-        {
-          type: 'plugin',
-          label: '插件应用',
-          orderBy: 1,
-          showAll: true,
-          maxNum: 4,
-          children: [],
-          originChildren: []
-        },
-        {
-          type: 'ai',
-          label: 'AI应用',
-          orderBy: 3,
-          maxNum: 4,
-          showAll: true,
-          children: [],
-          originChildren: []
-        }
-      ];
-      data.forEach((item: IPlugin) => {
-        if (item.type === 'app') {
-          _groupList[0].originChildren.push(item);
-        } else if (item.type === 'built') {
-          _groupList[1].originChildren.push(item);
-        } else if (item.type === 'ai') {
-          _groupList[2].originChildren.push(item);
-        }
-      });
-      _groupList.forEach((item) => {
-        if (item.children.length > item.maxNum) {
-          item.showAll = false;
-          item.children = item.children.slice(0, item.maxNum);
-        } else {
-          item.showAll = true;
-          item.children = item.originChildren;
-        }
-      });
-      setGroupList(orderBy(_groupList, 'orderBy'));
-      setList(data);
-    });
-  }, [value]);
+  });
 
   useSearchScrollViewport({
     wrapper: scrollRef,
     viewportHeight: listHeight,
-    current,
-    setCurrent
+    index,
+    setIndex
   });
 
-  useEffect(() => {
-    apeak.on(MAIN_HIDE, () => {
-      onReset();
+  useUpdateEffect(() => {
+    if (!value) {
+      setGroupList([]);
+      return;
+    }
+    if (plugin) {
+      console.log('通知到插件');
+      return;
+    }
+    apeak.sendSync(MAIN_SEARCH, value).then((data) => {
+      setGroupList(generatePluginGroup(data));
     });
-    apeak.on(MAIN_SEARCH_FOCUS, () => {
-      // inputRef.current?.focus();
-    });
+  }, [value]);
 
-    apeak.on(MAIN_SYNC_PLUGIN, (_, data) => {
-      setCurrentPlugin(data);
-    });
+  useEffect(() => {
+    // apeak.on(MAIN_HIDE, () => {
+    //   onReset();
+    // });
+    // apeak.on(MAIN_SEARCH_FOCUS, () => {
+    //   // inputRef.current?.focus();
+    // });
+    // apeak.on(MAIN_SYNC_PLUGIN, (_, data) => {
+    //   setCurrentPlugin(data);
+    // });
   }, []);
 
   return (
     <div className='search'>
       <div className='search-wrapper'>
-        <Logo />
+        {plugin ? (
+          <SearchPlugin plugin={plugin} onClose={onClosePlugin} />
+        ) : (
+          <Logo />
+        )}
         <div className='search-content'>
           <input
             ref={inputRef}
@@ -202,7 +187,7 @@ const Search = () => {
           />
         </div>
         <Button variant='ghost' size='icon' onClick={onOpenMenu}>
-          <DotsVerticalIcon className='h-4 w-4' />
+          <MicrophoneIcon className='h-6 w-6 text-gray-500' />
         </Button>
       </div>
       <div className='result'>
@@ -212,43 +197,20 @@ const Search = () => {
           ref={scrollRef}
         >
           <div className='list' ref={listRef}>
-            {groupList.map((group) => {
-              if (!group.children.length) {
-                return null;
-              }
-              return (
-                <div>
-                  <div className='group-title'>{group.label}</div>
-                  {group.children.map((item, index) => (
-                    <Fragment>
-                      <SearchItem
-                        key={item.id}
-                        item={item}
-                        active={index === current}
-                        onOpenPlugin={onOpenPlugin}
-                      />
-                      {index === group.children.length - 1 &&
-                        !group.showAll && (
-                          <div
-                            className={clsx('item')}
-                            onClick={() => onOpenPlugin(item)}
-                          >
-                            <div className='flex flex-row justify-start items-center gap-2'>
-                              <DotsHorizontalIcon className='w-4 h-4' />
-                              <div
-                                className='title text-gray-400 ml-1'
-                                children='查看更多'
-                              />
-                            </div>
-                          </div>
-                        )}
-                    </Fragment>
-                  ))}
-                </div>
-              );
-            })}
+            {groupList.map((group) => (
+              <div key={group.type}>
+                <div className='group-title'>{group.label}</div>
+                {group.children.map((item) => (
+                  <SearchItem
+                    key={item.id}
+                    item={item}
+                    active={item.index === index}
+                    onOpenPlugin={onOpenPlugin}
+                  />
+                ))}
+              </div>
+            ))}
           </div>
-          <ScrollBar orientation='vertical' />
         </ScrollArea>
         <SearchToolbar ref={toolbarRef} />
       </div>

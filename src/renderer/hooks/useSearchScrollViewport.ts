@@ -4,9 +4,11 @@ import { MutableRefObject } from 'react';
 export interface SearchScrollViewportOptions {
   wrapper: MutableRefObject<HTMLDivElement>;
   viewportHeight: number;
-  current: number;
-  setCurrent: (index: number) => void;
+  index: number;
+  setIndex: (index: number) => void;
 }
+
+export type IDom = NodeListOf<HTMLDivElement>;
 
 function getFirstFullyVisibleNode(scrollContainer: HTMLDivElement) {
   const nodes = scrollContainer.querySelectorAll('.item');
@@ -34,11 +36,10 @@ export const useSearchScrollViewport = (
   const wrapper = options.wrapper.current;
 
   const { run } = useThrottleFn(
-    (e) => {
-      const domList: NodeListOf<HTMLDivElement> =
-        document.querySelectorAll('.result .item');
+    () => {
+      const domList: IDom = document.querySelectorAll('.result .item');
 
-      const currentDom = domList[options.current];
+      const currentDom = domList[options.index];
       if (currentDom) {
         const top = currentDom.offsetTop;
         const height = currentDom.clientHeight;
@@ -53,7 +54,7 @@ export const useSearchScrollViewport = (
         ) {
           return; // 如果在视窗内，不进行任何操作
         }
-        options.setCurrent(getFirstFullyVisibleNode(options.wrapper.current));
+        options.setIndex(getFirstFullyVisibleNode(options.wrapper.current));
       }
     },
     { wait: 300 }
@@ -62,28 +63,31 @@ export const useSearchScrollViewport = (
   useEventListener('scroll', run, { target: options.wrapper });
 
   useUpdateEffect(() => {
-    const domList: NodeListOf<HTMLDivElement> =
-      document.querySelectorAll('.result .item');
-    const currentDom = domList[options.current];
+    const domList: IDom = document.querySelectorAll('.result .item');
+    const currentDom = domList[options.index];
     if (currentDom) {
+      // 当前节点距离顶部高度
       const top = currentDom.offsetTop;
+      // 节点高度
       const height = currentDom.clientHeight;
 
       // 获取滚动容器的当前滚动位置
       const currentScrollTop = wrapper.scrollTop;
+      const maxVisibleHeight = currentScrollTop + viewportHeight;
 
       // 判断当前元素是否在视窗内
-      if (
-        top >= currentScrollTop &&
-        top + height <= currentScrollTop + viewportHeight
-      ) {
+      if (top >= currentScrollTop && top + height <= maxVisibleHeight) {
         return; // 如果在视窗内，不进行任何操作
       }
+
+
       // 计算需要滚动的距离
       const scrollToPosition = top - height;
+
+
 
       // 进行滚动操作
       wrapper.scrollTop = scrollToPosition;
     }
-  }, [options.current]);
+  }, [options.index]);
 };

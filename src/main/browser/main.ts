@@ -294,7 +294,7 @@ export class MainBrowser {
      * 失去焦点关闭插件
      */
     this.main.on('blur', () => {
-      this.main.hide();
+      // this.main.hide();
     });
 
     /**

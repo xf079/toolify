@@ -26,8 +26,8 @@ declare global {
   }
 
   interface IPlugin {
-    id: number;
-    type: string;
+    id: number | string;
+    type: 'app' | 'built' | 'plugin' | 'ai' | 'more';
     name: string;
     main: string;
     logo: string;
@@ -55,9 +55,10 @@ declare global {
     type: string;
     label: string;
     orderBy: number;
-    maxNum:number;
-    showAll: boolean;
+    maxDisplayedNumber: number;
+    showDisplayed: boolean;
     children: IPlugin[];
-    originChildren: IPlugin[];
+    origin: IPlugin[];
+    morePlugin: IPlugin;
   }
 }
