@@ -10,5 +10,5 @@ export const sequelize = new Sequelize({
 });
 
 export async function sequelizeSync() {
-  await sequelize.sync();
+  await sequelize.sync({ force: true });
 }

@@ -4,6 +4,8 @@
 
 export const PUBLIC_PATH = '/resources';
 
+export const CONFIG_DEFAULT_TYPE = 'config:default'
+
 
 /**
  * System Plugin key
@@ -11,6 +13,7 @@ export const PUBLIC_PATH = '/resources';
 export const SYSTEM_PLUGIN_CENTER = 'system:plugin-center';
 export const SYSTEM_PLUGIN_GUIDE = 'system:plugin-guide';
 export const SYSTEM_PLUGIN_SETTINGS = 'system:plugin-settings';
+export const SYSTEM_DEVELOPER = 'system:plugin-developer';
 
 
 /**
@@ -48,6 +51,7 @@ export const MAIN_OPEN_PLUGIN_MENU = 'main:openPluginMenu';
  * BUILT
  */
 export const BUILT_CREATE_PLUGIN = 'built:createPlugin';
+export const BUILD_IMPORT_PLUGIN = 'built:importPlugin';
 export const BUILT_UPDATE_PLUGIN = 'built:updatePlugin';
 export const BUILT_REMOVE_PLUGIN = 'built:removePlugin';
 export const BUILT_PLUGIN_LIST = 'built:pluginList';

@@ -20,12 +20,7 @@ declare namespace NodeJS {
 }
 
 declare global {
-  declare var theme: ThemeConfig;
-  declare var settings: SettingsConfig;
-  declare var configs: {
-    theme: ThemeConfig;
-    settings: SettingsConfig;
-  };
+  declare var config: IConfig
   declare var bgColor: string;
 }
 

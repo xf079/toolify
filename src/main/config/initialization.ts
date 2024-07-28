@@ -1,50 +1,31 @@
-import ThemeModal from '@main/shared/modal/theme';
-import SettingsModal from '@main/shared/modal/settings';
-import { defaultConfig } from '@main/config/defaultConfig';
 import { nativeTheme } from 'electron';
+import { DEFAULT_CONFIG, SYSTEM_PLUGIN_LIST } from '@main/config/defaultConfig';
+import { CONFIG_DEFAULT_TYPE } from '@main/config/constants';
+import SettingsModal from '@main/shared/modal/settings';
+import PluginsModal from '@main/shared/modal/plugins';
 
 export default async function initialization() {
-  let theme: ThemeModal = await ThemeModal.findOne({
+  const [settings] = await SettingsModal.findOrCreate({
     where: {
-      type: 'default'
-    }
-  });
-  if (!theme) {
-    await ThemeModal.create(defaultConfig.theme);
-  }
-
-  let settings = await SettingsModal.findOne({
+      type: CONFIG_DEFAULT_TYPE
+    },
+    defaults: DEFAULT_CONFIG
+  })
+  await PluginsModal.destroy({
     where: {
-      type: 'default'
+      type: 'built'
     }
-  });
-  if (!settings) {
-    await SettingsModal.create(defaultConfig.settings);
-  }
+  })
+  await PluginsModal.bulkCreate(SYSTEM_PLUGIN_LIST)
 
-
-  theme = await ThemeModal.findOne({
-    where: { type: 'default' }
-  });
-
-  settings = await SettingsModal.findOne({
-    where: { type: 'default' }
-  });
-
-  const themeValues = theme.dataValues;
   const settingsValues = settings.dataValues;
 
-  global.theme = themeValues;
-  global.settings = settingsValues;
-  global.configs = {
-    theme: themeValues,
-    settings: settingsValues
-  };
+  global.config = settingsValues
 
-  if (themeValues.theme === 'system') {
+  if (settingsValues.theme === 'system') {
     global.bgColor = nativeTheme.shouldUseDarkColors ? '#000000' : '#FFFFFF';
   } else {
-    global.bgColor = themeValues.theme === 'dark' ? '#000000' : '#FFFFFF';
+    global.bgColor = settingsValues.theme === 'dark' ? '#000000' : '#FFFFFF';
   }
 
   nativeTheme.on('updated', () => {

@@ -35,7 +35,7 @@ import DeveloperModal from '@main/shared/modal/developer';
 import env from '@main/utils/env';
 
 export interface IPluginItem {
-  id: number;
+  id: number | string;
   detail: IPlugin;
   plugin: WebContentsView;
 }
@@ -45,10 +45,17 @@ export class MainBrowser {
   private search: WebContentsView;
 
   private pluginList: IPluginItem[] = [];
-  private currentPlugin: number;
+  private currentPlugin: number | string;
 
   constructor() {
     this.createMainWindow();
+  }
+
+  public getWindows() {
+    return {
+      main: this.main,
+      search: this.search
+    };
   }
 
   /**
@@ -158,33 +165,44 @@ export class MainBrowser {
    * @private
    */
   private async onSearch(value: string) {
-    try {
-      const pluginList = await PluginsModal.findAll();
-      if (pluginList && pluginList.length) {
-        const list = pluginList.map((item) => item.dataValues);
-        const resultList: IPlugin[] = [];
-        list.forEach((item: IPlugin) => {
-          const indexList = match(item.name, value, {
-            continuous: true,
-            precision: 'every'
-          });
-          if (!(indexList || []).length) return;
-
-          const nameList = item.name.split('');
-          const nameFormat = nameList.map((val, index) => {
-            if ((indexList || []).includes(index)) {
-              return `<span style="color: hsl(var(--primary))">${val}</span>`;
-            }
-            return val;
-          });
-          resultList.push({ ...item, nameFormat: nameFormat.join('') });
+    const pluginList = await PluginsModal.findAll();
+    if (pluginList && pluginList.length) {
+      const list = pluginList.map((item) => item.dataValues);
+      const resultList: IPlugin[] = [];
+      list.forEach((item: IPlugin) => {
+        const indexList = match(item.name, value, {
+          continuous: true,
+          precision: 'every'
         });
-        return resultList;
-      }
-      return [];
-    } catch (error) {
-      console.log(error);
+        if (!(indexList || []).length) return;
+
+        const nameList = item.name.split('');
+        const nameFormat = nameList.map((val, index) => {
+          if ((indexList || []).includes(index)) {
+            return `<span style="color: hsl(var(--primary))">${val}</span>`;
+          }
+          return val;
+        });
+        resultList.push({ ...item, nameFormat: nameFormat.join('') });
+      });
+      return resultList;
     }
+    return [];
+  }
+
+  /**
+   * 设置创建为插件大小
+   * @private
+   */
+  private setPluginWindowRect() {
+    setTimeout(() => {
+      // 设置窗体大小
+      this.main.setContentSize(
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
+      );
+      this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT);
+    }, 120);
   }
 
   /**
@@ -207,30 +225,18 @@ export class MainBrowser {
         height: WINDOW_PLUGIN_HEIGHT
       });
       pluginView.setBackgroundColor(global.bgColor);
-
       this.main.contentView.addChildView(pluginView);
-
       setContentsUrl(pluginView.webContents, item.main);
+      this.setPluginWindowRect();
+      this.currentPlugin = item.id;
 
       pluginView.webContents.on('did-finish-load', () => {
-        // 通知搜索当前打开插件
-        this.search.webContents.send(MAIN_SYNC_PLUGIN, item);
-        // 设置窗体大小
-        this.main.setContentSize(
-          WINDOW_WIDTH,
-          WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
-        );
-        this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT);
         // 插件加载成功
         resolve(true);
       });
 
-      this.currentPlugin = item.id;
-      this.pluginList.push({
-        id: item.id,
-        plugin: pluginView,
-        detail: item
-      });
+      this.pluginList.push({ id: item.id, plugin: pluginView, detail: item });
+
       if (env.dev()) {
         pluginView.webContents.openDevTools();
       }
@@ -246,9 +252,9 @@ export class MainBrowser {
     return new Promise((resolve) => {
       const current = this.pluginList.find((_item) => _item.id === item.id);
       if (current) {
-        this.main.contentView.addChildView(current.plugin);
-        current.plugin.webContents.reload();
         this.currentPlugin = item.id;
+        this.main.contentView.addChildView(current.plugin);
+        this.setPluginWindowRect();
         resolve(true);
         return;
       }
@@ -293,7 +299,8 @@ export class MainBrowser {
     /**
      * 失去焦点关闭插件
      */
-    this.main.on('blur', () => {
+    this.main.on('blur', (e) => {
+      console.log(e);
       // this.main.hide();
     });
 
@@ -301,7 +308,7 @@ export class MainBrowser {
      * 获取配置
      */
     ipcMain.handle(MAIN_SYNC_CONFIG, async () => {
-      return global.configs;
+      return global.config;
     });
 
     /**
@@ -329,37 +336,6 @@ export class MainBrowser {
       this.closePlugin();
     });
 
-    /**
-     * 创建开发者插件
-     */
-    ipcMain.handle(BUILT_CREATE_PLUGIN, async (event, data) => {
-      const res = await DeveloperModal.create(data);
-      return res;
-    });
-
-    ipcMain.handle(BUILT_REMOVE_PLUGIN, async (event, id) => {
-      const res = await DeveloperModal.destroy({
-        where: { id }
-      });
-      return res;
-    });
-
-    ipcMain.handle(BUILT_UPDATE_PLUGIN, async (event, data) => {
-      const res = await DeveloperModal.update(data, {
-        where: {
-          id: data.id
-        }
-      });
-      return res;
-    });
-
-    ipcMain.handle(BUILT_PLUGIN_LIST, async () => {
-      const res = await DeveloperModal.findAll();
-      if (res) {
-        return res.map((item) => item.dataValues);
-      }
-      return [];
-    });
 
     /**
      * 搜索状态 修改窗口大小

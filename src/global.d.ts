@@ -25,8 +25,13 @@ declare global {
     settings: SettingsConfig;
   }
 
+  interface IConfig {
+
+  }
+
+
   interface IPlugin {
-    id: number | string;
+    id: number;
     type: 'app' | 'built' | 'plugin' | 'ai' | 'more';
     name: string;
     main: string;
@@ -43,6 +48,7 @@ declare global {
   }
 
   interface IDeveloperPlugin {
+    id:number;
     unique: string;
     name: string;
     desc: string;

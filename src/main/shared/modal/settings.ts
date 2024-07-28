@@ -16,6 +16,11 @@ class SettingsModal extends Model<
    */
   declare type: string;
   /**
+   * 主题
+   */
+  declare theme: string;
+
+  /**
    * 是否开机启动
    */
   declare start: boolean;
@@ -41,6 +46,10 @@ SettingsModal.init(
       primaryKey: true
     },
     type: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    theme: {
       type: DataTypes.STRING,
       allowNull: false
     },

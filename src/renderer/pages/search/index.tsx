@@ -100,7 +100,7 @@ const Search = () => {
       });
       return;
     }
-    if(item.type === 'app'){
+    if(item.type !== 'app'){
       setPlugin(item);
     }
     reset();

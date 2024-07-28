@@ -28,6 +28,11 @@ class DeveloperModal extends Model<
   declare main: string;
 
   /**
+   * logo
+   */
+  declare logo: string;
+
+  /**
    * 主页
    */
   declare homepage: string;
@@ -35,7 +40,7 @@ class DeveloperModal extends Model<
   /**
    * 插件描述
    */
-  declare desc: string;
+  declare description: string;
 
   /**
    * 插件目录位置
@@ -63,6 +68,10 @@ DeveloperModal.init(
       type: DataTypes.STRING,
       allowNull: false
     },
+    logo: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     main: {
       type: DataTypes.STRING,
       allowNull: true
@@ -71,22 +80,22 @@ DeveloperModal.init(
       type: DataTypes.STRING,
       allowNull: true
     },
-    desc: {
+    source: {
       type: DataTypes.STRING,
       allowNull: true
     },
-    source: {
+    description: {
       type: DataTypes.STRING,
       allowNull: true
     },
     running: {
       type: DataTypes.BOOLEAN,
-      defaultValue:false,
+      defaultValue: false,
       allowNull: true
     }
   },
   {
-    sequelize:sequelize,
+    sequelize: sequelize,
     tableName: 'developer',
     timestamps: true,
     createdAt: true,
