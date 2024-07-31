@@ -1,8 +1,3 @@
-import type {
-  ThemeConfigType,
-  SettingsConfigType
-} from '@main/configs/default-config';
-
 export {};
 
 declare global {
@@ -16,23 +11,19 @@ declare global {
   }
   declare const apeak: IMainEvent;
 
-  type ThemeConfig = ThemeConfigType;
-
-  type SettingsConfig = SettingsConfigType;
-
-  interface GlobalConfigs {
-    theme: ThemeConfig;
-    settings: SettingsConfig;
-  }
-
   interface IConfig {
-
+    theme: string;
+    colorPrimary: string;
+    start: boolean;
+    guide: boolean;
+    language: string;
+    placeholder: string;
   }
-
 
   interface IPlugin {
     id: number;
-    type: 'app' | 'built' | 'plugin' | 'ai' | 'more';
+    // 'app' | 'built' | 'plugin' | 'ai' | 'more'
+    type: string;
     name: string;
     main: string;
     logo: string;
@@ -48,7 +39,7 @@ declare global {
   }
 
   interface IDeveloperPlugin {
-    id:number;
+    id: number;
     unique: string;
     name: string;
     desc: string;

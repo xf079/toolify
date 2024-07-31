@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useEventTarget, useMemoizedFn, useUpdateEffect } from 'ahooks';
 import {
@@ -7,21 +6,24 @@ import {
   MAIN_PLUGIN_OPEN,
   MAIN_SEARCH
 } from '@main/config/constants';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Logo } from '@/components/search/logo';
 import { SearchItem } from '@/components/search/item';
 import { SearchToolbar } from '@/components/search/toolbar';
-import { SearchPlugin } from '@/components/search/plugin';
 
 import { useSearchWrapperRect } from '@/hooks/useSearchWrapperRect';
 import { useSearchScrollViewport } from '@/hooks/useSearchScrollViewport';
 import { generateGroupIndex, generatePluginGroup } from '@/utils/pluginHandler';
+import { useConfig } from '@/context';
+import { Avatar, Button, Flex, Typography } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
+import { useStyles } from './styles';
 
 import MicrophoneIcon from '@/assets/icon/microphone-icon.svg?react';
-
-import './search.css';
+import LogoIcon from '@/assets/logo.svg?react';
 
 const Search = () => {
+  const { styles, cx } = useStyles();
+
+  const config = useConfig();
   const inputRef = useRef();
   const scrollRef = useRef<HTMLDivElement>();
 
@@ -100,7 +102,7 @@ const Search = () => {
       });
       return;
     }
-    if(item.type !== 'app'){
+    if (item.type !== 'app') {
       setPlugin(item);
     }
     reset();
@@ -167,39 +169,82 @@ const Search = () => {
   }, []);
 
   return (
-    <div className='search'>
-      <div className='search-wrapper'>
+    <div className={styles.search}>
+      <Flex
+        className={cx(styles.wrapper, 'px-3 gap-3')}
+        justify='space-between'
+        align='center'
+      >
         {plugin ? (
-          <SearchPlugin plugin={plugin} onClose={onClosePlugin} />
+          <Flex
+            justify='center'
+            align='center'
+            className={cx(styles.plugin, 'gap-1.5 pl-2 pr-2 py-2')}
+          >
+            <Avatar src={plugin.logo} size='small' />
+            <Typography.Text className='font-light'>
+              {plugin.name}
+            </Typography.Text>
+            <Flex
+              className={cx(
+                styles.close,
+                'w-6 h-6 rounded-xl cursor-pointer transition-all'
+              )}
+              justify='center'
+              align='center'
+              onClick={onClosePlugin}
+            >
+              <CloseOutlined className='text-sm opacity-50' />
+            </Flex>
+          </Flex>
         ) : (
-          <Logo />
+          <Flex className={styles.logo} justify='center' align='center'>
+            <LogoIcon className='w-7 h-7' />
+          </Flex>
         )}
-        <div className='search-content'>
+        <div className='flex flex-col items-center justify-center flex-1 h-full'>
           <input
             ref={inputRef}
             value={value}
             autoFocus
             onChange={onChange}
-            className='search-field'
-            placeholder='Hi, what can I do for you?'
+            className='w-full h-[54px] p-0 rounded-md border-none outline-none text-xl font-light bg-transparent'
+            placeholder={config.placeholder}
             onKeyDown={onKeyDown}
             // onBlur={onBlur}
           />
         </div>
-        <Button variant='ghost' size='icon' onClick={onOpenMenu}>
-          <MicrophoneIcon className='h-6 w-6 text-gray-500' />
-        </Button>
-      </div>
+        {plugin ? (
+          <Button
+            type='text'
+            shape='circle'
+            icon={<MicrophoneIcon className='h-6 w-6' />}
+            onClick={onOpenMenu}
+          />
+        ) : (
+          <Button
+            type='text'
+            shape='circle'
+            icon={<MicrophoneIcon className='h-6 w-6' />}
+            onClick={onOpenMenu}
+          />
+        )}
+      </Flex>
       <div className='result'>
-        <ScrollArea
-          className='w-full'
+        <div
+          className='w-full overflow-y-auto'
           style={{ height: listHeight }}
           ref={scrollRef}
         >
-          <div className='list' ref={listRef}>
+          <Flex vertical className='p-2 gap-1' ref={listRef}>
             {groupList.map((group) => (
-              <div key={group.type}>
-                <div className='group-title'>{group.label}</div>
+              <Flex vertical key={group.type}>
+                <Typography.Text
+                  type='secondary'
+                  className={cx(styles.groupTitle, 'px-3 mb-1')}
+                >
+                  {group.label}
+                </Typography.Text>
                 {group.children.map((item) => (
                   <SearchItem
                     key={item.id}
@@ -208,10 +253,10 @@ const Search = () => {
                     onOpenPlugin={onOpenPlugin}
                   />
                 ))}
-              </div>
+              </Flex>
             ))}
-          </div>
-        </ScrollArea>
+          </Flex>
+        </div>
         <SearchToolbar ref={toolbarRef} />
       </div>
     </div>

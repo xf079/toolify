@@ -21,6 +21,11 @@ class SettingsModal extends Model<
   declare theme: string;
 
   /**
+   * 主题颜色
+   */
+  declare colorPrimary: string;
+
+  /**
    * 是否开机启动
    */
   declare start: boolean;
@@ -50,6 +55,10 @@ SettingsModal.init(
       allowNull: false
     },
     theme: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    colorPrimary: {
       type: DataTypes.STRING,
       allowNull: false
     },

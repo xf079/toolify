@@ -1,7 +1,24 @@
 import { FC } from 'react';
-import { clsx } from 'clsx';
 import { ArrowTopRightIcon, DotsHorizontalIcon } from '@radix-ui/react-icons';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, Flex, Typography } from 'antd';
+import { createStyles } from 'antd-style';
+
+const useStyles = createStyles(({ token, css }) => ({
+  item: css`
+    border-radius: 9999px;
+    &:hover {
+      background-color: ${token.colorBgTextHover};
+    }
+
+    &.active {
+      background-color: ${token.colorBgTextActive};
+    }
+  `,
+  title: css`
+    font-size: 14px;
+    color: ${token.colorTextHeading};
+  `
+}));
 
 export interface ISearchItemProps {
   item: IPlugin;
@@ -14,36 +31,39 @@ export const SearchItem: FC<ISearchItemProps> = ({
   active,
   onOpenPlugin
 }) => {
+  const { styles, cx } = useStyles();
   return (
-    <div
-      className={clsx('item', active ? 'active' : '')}
+    <Flex
+      className={cx(
+        styles.item,
+        'w-full px-3 h-10 cursor-pointer rounded-sm overflow-hidden',
+        active ? styles.item : ''
+      )}
+      align='center'
       onClick={() => onOpenPlugin(item)}
     >
-      <div className='flex flex-row justify-start items-center gap-2'>
+      <Flex justify='start' align='center' className='gap-2 flex-1'>
         {item.type === 'more' ? (
           <>
             <div className='w-5 h-5 flex flex-row items-center justify-center'>
               <DotsHorizontalIcon />
             </div>
-            <div className='title'>{item.name}</div>
+            <div className={styles.title}>{item.name}</div>
           </>
         ) : (
           <>
-            <Avatar className='w-5 h-5 rounded-none'>
-              <AvatarImage src={item.logo} alt='@shadcn' />
-              <AvatarFallback>{item.name}</AvatarFallback>
-            </Avatar>
+            <Avatar src={item.logo} size='small' />
             <div
-              className='title'
+              className={styles.title}
               dangerouslySetInnerHTML={{ __html: item.nameFormat }}
             />
           </>
         )}
-      </div>
-      <span className='desc'>
+      </Flex>
+      <Typography.Text type='secondary' className='text-xs'>
         {item.type === 'more' ? <ArrowTopRightIcon /> : null}
         {item.type === 'app' ? '' : item.desc}
-      </span>
-    </div>
+      </Typography.Text>
+    </Flex>
   );
 };

@@ -18,20 +18,13 @@ import {
   MAIN_SEARCH,
   MAIN_SEARCH_FOCUS,
   MAIN_SYNC_CONFIG,
-  BUILT_UPDATE_PLUGIN,
-  BUILT_CREATE_PLUGIN,
-  BUILT_REMOVE_PLUGIN,
-  BUILT_PLUGIN_LIST,
   SYSTEM_PLUGIN_SETTINGS,
   SYSTEM_PLUGIN_CENTER,
-  MAIN_HIDE,
-  MAIN_SYNC_PLUGIN,
   MAIN_PLUGIN_OPEN,
   MAIN_PLUGIN_CLOSE
 } from '@main/config/constants';
 import PluginsModal from '@main/shared/modal/plugins';
 import { setContentsUrl } from '@main/utils/window-path';
-import DeveloperModal from '@main/shared/modal/developer';
 import env from '@main/utils/env';
 
 export interface IPluginItem {
@@ -131,6 +124,7 @@ export class MainBrowser {
       title: 'Apeak',
       show: true,
       skipTaskbar: true,
+      focusable: true,
       alwaysOnTop: true,
       backgroundColor: global.bgColor
     });
