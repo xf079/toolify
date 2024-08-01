@@ -8,7 +8,7 @@ import {
 export const DEFAULT_CONFIG = {
   type: CONFIG_DEFAULT_TYPE,
   theme: 'system',
-  colorPrimary: '#1890ff',
+  colorPrimary: '#00A76F',
   start: false,
   guide: false,
   language: 'zh-CN',

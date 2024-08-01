@@ -24,6 +24,8 @@ import {
   UnorderedListOutlined
 } from '@ant-design/icons';
 
+import EmptyIcon from '@/assets/icon/empty.svg?react'
+
 function Developer() {
   const [list, setList] = useState<IDeveloperPlugin[]>([]);
   const [plugin, setPlugin] = useState<IDeveloperPlugin>();
@@ -100,7 +102,7 @@ function Developer() {
               <Button type='primary' block onClick={onImportPlugin}>
                 导入插件
               </Button>
-              <Button type='text'>文档</Button>
+              <Button type='link'>文档</Button>
             </Flex>
             <div className='w-full py-4 overflow-y-auto'>
               <ul className='space-y-2 font-medium'>
@@ -160,8 +162,8 @@ function Developer() {
           justify='center'
           vertical
         >
-          <ExperimentOutlined className='text-[44px] opacity-75' />
-          <Typography.Title level={3} className='mt-4'>
+          <EmptyIcon className='w-16 h-16' style={{color:'var(--apeak-color-text-secondary)'}} />
+          <Typography.Title level={4} className='mt-6'>
             您还没有插件应用哦！
           </Typography.Title>
           <Typography.Text type='secondary'>
