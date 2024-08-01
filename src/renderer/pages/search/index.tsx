@@ -14,7 +14,7 @@ import { useSearchScrollViewport } from '@/hooks/useSearchScrollViewport';
 import { generateGroupIndex, generatePluginGroup } from '@/utils/pluginHandler';
 import { useConfig } from '@/context';
 import { Avatar, Button, Flex, Typography } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseOutlined, HolderOutlined } from '@ant-design/icons';
 import { useStyles } from './styles';
 
 import MicrophoneIcon from '@/assets/icon/microphone-icon.svg?react';
@@ -202,23 +202,28 @@ const Search = () => {
             <LogoIcon className='w-7 h-7' />
           </Flex>
         )}
-        <div className='flex flex-col items-center justify-center flex-1 h-full'>
+        <Flex
+          vertical
+          align='center'
+          justify='center'
+          className='flex-1 h-full'
+        >
           <input
             ref={inputRef}
             value={value}
             autoFocus
             onChange={onChange}
-            className='w-full h-[54px] p-0 rounded-md border-none outline-none text-xl font-light bg-transparent'
+            className={cx(styles.input,'w-full h-[54px]')}
             placeholder={config.placeholder}
             onKeyDown={onKeyDown}
             // onBlur={onBlur}
           />
-        </div>
+        </Flex>
         {plugin ? (
           <Button
             type='text'
             shape='circle'
-            icon={<MicrophoneIcon className='h-6 w-6' />}
+            icon={<HolderOutlined className='text-[24px]' />}
             onClick={onOpenMenu}
           />
         ) : (

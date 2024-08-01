@@ -1,7 +1,7 @@
 import { FC } from 'react';
-import { ArrowTopRightIcon, DotsHorizontalIcon } from '@radix-ui/react-icons';
 import { Avatar, Flex, Typography } from 'antd';
 import { createStyles } from 'antd-style';
+import { ArrowRightOutlined, MoreOutlined } from '@ant-design/icons';
 
 const useStyles = createStyles(({ token, css }) => ({
   item: css`
@@ -46,7 +46,7 @@ export const SearchItem: FC<ISearchItemProps> = ({
         {item.type === 'more' ? (
           <>
             <div className='w-5 h-5 flex flex-row items-center justify-center'>
-              <DotsHorizontalIcon />
+              <MoreOutlined />
             </div>
             <div className={styles.title}>{item.name}</div>
           </>
@@ -61,7 +61,7 @@ export const SearchItem: FC<ISearchItemProps> = ({
         )}
       </Flex>
       <Typography.Text type='secondary' className='text-xs'>
-        {item.type === 'more' ? <ArrowTopRightIcon /> : null}
+        {item.type === 'more' ? <ArrowRightOutlined /> : null}
         {item.type === 'app' ? '' : item.desc}
       </Typography.Text>
     </Flex>

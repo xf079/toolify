@@ -28,7 +28,7 @@ const AppContainer = () => {
         algorithm: themeAlgorithm,
         token: {
           colorPrimary: config.colorPrimary,
-          borderRadius: 2
+          borderRadius: 8
         }
       }}
       wave={{ showEffect: showInsetEffect }}

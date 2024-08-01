@@ -13,7 +13,6 @@ export const builtins = [
   'antd-style',
   'dayjs',
   'lodash',
-  'normalize.css',
   'react',
   'react-dom',
   'react-router-dom',

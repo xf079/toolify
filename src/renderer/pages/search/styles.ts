@@ -68,6 +68,17 @@ export const useStyles = createStyles(({ token, css }) => {
         background-color: ${token.colorBgTextActive};
       }
     `,
+    input: css`
+      color: ${token.colorText};
+      width: 100%;
+      height: 100%;
+      font-size: ${token.fontSizeHeading4}px;
+      outline: none;
+      font-weight: 300;
+      &::placeholder {
+        color: ${token.colorTextPlaceholder};
+      }
+    `,
     result: css``,
     groupTitle: css`
       font-size: 12px;
