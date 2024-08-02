@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMount } from 'ahooks';
 import {
   BUILD_IMPORT_PLUGIN,
@@ -13,13 +13,14 @@ import {
   notification,
   Segmented,
   Descriptions,
-  DescriptionsProps
+  DescriptionsProps, message, Tooltip
 } from 'antd';
 import {
+  AlignRightOutlined,
   CodeOutlined,
   ExperimentOutlined,
   HighlightOutlined,
-  ImportOutlined,
+  ImportOutlined, MoreOutlined,
   ReloadOutlined,
   UnorderedListOutlined
 } from '@ant-design/icons';
@@ -29,6 +30,8 @@ import EmptyIcon from '@/assets/icon/empty.svg?react'
 function Developer() {
   const [list, setList] = useState<IDeveloperPlugin[]>([]);
   const [plugin, setPlugin] = useState<IDeveloperPlugin>();
+
+  const [type,setType] = useState('developer')
 
   const onQueryPluginList = async () => {
     const list = await apeak.sendSync(BUILT_PLUGIN_LIST);
@@ -47,17 +50,22 @@ function Developer() {
     if (result.success) {
       void onQueryPluginList();
       setPlugin(result.data);
-      notification.success({
-        message: '成功',
-        description: '插件导入成功'
-      });
+      message.success('插件导入成功');
     } else {
-      notification.error({
-        message: '插件导入失败',
-        description: result.message
-      });
+      message.success('插件导入失败');
     }
   };
+
+  /**
+   * 刷新插件
+   */
+  const onRefreshPlugin = async ()=>{
+    const result = await apeak.sendSync(BUILT_UPDATE_PLUGIN);
+    setList(result);
+    if (result.length && !plugin) {
+      setPlugin(result[0]);
+    }
+  }
 
   const onStartPlugin = async () => {
     const result = await apeak.sendSync(BUILT_UPDATE_PLUGIN, {
@@ -66,28 +74,33 @@ function Developer() {
     });
   };
 
-  const pluginItems: DescriptionsProps['items'] = [
-    {
-      key: '1',
-      label: '应用标识',
-      children: 'Cloud Database'
-    },
-    {
-      key: '2',
-      label: '开发者',
-      children: 'Prepaid'
-    },
-    {
-      key: '3',
-      label: '应用主页',
-      children: 'Prepaid'
-    },
-    {
-      key: '4',
-      label: '应用描述',
-      children: 'Prepaid'
+  const pluginItems = useMemo(()=>{
+    if(plugin){
+      return [
+        {
+          key: '1',
+          label: '应用标识',
+          children: plugin.unique
+        },
+        {
+          key: '2',
+          label: '开发者',
+          children: 'Prepaid'
+        },
+        {
+          key: '3',
+          label: '应用主页',
+          children: plugin.homepage || '-'
+        },
+        {
+          key: '4',
+          label: '应用描述',
+          children: plugin.desc || '-'
+        }
+      ] as DescriptionsProps['items']
     }
-  ];
+    return []
+  },[plugin])
 
   useMount(() => {
     void onQueryPluginList();
@@ -123,14 +136,19 @@ function Developer() {
           </div>
           <div className='flex-1 p-4 overflow-y-auto'>
             {plugin ? (
-              <Flex vertical gap={24}>
+              <Flex vertical gap={12}>
                 <Descriptions
                   title={plugin.name}
+                  size='small'
                   column={{ xxl: 1, xl: 1, lg: 1, md: 1, sm: 1, xs: 1 }}
                   extra={
                     <Flex gap={16}>
-                      <Button type='text' icon={<ReloadOutlined />} />
-                      <Button type='text' icon={<HighlightOutlined />} />
+                      <Tooltip title='刷新插件'>
+                        <Button type='text' icon={<ReloadOutlined />} />
+                      </Tooltip>
+                      <Tooltip>
+                        <Button type='text' icon={<AlignRightOutlined />} />
+                      </Tooltip>
                     </Flex>
                   }
                   items={pluginItems}
@@ -138,6 +156,7 @@ function Developer() {
                 <Segmented
                   size='large'
                   block
+                  value={type}
                   options={[
                     {
                       value: 'developer',
@@ -150,7 +169,13 @@ function Developer() {
                       icon: <UnorderedListOutlined />
                     }
                   ]}
+                  onChange={setType}
                 />
+                {type === 'developer' ? (
+                  <div>123</div>
+                ): (
+                  <div>456</div>
+                )}
               </Flex>
             ) : null}
           </div>

@@ -78,6 +78,9 @@ export const useStyles = createStyles(({ token, css }) => {
       &::placeholder {
         color: ${token.colorTextPlaceholder};
       }
+      &.focus {
+        -webkit-app-region: drag;
+      }
     `,
     result: css``,
     groupTitle: css`

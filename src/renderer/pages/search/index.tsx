@@ -1,5 +1,7 @@
 import { KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useEventTarget, useMemoizedFn, useUpdateEffect } from 'ahooks';
+import { Avatar, Button, Flex, Typography } from 'antd';
+import { CloseOutlined, HolderOutlined } from '@ant-design/icons';
 import {
   MAIN_OPEN_PLUGIN_MENU,
   MAIN_PLUGIN_CLOSE,
@@ -13,8 +15,6 @@ import { useSearchWrapperRect } from '@/hooks/useSearchWrapperRect';
 import { useSearchScrollViewport } from '@/hooks/useSearchScrollViewport';
 import { generateGroupIndex, generatePluginGroup } from '@/utils/pluginHandler';
 import { useConfig } from '@/context';
-import { Avatar, Button, Flex, Typography } from 'antd';
-import { CloseOutlined, HolderOutlined } from '@ant-design/icons';
 import { useStyles } from './styles';
 
 import MicrophoneIcon from '@/assets/icon/microphone-icon.svg?react';
@@ -31,6 +31,8 @@ const Search = () => {
   const [groupList, setGroupList] = useState<IGroupType[]>([]);
   const [index, setIndex] = useState(1);
   const [plugin, setPlugin] = useState<IPlugin>();
+
+  const [focus, setFocus] = useState(false);
 
   const { listRef, toolbarRef, listHeight } = useSearchWrapperRect();
 
@@ -73,6 +75,14 @@ const Search = () => {
       }
     }
   });
+
+  const onFocus = () => {
+    setFocus(true);
+  };
+
+  const onBlur = ()=>{
+    setFocus(false);
+  }
 
   /**
    * 打开插件
@@ -213,10 +223,15 @@ const Search = () => {
             value={value}
             autoFocus
             onChange={onChange}
-            className={cx(styles.input,'w-full h-[54px]')}
+            className={cx(
+              styles.input,
+              focus ? 'focus' : '',
+              'w-full h-[54px]'
+            )}
             placeholder={config.placeholder}
             onKeyDown={onKeyDown}
-            // onBlur={onBlur}
+            onFocus={onFocus}
+            onBlur={onBlur}
           />
         </Flex>
         {plugin ? (

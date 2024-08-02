@@ -131,6 +131,7 @@ export class MainBrowser {
     this.search = new WebContentsView({
       webPreferences: {
         nodeIntegrationInWorker: true,
+        contextIsolation: true,
         preload: path.join(__dirname, '../preload/index.js')
       }
     });
@@ -173,7 +174,7 @@ export class MainBrowser {
         const nameList = item.name.split('');
         const nameFormat = nameList.map((val, index) => {
           if ((indexList || []).includes(index)) {
-            return `<span style="color: hsl(var(--primary))">${val}</span>`;
+            return `<span style="color: ${global.config.colorPrimary}">${val}</span>`;
           }
           return val;
         });
@@ -293,8 +294,8 @@ export class MainBrowser {
     /**
      * 失去焦点关闭插件
      */
-    this.main.on('blur', (e) => {
-      console.log(e);
+    this.main.on('blur', () => {
+      console.log(11);
       // this.main.hide();
     });
 

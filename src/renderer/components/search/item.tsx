@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Avatar, Flex, Typography } from 'antd';
 import { createStyles } from 'antd-style';
-import { ArrowRightOutlined, MoreOutlined } from '@ant-design/icons';
+import { EnterOutlined, MoreOutlined } from '@ant-design/icons';
 
 const useStyles = createStyles(({ token, css }) => ({
   item: css`
@@ -11,7 +11,7 @@ const useStyles = createStyles(({ token, css }) => ({
     }
 
     &.active {
-      background-color: ${token.colorBgTextActive};
+      background-color: ${token.colorBgTextHover};
     }
   `,
   title: css`
@@ -37,7 +37,7 @@ export const SearchItem: FC<ISearchItemProps> = ({
       className={cx(
         styles.item,
         'w-full px-3 h-10 cursor-pointer rounded-sm overflow-hidden',
-        active ? styles.item : ''
+        active ? 'active' : ''
       )}
       align='center'
       onClick={() => onOpenPlugin(item)}
@@ -61,7 +61,7 @@ export const SearchItem: FC<ISearchItemProps> = ({
         )}
       </Flex>
       <Typography.Text type='secondary' className='text-xs'>
-        {item.type === 'more' ? <ArrowRightOutlined /> : null}
+        {item.type === 'more' && active ? <EnterOutlined /> : null}
         {item.type === 'app' ? '' : item.desc}
       </Typography.Text>
     </Flex>

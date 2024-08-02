@@ -29,6 +29,39 @@ function validatePluginJson(json: Recordable, directory: string) {
   }
 }
 
+function readPluginJson(filePath: string) {
+  if (!fs.existsSync(filePath)) {
+    return {
+      success: false,
+      message: '插件文件不存在'
+    };
+  }
+  // 插件目录
+  const directory = path.resolve(filePath, '..');
+
+  const pluginData = fs.readFileSync(filePath, 'utf8');
+
+  try {
+    const json = JSON.parse(pluginData);
+    const validate = validatePluginJson(json, directory);
+    if (validate) {
+      return {
+        success: false,
+        message: validate
+      };
+    }
+    return {
+      success: true,
+      data: json
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: '插件配置格式有误'
+    };
+  }
+}
+
 export function initDeveloper(window: BaseWindow) {
   /**
    * 删除插件
@@ -86,10 +119,7 @@ export function initDeveloper(window: BaseWindow) {
         }
       ]
     });
-    if (!filePath) {
-      return;
-    }
-    console.log(filePath);
+    if (!filePath) return;
     const pathStr = filePath[0];
     if (!isJsonFilePath(pathStr)) {
       return { success: false, msg: '请选择正确的package.json文件' };
