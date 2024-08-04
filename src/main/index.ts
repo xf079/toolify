@@ -7,7 +7,7 @@ import initApplication from '@main/shared/application';
 
 import createTray from '@main/common/tray';
 import createShortcut from '@main/common/shortcut';
-import { initDeveloper } from '@main/shared/developer';
+import { initDeveloper } from '@main/shared/plugin/developer';
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.

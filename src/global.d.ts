@@ -11,6 +11,8 @@ declare global {
   }
   declare const apeak: IMainEvent;
 
+  declare const __plugin__: IPlugin;
+
   interface IConfig {
     theme: string;
     colorPrimary: string;
@@ -42,10 +44,13 @@ declare global {
     id: number;
     unique: string;
     name: string;
-    desc: string;
+    main: string;
+    logo:string;
+    description: string;
     homepage: string;
     source: string;
     running: boolean;
+    message:string;
   }
 
   interface IGroupType {

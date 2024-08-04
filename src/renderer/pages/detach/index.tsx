@@ -1,5 +1,5 @@
 import { useStyles } from '@/pages/detach/style';
-import { Button, Flex } from 'antd';
+import { Avatar, Button, Flex, Typography } from 'antd';
 import {
   BorderOutlined,
   BulbOutlined,
@@ -7,7 +7,7 @@ import {
   LineOutlined,
   SettingOutlined
 } from '@ant-design/icons';
-import { DETACH_SERVICE } from '@main/config/constants';
+import { DETACH_SERVICE, SEPARATE_HEIGHT, SEPARATE_TOOLBAR_HEIGHT } from '@main/config/constants';
 import { useState } from 'react';
 
 export default function Detach() {
@@ -16,27 +16,30 @@ export default function Detach() {
   const [isMaximize, setIsMaximize] = useState(false);
 
   const onMinimize = () => {
-    apeak.send(DETACH_SERVICE, { type: 'size:minimize' });
+    apeak.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: `minimize` });
   };
 
   const onToggleSize = () => {
     if (isMaximize) {
-      apeak.send(DETACH_SERVICE, { type: 'size:default' });
+      setIsMaximize(false);
+      apeak.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: `restore` });
     } else {
-      setIsMaximize(true)
-      apeak.send(DETACH_SERVICE, { type: 'size:maximize' });
+      setIsMaximize(true);
+      apeak.send(`${DETACH_SERVICE}_${__plugin__.unique}`, {
+        type: `maximize`
+      });
     }
-    apeak.send(DETACH_SERVICE, { type: 'size:toggle' });
   };
 
   const onClose = () => {
-    apeak.send(DETACH_SERVICE, { type: 'close' });
+    apeak.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: 'close' });
   };
 
   return (
     <Flex className={styles.toolbar} justify='space-between' align='center'>
-      <Flex>
-        <span>logo</span>
+      <Flex gap={12} className='pl-3'>
+        <Avatar src={__plugin__.logo} size={SEPARATE_TOOLBAR_HEIGHT / 2} className='p-2' />
+        <Typography.Text strong>{__plugin__.name}</Typography.Text>
       </Flex>
       <Flex gap={12} align='center'>
         <Flex align='center' gap={2}>

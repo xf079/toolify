@@ -26,6 +26,7 @@ import {
 import PluginsModal from '@main/shared/modal/plugins';
 import { setContentsUrl } from '@main/utils/window-path';
 import env from '@main/utils/env';
+import Separate from '@main/browser/separate';
 
 export interface IPluginItem {
   id: number | string;
@@ -230,6 +231,10 @@ export class MainBrowser {
         resolve(true);
       });
 
+      pluginView.webContents.executeJavaScript(`
+         window.__plugin__ = ${JSON.stringify(item)};  
+      `);
+
       this.pluginList.push({ id: item.id, plugin: pluginView, detail: item });
 
       if (env.dev()) {
@@ -331,7 +336,6 @@ export class MainBrowser {
       this.closePlugin();
     });
 
-
     /**
      * 搜索状态 修改窗口大小
      */
@@ -351,7 +355,15 @@ export class MainBrowser {
         {
           label: '分离为独立窗口',
           click: () => {
-            console.log(123);
+            console.log('小盒子', 123);
+            const item = this.pluginList.find(
+              (item) => item.id === this.currentPlugin
+            );
+            if (item) {
+              console.log(123);
+              const separate = new Separate();
+              separate.openPlugin(item.detail, item.plugin);
+            }
           }
         },
         {
@@ -362,9 +374,7 @@ export class MainBrowser {
         },
         {
           label: '退出到后台',
-          click: () => {
-            console.log(123);
-          }
+          click: () => {}
         },
         {
           label: '结束运行',

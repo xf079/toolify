@@ -4,6 +4,7 @@ import {
   SYSTEM_PLUGIN_CENTER,
   SYSTEM_PLUGIN_SETTINGS
 } from '@main/config/constants';
+import { getDataPath } from '@main/utils/os';
 
 export const DEFAULT_CONFIG = {
   type: CONFIG_DEFAULT_TYPE,
@@ -37,7 +38,8 @@ export const SYSTEM_PLUGIN_LIST = [
     type: 'built',
     name: '开发者中心',
     main: '/system/developer',
-    logo: 'https://img.zcool.cn/community/0180b65af0400aa801219b7fe7ee6b.png@1280w_1l_2o_100sh.png',
+    logo: getDataPath('/resources/icon/developer-icon.png'),
     desc: '开发Apeak插件应用'
   }
 ];
+console.log(getDataPath('/resources/icon/developer.png'));

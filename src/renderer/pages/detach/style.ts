@@ -1,19 +1,24 @@
 import { createStyles } from 'antd-style';
-import { WINDOW_TOOLBAR_HEIGHT } from '@main/config/constants';
+import {
+  SEPARATE_TOOLBAR_HEIGHT,
+  WINDOW_TOOLBAR_HEIGHT
+} from '@main/config/constants';
 
 export const useStyles = createStyles(({ css, token }) => ({
   toolbar: css`
     width: 100%;
-    height: ${WINDOW_TOOLBAR_HEIGHT}px;
+    height: ${SEPARATE_TOOLBAR_HEIGHT}px;
     background-color: ${token.colorBgLayout};
+    -webkit-app-region: drag;
   `,
   btn: css`
-    width: ${WINDOW_TOOLBAR_HEIGHT}px;
-    height: ${WINDOW_TOOLBAR_HEIGHT}px;
+    width: ${SEPARATE_TOOLBAR_HEIGHT}px;
+    height: ${SEPARATE_TOOLBAR_HEIGHT}px;
     background-color: transparent;
     transition: all 0.1s;
     cursor: pointer;
-      font-size: ${token.fontSizeSM}px;
+    font-size: ${token.fontSizeSM}px;
+    -webkit-app-region: no-drag;
     &:hover {
       background-color: ${token.colorBgContainer};
     }

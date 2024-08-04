@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useMount } from 'ahooks';
 import {
   BUILD_IMPORT_PLUGIN,
@@ -10,35 +10,51 @@ import {
   Flex,
   Typography,
   Button,
-  notification,
   Segmented,
   Descriptions,
-  DescriptionsProps, message, Tooltip
+  DescriptionsProps,
+  message,
+  Tooltip,
+  Alert,
+  Dropdown,
+  Avatar,
+  Switch,
+  MenuProps
 } from 'antd';
 import {
   AlignRightOutlined,
   CodeOutlined,
-  ExperimentOutlined,
-  HighlightOutlined,
-  ImportOutlined, MoreOutlined,
+  FolderOpenOutlined,
   ReloadOutlined,
   UnorderedListOutlined
 } from '@ant-design/icons';
+import { Empty } from '@/components/developer';
+import {
+  CreatePlugin,
+  ICreateOrUpdatePluginRef
+} from '@/components/developer/create-plugin';
 
-import EmptyIcon from '@/assets/icon/empty.svg?react'
+import CreatePluginIcon from '@/assets/icon/create-folder-icon.svg?react';
 
 function Developer() {
   const [list, setList] = useState<IDeveloperPlugin[]>([]);
   const [plugin, setPlugin] = useState<IDeveloperPlugin>();
 
-  const [type,setType] = useState('developer')
+  const [type, setType] = useState('developer');
+
+  const createPluginRef = useRef<ICreateOrUpdatePluginRef>(null);
 
   const onQueryPluginList = async () => {
     const list = await apeak.sendSync(BUILT_PLUGIN_LIST);
     setList(list);
+    console.log(list);
     if (list.length && !plugin) {
       setPlugin(list[0]);
     }
+  };
+
+  const onCreatePluginHandle = () => {
+    createPluginRef.current?.open();
   };
 
   /**
@@ -50,6 +66,7 @@ function Developer() {
     if (result.success) {
       void onQueryPluginList();
       setPlugin(result.data);
+      console.log(result.data);
       message.success('插件导入成功');
     } else {
       message.success('插件导入失败');
@@ -59,13 +76,13 @@ function Developer() {
   /**
    * 刷新插件
    */
-  const onRefreshPlugin = async ()=>{
+  const onRefreshPlugin = async () => {
     const result = await apeak.sendSync(BUILT_UPDATE_PLUGIN);
     setList(result);
     if (result.length && !plugin) {
       setPlugin(result[0]);
     }
-  }
+  };
 
   const onStartPlugin = async () => {
     const result = await apeak.sendSync(BUILT_UPDATE_PLUGIN, {
@@ -74,8 +91,8 @@ function Developer() {
     });
   };
 
-  const pluginItems = useMemo(()=>{
-    if(plugin){
+  const pluginItems = useMemo(() => {
+    if (plugin) {
       return [
         {
           key: '1',
@@ -95,12 +112,28 @@ function Developer() {
         {
           key: '4',
           label: '应用描述',
-          children: plugin.desc || '-'
+          children: plugin.description || '-'
         }
-      ] as DescriptionsProps['items']
+      ] as DescriptionsProps['items'];
     }
-    return []
-  },[plugin])
+    return [];
+  }, [plugin]);
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: '修改项目'
+    },
+    {
+      key: '2',
+      label: '重置秘钥'
+    },
+    {
+      key: '4',
+      danger: true,
+      label: '删除项目'
+    }
+  ];
 
   useMount(() => {
     void onQueryPluginList();
@@ -112,10 +145,14 @@ function Developer() {
         <div className='flex flex-row'>
           <div className='w-56 py-4 px-2 bg-gray-50 h-screen'>
             <Flex justify='space-between' align='center' gap={12}>
-              <Button type='primary' block onClick={onImportPlugin}>
-                导入插件
+              <Button
+                type='primary'
+                block
+                icon={<CreatePluginIcon className='w-5 h-5' />}
+                onClick={onCreatePluginHandle}
+              >
+                创建插件应用
               </Button>
-              <Button type='link'>文档</Button>
             </Flex>
             <div className='w-full py-4 overflow-y-auto'>
               <ul className='space-y-2 font-medium'>
@@ -146,15 +183,14 @@ function Developer() {
                       <Tooltip title='刷新插件'>
                         <Button type='text' icon={<ReloadOutlined />} />
                       </Tooltip>
-                      <Tooltip>
+                      <Dropdown menu={{ items }}>
                         <Button type='text' icon={<AlignRightOutlined />} />
-                      </Tooltip>
+                      </Dropdown>
                     </Flex>
                   }
                   items={pluginItems}
                 />
                 <Segmented
-                  size='large'
                   block
                   value={type}
                   options={[
@@ -172,8 +208,51 @@ function Developer() {
                   onChange={setType}
                 />
                 {type === 'developer' ? (
-                  <div>123</div>
-                ): (
+                  <Flex vertical gap={24}>
+                    {plugin.message ? (
+                      <Alert type='error' message={plugin.message} />
+                    ) : null}
+                    <Flex gap={12} align='center'>
+                      <Avatar src={plugin.logo} size={32} />
+                      <Flex vertical className='flex-1'>
+                        <Typography.Text strong>未运行</Typography.Text>
+                        <Typography.Text type='secondary'>
+                          {plugin.main}
+                        </Typography.Text>
+                      </Flex>
+                      <Tooltip title='在资源管理器中显示'>
+                        <Button type='text' icon={<FolderOpenOutlined />} />
+                      </Tooltip>
+                    </Flex>
+                    <Flex gap={12} align='center'>
+                      <Flex vertical className='flex-1'>
+                        <Typography.Text strong>
+                          退出到后台立即结束运行
+                        </Typography.Text>
+                        <Typography.Text type='secondary'>
+                          开启后每次打开插件应用都会重新加载最新代码
+                        </Typography.Text>
+                      </Flex>
+                      <Switch />
+                    </Flex>
+                    <Flex>
+                      <Flex vertical>
+                        <Typography.Text strong>立即运行</Typography.Text>
+                        <Typography.Text type='secondary'>
+                          允许中才可搜索调试
+                        </Typography.Text>
+                      </Flex>
+                    </Flex>
+                    <Flex>
+                      <Flex vertical>
+                        <Typography.Text strong>打包</Typography.Text>
+                        <Typography.Text type='secondary'>
+                          打包为可离线安装的APE文件
+                        </Typography.Text>
+                      </Flex>
+                    </Flex>
+                  </Flex>
+                ) : (
                   <div>456</div>
                 )}
               </Flex>
@@ -181,30 +260,9 @@ function Developer() {
           </div>
         </div>
       ) : (
-        <Flex
-          className='px-8 pt-14 h-full'
-          align='center'
-          justify='center'
-          vertical
-        >
-          <EmptyIcon className='w-16 h-16' style={{color:'var(--apeak-color-text-secondary)'}} />
-          <Typography.Title level={4} className='mt-6'>
-            您还没有插件应用哦！
-          </Typography.Title>
-          <Typography.Text type='secondary'>
-            点击下方按钮导入插件应用
-          </Typography.Text>
-          <Button
-            type='primary'
-            size='large'
-            onClick={onImportPlugin}
-            icon={<ImportOutlined />}
-            className='w-44 mt-5'
-          >
-            导入插件
-          </Button>
-        </Flex>
+        <Empty onCreate={onCreatePluginHandle} />
       )}
+      <CreatePlugin ref={createPluginRef} onFinish={onQueryPluginList} />
     </div>
   );
 }

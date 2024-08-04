@@ -8,15 +8,15 @@ import {
 } from '@main/config/constants';
 
 export interface ICreateAndUpdatePluginProps {
-  onFinish: () => void;
+  onFinish?: () => void;
 }
 
-export interface ICreateAndUpdatePluginRef {
+export interface ICreateOrUpdatePluginRef {
   open: (data?: IDeveloperPlugin) => void;
 }
 
-export const CreateAndUpdatePlugin = forwardRef<
-  ICreateAndUpdatePluginRef,
+export const CreatePlugin = forwardRef<
+  ICreateOrUpdatePluginRef,
   ICreateAndUpdatePluginProps
 >(({ onFinish }, ref) => {
   const { styles } = useStyles();
@@ -26,10 +26,10 @@ export const CreateAndUpdatePlugin = forwardRef<
   const [form] = Form.useForm();
 
   useImperativeHandle(ref, () => ({
-    open: (data) => {
+    open: (data?: IDeveloperPlugin) => {
+      setEdit(!!data);
       if (data) {
         form.setFieldsValue(data);
-        setEdit(true);
       }
       setOpen(true);
     }
@@ -37,26 +37,35 @@ export const CreateAndUpdatePlugin = forwardRef<
 
   const onCreatePlugin = async (data: IPlugin) => {
     if (edit) {
-      await apeak.sendSync(BUILT_UPDATE_PLUGIN, data);
+      const result = await apeak.sendSync(BUILT_UPDATE_PLUGIN, data);
+      if (result.success) {
+        setOpen(false);
+        onFinish?.();
+        message.success('更新成功');
+      } else {
+        message.error(result.message);
+      }
     } else {
-      await apeak.sendSync(BUILT_CREATE_PLUGIN, {
+      const result = await apeak.sendSync(BUILT_CREATE_PLUGIN, {
         ...data,
         unique: nanoid()
       });
+      if (result.success) {
+        setOpen(false);
+        onFinish?.();
+        message.success('创建成功');
+      } else {
+        message.error(result.message);
+      }
     }
-    setOpen(false);
-    onFinish();
   };
 
   const onConfirm = async () => {
     const values = await form.validateFields();
     await onCreatePlugin(values);
-    message.success({
-      content: edit ? '更新成功' : '创建成功'
-    });
   };
   return (
-    <Drawer placement='bottom' height='100%' closable={false} open={open}>
+    <Drawer placement='bottom' height='auto' closable={false} open={open}>
       <div className={styles.main}>
         <Typography.Title level={3} style={{ marginTop: 12 }}>
           创建插件应用

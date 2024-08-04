@@ -38,6 +38,15 @@ class DeveloperModal extends Model<
   declare homepage: string;
 
   /**
+   * 开发者
+   */
+  declare author: string;
+
+  /**
+   * 版本
+   */
+  declare version: string;
+  /**
    * 插件描述
    */
   declare description: string;
@@ -51,6 +60,8 @@ class DeveloperModal extends Model<
    * 是否运行
    */
   declare running: boolean;
+
+  declare message:string
 }
 
 DeveloperModal.init(
@@ -80,6 +91,14 @@ DeveloperModal.init(
       type: DataTypes.STRING,
       allowNull: true
     },
+    author: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    version: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     source: {
       type: DataTypes.STRING,
       allowNull: true
@@ -91,6 +110,10 @@ DeveloperModal.init(
     running: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      allowNull: true
+    },
+    message: {
+      type: DataTypes.STRING,
       allowNull: true
     }
   },

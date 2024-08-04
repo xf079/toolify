@@ -33,6 +33,10 @@ export const GUIDE_HEIGHT = 600;
 export const PANEL_WIDTH = 240;
 export const PANEL_HEIGHT = 340;
 
+export const SEPARATE_WIDTH = 920;
+export const SEPARATE_HEIGHT = 660;
+export const SEPARATE_TOOLBAR_HEIGHT = 54;
+
 /**
  * MAIN
  */

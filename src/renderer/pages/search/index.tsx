@@ -258,7 +258,7 @@ const Search = () => {
         >
           <Flex vertical className='p-2 gap-1' ref={listRef}>
             {groupList.map((group) => (
-              <Flex vertical key={group.type}>
+              <Flex vertical key={group.type} gap={2}>
                 <Typography.Text
                   type='secondary'
                   className={cx(styles.groupTitle, 'px-3 mb-1')}

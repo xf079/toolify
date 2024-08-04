@@ -6,6 +6,7 @@ import { EnterOutlined, MoreOutlined } from '@ant-design/icons';
 const useStyles = createStyles(({ token, css }) => ({
   item: css`
     border-radius: 9999px;
+    transition: all 0.04s ease-in-out;
     &:hover {
       background-color: ${token.colorBgTextHover};
     }
@@ -16,6 +17,7 @@ const useStyles = createStyles(({ token, css }) => ({
   `,
   title: css`
     font-size: 14px;
+    font-weight: 500;
     color: ${token.colorTextHeading};
   `
 }));
@@ -52,7 +54,7 @@ export const SearchItem: FC<ISearchItemProps> = ({
           </>
         ) : (
           <>
-            <Avatar src={item.logo} size='small' />
+            <Avatar src={item.logo} shape='square' size='small' />
             <div
               className={styles.title}
               dangerouslySetInnerHTML={{ __html: item.nameFormat }}
