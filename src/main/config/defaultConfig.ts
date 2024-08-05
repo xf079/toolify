@@ -13,7 +13,7 @@ export const DEFAULT_CONFIG = {
   start: false,
   guide: false,
   language: 'zh-CN',
-  placeholder: 'Hi, Apeak'
+  placeholder: 'Hi, APEAK'
 };
 
 export const SYSTEM_PLUGIN_LIST = [
@@ -42,4 +42,3 @@ export const SYSTEM_PLUGIN_LIST = [
     desc: '开发Apeak插件应用'
   }
 ];
-console.log(getDataPath('/resources/icon/developer.png'));

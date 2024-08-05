@@ -10,6 +10,7 @@ declare global {
     sendSync(event: string, ...args: any[]): Promise<any>;
   }
   declare const apeak: IMainEvent;
+  declare const ipc: IMainEvent;
 
   declare const __plugin__: IPlugin;
 
@@ -29,13 +30,13 @@ declare global {
     name: string;
     main: string;
     logo: string;
-    separation: boolean;
-    desc?: string;
+    description: string;
+    separation?: boolean;
+    single?: boolean;
+    autoUninstalled?: boolean;
     unique?: string;
-    running?: boolean;
     version?: string;
     platform?: string;
-    single?: boolean;
     features?: string;
     [key: string]: any;
   }
@@ -45,12 +46,12 @@ declare global {
     unique: string;
     name: string;
     main: string;
-    logo:string;
+    logo: string;
     description: string;
     homepage: string;
     source: string;
     running: boolean;
-    message:string;
+    message: string;
   }
 
   interface IGroupType {

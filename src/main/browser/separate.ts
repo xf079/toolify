@@ -7,6 +7,7 @@ import {
 } from '@main/config/constants';
 import path from 'node:path';
 import { setContentsUrl } from '@main/utils/window-path';
+import store from '@main/shared/store';
 
 class Separate {
   private main: BaseWindow;
@@ -15,9 +16,10 @@ class Separate {
   private plugin: IPlugin;
   private content: WebContentsView;
 
-  openPlugin(plugin: IPlugin, view: WebContentsView) {
+  openPlugin(plugin: IPlugin) {
     this.plugin = plugin;
-    this.content = view;
+
+    const pluginView = store
     this.createSeparate();
     this.createContent();
   }
@@ -39,9 +41,14 @@ class Separate {
       show: true,
       focusable: true,
       skipTaskbar: false,
-      hiddenInMissionControl: true,
+      hiddenInMissionControl: false,
       alwaysOnTop: true,
-      backgroundColor: global.bgColor
+      backgroundColor: global.bgColor,
+      titleBarStyle: 'hiddenInset',
+      trafficLightPosition: {
+        x: 16,
+        y: (SEPARATE_TOOLBAR_HEIGHT - 20) / 2
+      }
     });
     this.detach = new WebContentsView({
       webPreferences: {
@@ -58,7 +65,7 @@ class Separate {
       height: SEPARATE_TOOLBAR_HEIGHT
     });
 
-    this.detach.webContents.executeJavaScript(`
+    void this.detach.webContents.executeJavaScript(`
         window.__plugin__ = ${JSON.stringify(this.plugin)};  
     `);
 
@@ -126,6 +133,11 @@ class Separate {
           height: bounds.height - SEPARATE_TOOLBAR_HEIGHT
         });
       }
+    });
+
+    ipcMain.handle(`${DETACH_SERVICE}_${this.plugin.unique}`, (event, args) => {
+      console.log(args);
+      return this.plugin
     });
   }
 }

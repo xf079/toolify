@@ -27,6 +27,7 @@ import PluginsModal from '@main/shared/modal/plugins';
 import { setContentsUrl } from '@main/utils/window-path';
 import env from '@main/utils/env';
 import Separate from '@main/browser/separate';
+import store from '@main/shared/store';
 
 export interface IPluginItem {
   id: number | string;
@@ -127,7 +128,7 @@ export class MainBrowser {
       skipTaskbar: true,
       focusable: true,
       alwaysOnTop: true,
-      backgroundColor: global.bgColor
+      backgroundColor: store.getBackgroundColor()
     });
     this.search = new WebContentsView({
       webPreferences: {
@@ -175,7 +176,7 @@ export class MainBrowser {
         const nameList = item.name.split('');
         const nameFormat = nameList.map((val, index) => {
           if ((indexList || []).includes(index)) {
-            return `<span style="color: ${global.config.colorPrimary}">${val}</span>`;
+            return `<span style="color: ${store.getConfig().colorPrimary}">${val}</span>`;
           }
           return val;
         });
@@ -220,7 +221,7 @@ export class MainBrowser {
         width: WINDOW_WIDTH,
         height: WINDOW_PLUGIN_HEIGHT
       });
-      pluginView.setBackgroundColor(global.bgColor);
+      pluginView.setBackgroundColor(store.getBackgroundColor());
       this.main.contentView.addChildView(pluginView);
       setContentsUrl(pluginView.webContents, item.main);
       this.setPluginWindowRect();
@@ -308,7 +309,7 @@ export class MainBrowser {
      * 获取配置
      */
     ipcMain.handle(MAIN_SYNC_CONFIG, async () => {
-      return global.config;
+      return store.getConfig();
     });
 
     /**

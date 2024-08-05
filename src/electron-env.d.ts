@@ -20,6 +20,7 @@ declare namespace NodeJS {
 }
 
 declare global {
+  declare var pluginList:IPlugin[]
   declare var config: IConfig
   declare var bgColor: string;
 }

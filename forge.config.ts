@@ -29,7 +29,7 @@ const config: ForgeConfig = {
           config: 'vite.main.config.ts'
         },
         {
-          entry: ['src/preload/index.ts', 'src/preload/plugins.ts'],
+          entry: ['src/preload/index.ts', 'src/preload/plugins.ts','src/preload/detach.ts'],
           config: 'vite.preload.config.ts'
         }
       ],

@@ -35,7 +35,7 @@ export const PANEL_HEIGHT = 340;
 
 export const SEPARATE_WIDTH = 920;
 export const SEPARATE_HEIGHT = 660;
-export const SEPARATE_TOOLBAR_HEIGHT = 54;
+export const SEPARATE_TOOLBAR_HEIGHT = 48;
 
 /**
  * MAIN

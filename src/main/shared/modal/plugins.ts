@@ -24,7 +24,6 @@ class PluginsModal extends Model<
    * 插件名称
    */
   declare name: string;
-
   /**
    * 入口
    */
@@ -36,21 +35,25 @@ class PluginsModal extends Model<
   /**
    * 插件描述
    */
-  declare desc: string;
-
+  declare description: string;
   /**
    * 是否分离
    */
   declare separation: boolean;
   /**
+   * 是否允许多开
+   */
+  declare single: boolean;
+
+  /**
+   * 关闭后是否自动卸载
+   */
+  declare autoUninstalled: boolean;
+
+  /**
    * 插件版本
    */
   declare version: string;
-
-  /**
-   * 是否运行中
-   */
-  declare running: boolean;
 
   /**
    * 插件平台
@@ -90,7 +93,7 @@ PluginsModal.init(
       type: DataTypes.STRING,
       allowNull: false
     },
-    desc: {
+    description: {
       type: DataTypes.STRING,
       allowNull: true
     },
@@ -99,13 +102,18 @@ PluginsModal.init(
       defaultValue: false,
       allowNull: true
     },
-    version: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    running: {
+    single: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      allowNull: true
+    },
+    autoUninstalled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: true
+    },
+    version: {
+      type: DataTypes.STRING,
       allowNull: true
     },
     platform: {
