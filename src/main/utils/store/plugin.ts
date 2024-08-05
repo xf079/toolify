@@ -35,8 +35,8 @@ class PluginStore {
    * @return Boolean
    */
   isSelfPluginOpen(plugin: IPlugin) {
-    // 如果设置了多开，则返回false
-    if (plugin.single) {
+    // 如果设置了多开，并且没有跟随主窗口 则返回false
+    if (plugin.single && !plugin.separation) {
       return false;
     }
     const item = this.pluginList.find((item) => item.plugin.id === plugin.id);

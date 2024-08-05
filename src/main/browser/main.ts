@@ -8,7 +8,6 @@ import {
 } from 'electron';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
-import { match } from 'pinyin-pro';
 import {
   WINDOW_HEIGHT,
   WINDOW_PLUGIN_HEIGHT,
@@ -18,16 +17,14 @@ import {
   MAIN_SEARCH,
   MAIN_SEARCH_FOCUS,
   MAIN_SYNC_CONFIG,
-  SYSTEM_PLUGIN_SETTINGS,
-  SYSTEM_PLUGIN_CENTER,
   MAIN_PLUGIN_OPEN,
   MAIN_PLUGIN_CLOSE
 } from '@main/config/constants';
-import PluginsModal from '@main/shared/modal/plugins';
-import { setContentsUrl } from '@main/utils/window-path';
-import env from '@main/utils/env';
+import { setContentsViewUrl } from '@main/utils/bowserUrl';
+import { isDev } from '@main/utils/is';
 import Separate from '@main/browser/separate';
-import store from '@main/shared/store';
+import store from '@main/utils/store';
+import { onSearch } from '@main/common/search';
 
 export interface IPluginItem {
   id: number | string;
@@ -39,10 +36,7 @@ export class MainBrowser {
   private main: BaseWindow;
   private search: WebContentsView;
 
-  private pluginList: IPluginItem[] = [];
-  private currentPlugin: number | string;
-
-  constructor() {
+  init() {
     this.createMainWindow();
   }
 
@@ -51,24 +45,6 @@ export class MainBrowser {
       main: this.main,
       search: this.search
     };
-  }
-
-  /**
-   * 打开系统设置
-   */
-  public async openSystemSettings() {
-    this.show();
-    const systemSettings = await this.queryPluginInfo(SYSTEM_PLUGIN_SETTINGS);
-    void this.openPlugin(systemSettings);
-  }
-
-  /**
-   * 打开插件中心
-   */
-  public async openPluginCenter() {
-    this.show();
-    const systemSettings = await this.queryPluginInfo(SYSTEM_PLUGIN_CENTER);
-    void this.openPlugin(systemSettings);
   }
   /**
    * 显示窗口
@@ -86,23 +62,9 @@ export class MainBrowser {
     this.main.hide();
   }
 
-  /**
-   * 查询指定插件信息
-   * @param key
-   * @private
-   */
-  private async queryPluginInfo(key: string) {
-    const value = await PluginsModal.findOne({
-      where: {
-        unique: key
-      }
-    });
-    if (!value) return;
-    return value.dataValues as unknown as IPlugin;
-  }
-
-  private createSearchView() {
-    return this.search;
+  updateWindowRect(height: number) {
+    this.main.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+    this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
   }
 
   /**
@@ -145,46 +107,15 @@ export class MainBrowser {
       height: WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
     });
 
-    setContentsUrl(this.search.webContents);
+    setContentsViewUrl(this.search.webContents);
 
     this.main.contentView.addChildView(this.search);
 
-    if (env.dev()) {
+    if (isDev) {
       this.search.webContents.openDevTools();
     }
     this.handle();
     this.shortcut();
-  }
-
-  /**
-   * 搜索
-   * @param value
-   * @private
-   */
-  private async onSearch(value: string) {
-    const pluginList = await PluginsModal.findAll();
-    if (pluginList && pluginList.length) {
-      const list = pluginList.map((item) => item.dataValues);
-      const resultList: IPlugin[] = [];
-      list.forEach((item: IPlugin) => {
-        const indexList = match(item.name, value, {
-          continuous: true,
-          precision: 'every'
-        });
-        if (!(indexList || []).length) return;
-
-        const nameList = item.name.split('');
-        const nameFormat = nameList.map((val, index) => {
-          if ((indexList || []).includes(index)) {
-            return `<span style="color: ${store.getConfig().colorPrimary}">${val}</span>`;
-          }
-          return val;
-        });
-        resultList.push({ ...item, nameFormat: nameFormat.join('') });
-      });
-      return resultList;
-    }
-    return [];
   }
 
   /**
@@ -225,20 +156,13 @@ export class MainBrowser {
       this.main.contentView.addChildView(pluginView);
       setContentsUrl(pluginView.webContents, item.main);
       this.setPluginWindowRect();
-      this.currentPlugin = item.id;
 
       pluginView.webContents.on('did-finish-load', () => {
         // 插件加载成功
         resolve(true);
       });
 
-      pluginView.webContents.executeJavaScript(`
-         window.__plugin__ = ${JSON.stringify(item)};  
-      `);
-
-      this.pluginList.push({ id: item.id, plugin: pluginView, detail: item });
-
-      if (env.dev()) {
+      if (isDev) {
         pluginView.webContents.openDevTools();
       }
     });
@@ -296,6 +220,8 @@ export class MainBrowser {
     }
   }
 
+
+
   private handle() {
     /**
      * 失去焦点关闭插件
@@ -316,7 +242,7 @@ export class MainBrowser {
      * 插件搜索
      */
     ipcMain.handle(MAIN_SEARCH, async (event, value: string) => {
-      return await this.onSearch(value);
+      return await onSearch(value);
     });
 
     /**
@@ -422,4 +348,6 @@ export class MainBrowser {
   }
 }
 
-export default MainBrowser;
+const mainBrowser = new MainBrowser();
+
+export default mainBrowser;

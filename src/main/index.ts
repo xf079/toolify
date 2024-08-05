@@ -1,13 +1,15 @@
 import { app } from 'electron';
-import MainBrowser from '@main/browser/main';
 
-import { sequelizeSync } from '@main/shared/db';
+import mainBrowser from '@main/browser/main';
+
+import { sequelizeSync } from '@main/utils/db';
 import initialization from '@main/config/initialization';
+
 import initApplication from '@main/shared/application';
 
 import createTray from '@main/common/tray';
 import createShortcut from '@main/common/shortcut';
-import { initDeveloper } from '@main/shared/plugin/developer';
+import initDeveloper from '@main/common/developer';
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -20,11 +22,10 @@ async function appReadyHandle() {
   await initialization();
   void initApplication()
   try {
-    const main = new MainBrowser();
-    const windows = main.getWindows();
-    void createTray(main);
-    void createShortcut(main)
-    initDeveloper(windows.main)
+    mainBrowser.init();
+    void createTray();
+    void createShortcut()
+    initDeveloper()
   } catch (e) {
     console.log(e);
   }

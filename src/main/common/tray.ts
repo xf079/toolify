@@ -1,24 +1,17 @@
-import {
-  Tray,
-  Menu,
-  shell,
-  app,
-  dialog,
-  nativeTheme
-} from 'electron';
-import device from '@main/utils/device';
+import { Tray, Menu, shell, app, dialog, nativeTheme } from 'electron';
 import os from 'node:os';
 import path from 'node:path';
-import { getPublicIcon } from '@main/utils/os';
-import MainBrowser from '@main/browser/main';
+import { getPublicIcon } from '@main/utils/fs';
+import { isMac, isWindows } from '@main/utils/is';
+import mainBrowser from '@main/browser/main';
 
 import pkg from '../../../package.json';
 
-export default async function createTray(main: MainBrowser) {
+export default async function createTray() {
   let icon;
-  if (device.macOS()) {
+  if (isMac) {
     icon = '../resources/icon/iconTemplate@2x.png';
-  } else if (device.windows()) {
+  } else if (isWindows) {
     icon =
       parseInt(os.release()) < 10
         ? '../resources/icon/icon.ico'
@@ -70,14 +63,13 @@ export default async function createTray(main: MainBrowser) {
         label: '显示',
         icon: getPublicIcon('show-icon'),
         click() {
-          main.show();
+          mainBrowser.show();
         }
       },
       {
         label: '系统设置',
         icon: getPublicIcon('settings-icon'),
         click() {
-          main.openSystemSettings();
         }
       },
       { type: 'separator' },
@@ -99,7 +91,7 @@ export default async function createTray(main: MainBrowser) {
 
   appTray.on('click', () => {
     // show
-    main.show();
+    mainBrowser.show();
   });
   appTray.setContextMenu(createContextMenu());
 

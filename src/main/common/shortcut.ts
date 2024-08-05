@@ -1,7 +1,6 @@
 import { globalShortcut } from 'electron';
-import MainBrowser from '@main/browser/main';
 
-export default function createShortcut(main: MainBrowser) {
+export default function createShortcut() {
   /**
    * 注册超级面板快捷键
    * @param {string} 'CommandOrControl+Q' - 快捷键

@@ -1,9 +1,9 @@
 import { nativeTheme } from 'electron';
 import { DEFAULT_CONFIG, SYSTEM_PLUGIN_LIST } from '@main/config/defaultConfig';
 import { CONFIG_DEFAULT_TYPE } from '@main/config/constants';
-import SettingsModal from '@main/shared/modal/settings';
-import PluginsModal from '@main/shared/modal/plugins';
-import store from '@main/shared/store';
+import SettingsModal from '@main/modal/settings';
+import PluginsModal from '@main/modal/plugins';
+import store from '@main/utils/store';
 
 export default async function initialization() {
   const [settings] = await SettingsModal.findOrCreate({

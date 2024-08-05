@@ -1,6 +1,6 @@
-import { createFolderIfNotExists, getDataPath } from '@main/utils/os';
-import PluginsModal from '@main/shared/modal/plugins';
-import device from '@main/utils/device';
+import PluginsModal from '@main/modal/plugins';
+import { isWindows, isMac } from '@main/utils/is';
+import { createFolderIfNotExists, getDataPath } from '@main/utils/fs';
 import { MacosApplication } from './mac';
 import { WindowsApplication } from './windows';
 
@@ -8,10 +8,10 @@ export default async function initApplication() {
   createFolderIfNotExists(getDataPath('/resources/image'));
 
   let application: IPlugin[];
-  if (device.windows()) {
+  if (isWindows) {
     const window = new WindowsApplication();
     application = await window.init();
-  } else if (device.macOS()) {
+  } else if (isMac) {
     const macos = new MacosApplication();
     application = await macos.init();
   }

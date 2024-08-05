@@ -3,7 +3,6 @@
  */
 
 export const PUBLIC_PATH = '/resources';
-
 export const CONFIG_DEFAULT_TYPE = 'config:default'
 
 

@@ -2,12 +2,11 @@ import { app, shell } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { unionBy } from 'lodash';
 import {
   copyFile,
   getDataPath,
   getFilenameWithoutExtension
-} from '@main/utils/os';
+} from '@main/utils/fs';
 import { PUBLIC_PATH } from '@main/config/constants';
 
 export class WindowsApplication {
@@ -111,9 +110,7 @@ export class WindowsApplication {
       const programsPromises = programsList.map(this.getApplicationDetail);
       const startPromises = startList.map(this.getApplicationDetail);
       Promise.all([...programsPromises, ...startPromises]).then((data) => {
-        resolve(
-          unionBy(data.filter(Boolean), (item) => item.main.toLowerCase())
-        );
+        resolve(data.filter(Boolean) as IPlugin[]);
       });
     });
   }

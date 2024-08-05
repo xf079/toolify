@@ -7,7 +7,6 @@ import {
 } from '@main/config/constants';
 import path from 'node:path';
 import { setContentsUrl } from '@main/utils/window-path';
-import store from '@main/shared/store';
 
 class Separate {
   private main: BaseWindow;
@@ -18,8 +17,6 @@ class Separate {
 
   openPlugin(plugin: IPlugin) {
     this.plugin = plugin;
-
-    const pluginView = store
     this.createSeparate();
     this.createContent();
   }
@@ -65,10 +62,6 @@ class Separate {
       height: SEPARATE_TOOLBAR_HEIGHT
     });
 
-    void this.detach.webContents.executeJavaScript(`
-        window.__plugin__ = ${JSON.stringify(this.plugin)};  
-    `);
-
     setContentsUrl(this.detach.webContents, 'detach');
 
     this.main.contentView.addChildView(this.detach);
@@ -80,6 +73,7 @@ class Separate {
         width: newBounds.width,
         height: SEPARATE_TOOLBAR_HEIGHT
       });
+
       this.content.setBounds({
         x: 0,
         y: SEPARATE_TOOLBAR_HEIGHT,
@@ -137,7 +131,7 @@ class Separate {
 
     ipcMain.handle(`${DETACH_SERVICE}_${this.plugin.unique}`, (event, args) => {
       console.log(args);
-      return this.plugin
+      return this.plugin;
     });
   }
 }

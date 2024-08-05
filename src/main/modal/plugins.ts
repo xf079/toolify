@@ -4,11 +4,11 @@ import {
   InferCreationAttributes,
   DataTypes
 } from 'sequelize';
-import { sequelize } from '@main/shared/db';
+import { sequelize } from '@main/utils/db';
 
-class DeveloperModal extends Model<
-  InferAttributes<DeveloperModal>,
-  InferCreationAttributes<DeveloperModal>
+class PluginsModal extends Model<
+  InferAttributes<PluginsModal>,
+  InferCreationAttributes<PluginsModal>
 > {
   declare id: number;
 
@@ -16,55 +16,57 @@ class DeveloperModal extends Model<
    * 唯一标识
    */
   declare unique: string;
-
+  /**
+   * 插件类型
+   */
+  declare type: string;
   /**
    * 插件名称
    */
   declare name: string;
-
   /**
    * 入口
    */
   declare main: string;
-
   /**
-   * logo
+   * 插件logo
    */
   declare logo: string;
-
-  /**
-   * 主页
-   */
-  declare homepage: string;
-
-  /**
-   * 开发者
-   */
-  declare author: string;
-
-  /**
-   * 版本
-   */
-  declare version: string;
   /**
    * 插件描述
    */
   declare description: string;
+  /**
+   * 是否分离
+   */
+  declare separation: boolean;
+  /**
+   * 是否允许多开
+   */
+  declare single: boolean;
 
   /**
-   * 插件目录位置
+   * 关闭后是否自动卸载
    */
-  declare source: string;
+  declare autoUninstalled: boolean;
 
   /**
-   * 是否运行
+   * 插件版本
    */
-  declare running: boolean;
+  declare version: string;
 
-  declare message:string
+  /**
+   * 插件平台
+   */
+  declare platform: string;
+
+  /**
+   * 更多信息
+   */
+  declare features: string;
 }
 
-DeveloperModal.init(
+PluginsModal.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -75,55 +77,61 @@ DeveloperModal.init(
       type: DataTypes.STRING,
       allowNull: true
     },
-    name: {
+    type: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    logo: {
+    name: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: false
     },
     main: {
       type: DataTypes.STRING,
       allowNull: true
     },
-    homepage: {
+    logo: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    description: {
       type: DataTypes.STRING,
       allowNull: true
     },
-    author: {
-      type: DataTypes.STRING,
+    separation: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true
+    },
+    single: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true
+    },
+    autoUninstalled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
       allowNull: true
     },
     version: {
       type: DataTypes.STRING,
       allowNull: true
     },
-    source: {
+    platform: {
       type: DataTypes.STRING,
       allowNull: true
     },
-    description: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    running: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-      allowNull: true
-    },
-    message: {
+    features: {
       type: DataTypes.STRING,
       allowNull: true
     }
   },
   {
     sequelize: sequelize,
-    tableName: 'developer',
+    tableName: 'plugins',
     timestamps: true,
     createdAt: true,
     updatedAt: true
   }
 );
 
-export default DeveloperModal;
+export default PluginsModal;

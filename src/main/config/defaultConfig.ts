@@ -4,7 +4,7 @@ import {
   SYSTEM_PLUGIN_CENTER,
   SYSTEM_PLUGIN_SETTINGS
 } from '@main/config/constants';
-import { getDataPath } from '@main/utils/os';
+import { getDataPath } from '@main/utils/fs';
 
 export const DEFAULT_CONFIG = {
   type: CONFIG_DEFAULT_TYPE,

@@ -2,6 +2,10 @@ import { app, nativeTheme } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
 
+/**
+ * 获取数据目录
+ * @param path
+ */
 export function getDataPath(path: string) {
   const isPackaged = app.isPackaged;
   return isPackaged ? app.getPath('userData') + path : '.vite/build' + path;
