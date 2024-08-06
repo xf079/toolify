@@ -85,6 +85,10 @@ typings/
 # Webpack
 .webpack/
 
+# Idea
+.idea/
+.vscode/
+
 # Vite
 .vite/
 
