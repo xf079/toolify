@@ -21,27 +21,27 @@ export default function Detach() {
   const { isMac } = useOs();
 
   const onMinimize = () => {
-    ipc.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: `minimize` });
+    eventApi.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: `minimize` });
   };
 
   const onToggleSize = () => {
     if (isMaximize) {
       setIsMaximize(false);
-      ipc.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: `restore` });
+      eventApi.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: `restore` });
     } else {
       setIsMaximize(true);
-      ipc.send(`${DETACH_SERVICE}_${__plugin__.unique}`, {
+      eventApi.send(`${DETACH_SERVICE}_${__plugin__.unique}`, {
         type: `maximize`
       });
     }
   };
 
   const onClose = () => {
-    ipc.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: 'close' });
+    eventApi.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: 'close' });
   };
 
   useMount(() => {
-    ipc.on(`${DETACH_SERVICE}_${__plugin__.unique}`, (event, args) => {
+    eventApi.on(`${DETACH_SERVICE}_${__plugin__.unique}`, (event, args) => {
       switch (args.type) {
         case 'maximize':
           setIsMaximize(true);

@@ -5,8 +5,7 @@ import { CloseOutlined, HolderOutlined } from '@ant-design/icons';
 import {
   MAIN_OPEN_PLUGIN_MENU,
   MAIN_PLUGIN_CLOSE,
-  MAIN_PLUGIN_OPEN,
-  MAIN_SEARCH
+  MAIN_PLUGIN_OPEN
 } from '@main/config/constants';
 import { SearchItem } from '@/components/search/item';
 import { SearchToolbar } from '@/components/search/toolbar';
@@ -14,7 +13,7 @@ import { SearchToolbar } from '@/components/search/toolbar';
 import { useSearchWrapperRect } from '@/hooks/useSearchWrapperRect';
 import { useSearchScrollViewport } from '@/hooks/useSearchScrollViewport';
 import { generateGroupIndex, generatePluginGroup } from '@/utils/pluginHandler';
-import { useConfig } from '@/context';
+import useSettings from '@/store';
 import { useStyles } from './styles';
 
 import MicrophoneIcon from '@/assets/icon/microphone-icon.svg?react';
@@ -23,7 +22,7 @@ import LogoIcon from '@/assets/logo.svg?react';
 const Search = () => {
   const { styles, cx } = useStyles();
 
-  const config = useConfig();
+  const { setting } = useSettings();
   const inputRef = useRef();
   const scrollRef = useRef<HTMLDivElement>();
 
@@ -80,9 +79,9 @@ const Search = () => {
     setFocus(true);
   };
 
-  const onBlur = ()=>{
+  const onBlur = () => {
     setFocus(false);
-  }
+  };
 
   /**
    * 打开插件
@@ -117,7 +116,7 @@ const Search = () => {
     }
     reset();
     setGroupList([]);
-    await apeak.sendSync(MAIN_PLUGIN_OPEN, item);
+    await eventApi.sync('plugin:open', item);
   });
 
   /**
@@ -129,7 +128,7 @@ const Search = () => {
     }
     onReset();
     setPlugin(undefined);
-    apeak.send(MAIN_PLUGIN_CLOSE);
+    eventApi.send(MAIN_PLUGIN_CLOSE);
   });
 
   /**
@@ -142,7 +141,7 @@ const Search = () => {
   });
 
   const onOpenMenu = useMemoizedFn(() => {
-    apeak.send(MAIN_OPEN_PLUGIN_MENU);
+    eventApi.send(MAIN_OPEN_PLUGIN_MENU);
   });
 
   useSearchScrollViewport({
@@ -161,19 +160,19 @@ const Search = () => {
       console.log('通知到插件');
       return;
     }
-    apeak.sendSync(MAIN_SEARCH, value).then((data) => {
+    eventApi.sync('main:search', value).then((data) => {
       setGroupList(generatePluginGroup(data));
     });
   }, [value]);
 
   useEffect(() => {
-    // apeak.on(MAIN_HIDE, () => {
+    // eventApi.on(MAIN_HIDE, () => {
     //   onReset();
     // });
-    // apeak.on(MAIN_SEARCH_FOCUS, () => {
+    // eventApi.on(MAIN_SEARCH_FOCUS, () => {
     //   // inputRef.current?.focus();
     // });
-    // apeak.on(MAIN_SYNC_PLUGIN, (_, data) => {
+    // eventApi.on(MAIN_SYNC_PLUGIN, (_, data) => {
     //   setCurrentPlugin(data);
     // });
   }, []);
@@ -228,7 +227,7 @@ const Search = () => {
               focus ? 'focus' : '',
               'w-full h-[54px]'
             )}
-            placeholder={config.placeholder}
+            placeholder={setting.placeholder}
             onKeyDown={onKeyDown}
             onFocus={onFocus}
             onBlur={onBlur}

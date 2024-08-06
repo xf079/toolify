@@ -1,50 +1,56 @@
-import { ConfigProvider as AntdConfigProvider, theme } from 'antd';
+import {
+  ConfigProvider as AntdConfigProvider,
+  App as AntdApp,
+  theme
+} from 'antd';
 import { RouterProvider } from 'react-router-dom';
-import { useMemo } from 'react';
-import { ConfigProvider, useConfig } from '@/context';
+import { useEffect, useMemo } from 'react';
 import useSystemTheme from '@/hooks/useSyetemTheme';
 import showInsetEffect from '@/design/antd/insetWare';
-import router from './router';
+import useSettings from '@/store';
+import router from '@/router';
 
-const AppContainer = () => {
-  const config = useConfig();
+const App = () => {
+  const { setting, initSetting } = useSettings();
   const { theme: systemTheme } = useSystemTheme();
 
   const themeVal = useMemo(
-    () => (config.theme === 'system' ? systemTheme : config.theme),
-    [config.theme, systemTheme]
+    () => (setting.theme === 'system' ? systemTheme : setting.theme),
+    [setting.theme, systemTheme]
   );
   const themeAlgorithm = useMemo(
     () =>
       themeVal === 'dark' ? [theme.darkAlgorithm] : [theme.defaultAlgorithm],
     [themeVal]
   );
+  useEffect(() => {
+    initSetting();
+  }, []);
 
   return (
     <AntdConfigProvider
-      prefixCls='apeak'
+      prefixCls='tl'
       theme={{
         cssVar: true,
         algorithm: themeAlgorithm,
         token: {
-          colorPrimary: config.colorPrimary,
+          colorPrimary: setting.colorPrimary,
           borderRadius: 8
+        },
+        components: {
+          Button: {
+            boxShadow: 'none'
+          }
         }
       }}
       wave={{ showEffect: showInsetEffect }}
       variant='filled'
       componentSize='middle'
     >
-      <RouterProvider router={router} />
+      <AntdApp>
+        <RouterProvider router={router} />
+      </AntdApp>
     </AntdConfigProvider>
-  );
-};
-
-const App = () => {
-  return (
-    <ConfigProvider>
-      <AppContainer />
-    </ConfigProvider>
   );
 };
 

@@ -6,75 +6,55 @@ import {
   SEPARATE_WIDTH
 } from '@main/config/constants';
 import path from 'node:path';
-import { setContentsUrl } from '@main/utils/window-path';
+import loadSystemContentsUrl from '@main/utils/loadContentsUrl';
+import store from '@main/utils/store';
+import pluginStore from '@main/utils/store/plugin';
 
 class Separate {
-  private main: BaseWindow;
-  private detach: WebContentsView;
-
-  private plugin: IPlugin;
-  private content: WebContentsView;
-
   openPlugin(plugin: IPlugin) {
-    this.plugin = plugin;
-    this.createSeparate();
-    this.createContent();
+    this.createSeparate(plugin);
   }
 
-  createSeparate() {
-    this.main = new BaseWindow({
+  /**
+   * 创建主窗口
+   */
+  createSeparate(plugin: IPlugin) {
+    const main = new BaseWindow({
       width: SEPARATE_WIDTH,
       height: SEPARATE_HEIGHT,
       minWidth: SEPARATE_WIDTH,
       minHeight: SEPARATE_HEIGHT,
-      x: 100,
-      y: 100,
       useContentSize: false,
       resizable: true,
       frame: false,
       center: true,
-      title: this.plugin.name,
-      icon: nativeImage.createFromPath(this.plugin.logo),
+      title: plugin.name,
+      icon: nativeImage.createFromPath(plugin.logo),
       show: true,
       focusable: true,
       skipTaskbar: false,
       hiddenInMissionControl: false,
-      alwaysOnTop: true,
-      backgroundColor: global.bgColor,
+      alwaysOnTop: false,
+      backgroundColor: store.getBackgroundColor(),
       titleBarStyle: 'hiddenInset',
       trafficLightPosition: {
         x: 16,
         y: (SEPARATE_TOOLBAR_HEIGHT - 20) / 2
       }
     });
-    this.detach = new WebContentsView({
-      webPreferences: {
-        nodeIntegrationInWorker: true,
-        contextIsolation: true,
-        preload: path.join(__dirname, '../preload/index.js')
-      }
-    });
+    const detach = this.createDetach();
+    const content = this.createContent();
+    main.contentView.addChildView(detach);
 
-    this.detach.setBounds({
-      x: 0,
-      y: 0,
-      width: SEPARATE_WIDTH,
-      height: SEPARATE_TOOLBAR_HEIGHT
-    });
-
-    setContentsUrl(this.detach.webContents, 'detach');
-
-    this.main.contentView.addChildView(this.detach);
-
-    this.main.on('will-resize', (e, newBounds) => {
-      this.detach.setBounds({
+    main.on('will-resize', (e, newBounds) => {
+      detach.setBounds({
         x: 0,
         y: 0,
         width: newBounds.width,
         height: SEPARATE_TOOLBAR_HEIGHT
       });
 
-      this.content.setBounds({
+      content.setBounds({
         x: 0,
         y: SEPARATE_TOOLBAR_HEIGHT,
         width: newBounds.width,
@@ -82,21 +62,51 @@ class Separate {
       });
     });
 
-    this.handler();
+    pluginStore.openPlugin(main.id, plugin, content);
+
+    // this.handler();
+  }
+
+  createDetach() {
+    const detach = new WebContentsView({
+      webPreferences: {
+        nodeIntegrationInWorker: true,
+        contextIsolation: true,
+        preload: path.join(__dirname, '../preload/index.js')
+      }
+    });
+
+    detach.setBounds({
+      x: 0,
+      y: 0,
+      width: SEPARATE_WIDTH,
+      height: SEPARATE_TOOLBAR_HEIGHT
+    });
+
+    loadSystemContentsUrl(detach.webContents, 'detach');
+    return detach;
   }
 
   createContent() {
-    this.main.contentView.addChildView(this.content);
-    this.content.setBounds({
-      x: 0,
-      y: SEPARATE_TOOLBAR_HEIGHT,
-      width: SEPARATE_WIDTH,
-      height: SEPARATE_HEIGHT - SEPARATE_TOOLBAR_HEIGHT
+    const content = new WebContentsView({
+      webPreferences: {
+        nodeIntegrationInWorker: true,
+        contextIsolation: true,
+        preload: path.join(__dirname, '../preload/index.js')
+      }
     });
+
+    content.setBounds({
+      x: 0,
+      y: 0,
+      width: SEPARATE_WIDTH,
+      height: SEPARATE_TOOLBAR_HEIGHT
+    });
+    return content;
   }
 
-  handler() {
-    ipcMain.on(`${DETACH_SERVICE}_${this.plugin.unique}`, (event, args) => {
+  handler(winId:number) {
+    ipcMain.on(`detach:${winId}`, (event, args) => {
       switch (args.type) {
         case 'minimize':
           this.main.minimize();
@@ -136,4 +146,6 @@ class Separate {
   }
 }
 
-export default Separate;
+const separateBrowser = new Separate();
+
+export default separateBrowser;

@@ -45,7 +45,7 @@ function Developer() {
   const createPluginRef = useRef<ICreateOrUpdatePluginRef>(null);
 
   const onQueryPluginList = async () => {
-    const list = await apeak.sendSync(BUILT_PLUGIN_LIST);
+    const list = await eventApi.sync(BUILT_PLUGIN_LIST);
     setList(list);
     console.log(list);
     if (list.length && !plugin) {
@@ -62,7 +62,7 @@ function Developer() {
    * @description 从本地导入插件，并更新插件列表
    */
   const onImportPlugin = async () => {
-    const result = await apeak.sendSync(BUILD_IMPORT_PLUGIN);
+    const result = await eventApi.sync(BUILD_IMPORT_PLUGIN);
     if (result.success) {
       void onQueryPluginList();
       setPlugin(result.data);
@@ -77,7 +77,7 @@ function Developer() {
    * 刷新插件
    */
   const onRefreshPlugin = async () => {
-    const result = await apeak.sendSync(BUILT_UPDATE_PLUGIN);
+    const result = await eventApi.sync(BUILT_UPDATE_PLUGIN);
     setList(result);
     if (result.length && !plugin) {
       setPlugin(result[0]);
@@ -85,7 +85,7 @@ function Developer() {
   };
 
   const onStartPlugin = async () => {
-    const result = await apeak.sendSync(BUILT_UPDATE_PLUGIN, {
+    const result = await eventApi.sync(BUILT_UPDATE_PLUGIN, {
       ...plugin,
       running: true
     });

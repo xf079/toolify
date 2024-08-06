@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import { useMutationObserver, useUpdateEffect } from 'ahooks';
 import {
-  MAIN_CHANGE_WINDOW_HEIGHT,
   WINDOW_PLUGIN_HEIGHT
 } from '@main/config/constants';
 
@@ -13,8 +12,8 @@ export const useSearchWrapperRect = () => {
   const [toolbarHeight, setToolbarHeight] = useState(0);
 
   useUpdateEffect(() => {
-    apeak.send(
-      MAIN_CHANGE_WINDOW_HEIGHT,
+    eventApi.send(
+      'main:changeWindowHeight',
       listHeight ? listHeight + toolbarHeight : 0
     );
   }, [listHeight, toolbarHeight]);

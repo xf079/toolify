@@ -8,15 +8,6 @@ export const builtins = [
   'electron',
   'sequelize',
   'sqlite3',
-  'antd',
-  'ahooks',
-  'antd-style',
-  'dayjs',
-  'lodash',
-  'react',
-  'react-dom',
-  'react-router-dom',
-  'vite-plugin-svgr',
   ...builtinModules.map((m) => [m, `node:${m}`]).flat()
 ];
 
@@ -29,7 +20,6 @@ export const external = [
 
 export function getBuildConfig(env: ConfigEnv<'build'>): UserConfig {
   const { root, mode, command } = env;
-
   return {
     root,
     mode,
@@ -45,8 +35,8 @@ export function getBuildConfig(env: ConfigEnv<'build'>): UserConfig {
     resolve: {
       alias: {
         '@': path.join(__dirname, 'src/renderer'),
+        '@config': path.join(__dirname, 'src/config'),
         '@main': path.join(__dirname, 'src/main'),
-        '@preload': path.join(__dirname, 'src/preload')
       }
     }
   };

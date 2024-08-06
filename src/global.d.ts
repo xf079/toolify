@@ -3,16 +3,14 @@ export {};
 declare global {
   type Recordable = Record<string, any>;
 
-  interface IMainEvent {
+  interface IEventApi {
     on(event: string, listener: (...args: any[]) => void): void;
     off(event: string, listener: (...args: any[]) => void): void;
     send(event: string, ...args: any[]): void;
-    sendSync(event: string, ...args: any[]): Promise<any>;
+    sync(event: string, ...args: any[]): Promise<any>;
   }
-  declare const apeak: IMainEvent;
-  declare const ipc: IMainEvent;
 
-  declare const __plugin__: IPlugin;
+  declare const eventApi: IEventApi;
 
   interface IConfig {
     theme: string;
@@ -25,7 +23,7 @@ declare global {
 
   interface IPlugin {
     id: number;
-    // 'app' | 'built' | 'plugin' | 'ai' | 'more'
+    // 'app' | 'built' | 'plugin-prod' | 'plugin-dev' | 'ai' | 'more'
     type: string;
     name: string;
     main: string;

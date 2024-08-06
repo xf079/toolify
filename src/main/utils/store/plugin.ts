@@ -1,9 +1,10 @@
 import { WebContentsView } from 'electron';
 
 interface IPluginState {
+  winId: number;
+  id: number;
   plugin: IPlugin;
   view: WebContentsView;
-  id: number;
 }
 
 class PluginStore {
@@ -45,16 +46,18 @@ class PluginStore {
 
   /**
    * 添加插件
+   * @param winId
    * @param plugin
    * @param view
    */
-  openPlugin(plugin: IPlugin, view: WebContentsView) {
+  openPlugin(winId: number, plugin: IPlugin, view: WebContentsView) {
     const hasPlugin = this.findPlugin(plugin.id);
     if (!hasPlugin || hasPlugin.plugin.single) {
       this.pluginList.push({
+        winId,
+        id: plugin.id,
         plugin,
-        view,
-        id: plugin.id
+        view
       });
     }
     // 是否自动分离独立窗口

@@ -11,8 +11,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/renderer/*"],
-      "@main/*": ["./src/main/*"],
-      "@preload/*": ["./src/preload/*"]
+      "@config/*": ["./src/config/*"],
+      "@main/*": ["./src/main/*"]
     },
     "outDir": "dist",
     "moduleResolution": "node",

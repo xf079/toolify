@@ -1,6 +1,6 @@
 import PluginsModal from '@main/modal/plugins';
 import { match } from 'pinyin-pro';
-import store from 'src/main/utils/store';
+import store from '@main/utils/store';
 
 /**
  * 搜索

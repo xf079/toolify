@@ -24,7 +24,7 @@ export default defineConfig((env) => {
       rollupOptions: {
         external,
         plugins: [
-          commonjs(),
+          // commonjs(),
           copyPlugin({
             targets: [
               {

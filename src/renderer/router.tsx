@@ -1,12 +1,12 @@
 import { createHashRouter, Outlet } from 'react-router-dom';
 
-import Panel from '@/pages/panel';
+import Search from '@/pages/search';
 import Detach from '@/pages/detach';
+import Panel from '@/pages/panel';
 
 import Mine from '@/pages/system/mine';
-import Developer from '@/pages/system/developer';
 import Plugins from '@/pages/system/plugins';
-import Search from '@/pages/search';
+import Developer from '@/pages/system/developer';
 
 const router = createHashRouter([
   {

@@ -22,8 +22,8 @@ export default defineConfig((env) => {
       preserveSymlinks: true,
       alias: {
         '@': path.join(__dirname, 'src/renderer'),
-        '@main': path.join(__dirname, 'src/main'),
-        '@preload': path.join(__dirname, 'src/preload')
+        '@config': path.join(__dirname, 'src/config'),
+        '@main': path.join(__dirname, 'src/main')
       }
     },
     clearScreen: false

@@ -37,7 +37,7 @@ export const CreatePlugin = forwardRef<
 
   const onCreatePlugin = async (data: IPlugin) => {
     if (edit) {
-      const result = await apeak.sendSync(BUILT_UPDATE_PLUGIN, data);
+      const result = await eventApi.sync(BUILT_UPDATE_PLUGIN, data);
       if (result.success) {
         setOpen(false);
         onFinish?.();
@@ -46,7 +46,7 @@ export const CreatePlugin = forwardRef<
         message.error(result.message);
       }
     } else {
-      const result = await apeak.sendSync(BUILT_CREATE_PLUGIN, {
+      const result = await eventApi.sync(BUILT_CREATE_PLUGIN, {
         ...data,
         unique: nanoid()
       });
