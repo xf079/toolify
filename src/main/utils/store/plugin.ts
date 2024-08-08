@@ -1,47 +1,53 @@
-import { WebContentsView } from 'electron';
+import { BaseWindow, WebContentsView } from 'electron';
 
 interface IPluginState {
-  winId: number;
-  id: number;
+  // 唯一标识
+  unique: string;
+  // 插件信息
   plugin: IPlugin;
-  view: WebContentsView;
+  // 插件是否多开
+  single: boolean;
+  // 是否自动分离为单独窗口
+  separation: boolean;
+  // 插件视图
+  view: { view: WebContentsView; id: number }[];
 }
 
 class PluginStore {
   /**
    * 当前打开的插件列表
    */
-  private pluginList: IPluginState[];
-  /**
-   * 当前打开插件
-   * @private
-   */
-  private plugin: number;
+  private pluginList: IPluginState[] = [];
 
   /**
-   * 获取当前插件
-   */
-  getSelfPlugin() {
-    const item = this.pluginList.find((item) => item.id === this.plugin);
-    if (item) {
-      return item.plugin;
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * 当前窗口是否打开
+   * 当前插件窗口是否打开
    * @param plugin
    * @return Boolean
    */
   isSelfPluginOpen(plugin: IPlugin) {
-    // 如果设置了多开，并且没有跟随主窗口 则返回false
-    if (plugin.single && !plugin.separation) {
+    // 如果设置了多开，并且自动分离为独立窗口 则返回false
+    if (plugin.single && plugin.separation) {
       return false;
     }
-    const item = this.pluginList.find((item) => item.plugin.id === plugin.id);
+    const item = this.pluginList.find((item) => item.unique === plugin.unique);
     return !!item;
+  }
+
+  /**
+   * 查找插件
+   * @param unique
+   * @return
+   */
+  findPlugin(unique: string) {
+    return this.pluginList.find((item) => item.unique === unique);
+  }
+
+  /**
+   * 查找插件索引位置
+   * @param unique
+   */
+  findPluginIndex(unique: string) {
+    return this.pluginList.findIndex((item) => item.unique === unique);
   }
 
   /**
@@ -50,53 +56,27 @@ class PluginStore {
    * @param plugin
    * @param view
    */
-  openPlugin(winId: number, plugin: IPlugin, view: WebContentsView) {
-    const hasPlugin = this.findPlugin(plugin.id);
-    if (!hasPlugin || hasPlugin.plugin.single) {
+  addPlugin(plugin: IPlugin, view: WebContentsView, winId?: number) {
+    const currentPluginIndex = this.findPluginIndex(plugin.unique);
+    if (currentPluginIndex !== -1) {
+      this.pluginList[currentPluginIndex].view.push({ view: view, id: winId });
+    } else {
       this.pluginList.push({
-        winId,
-        id: plugin.id,
-        plugin,
-        view
+        unique: plugin.unique,
+        plugin: plugin,
+        single: plugin.single,
+        separation: plugin.separation,
+        view: [{ view: view, id: winId }]
       });
     }
-    // 是否自动分离独立窗口
-    if (!plugin.separation) {
-      // 不分离是才设置当前插件信息
-      this.plugin = plugin.id;
-    }
   }
 
   /**
-   * 关闭插件
-   * @param id
+   * 卸载插件
+   * @param unique
    */
-  closePlugin(id: number) {
-    this.plugin = undefined;
-    const currentPlugin = this.findPlugin(id);
-    /**
-     * 设置自动卸载
-     */
-    if (currentPlugin && currentPlugin.plugin.autoUninstalled) {
-      this.removePlugin(id);
-    }
-  }
-
-  /**
-   * 移除插件
-   * @param id
-   */
-  removePlugin(id: number) {
-    this.pluginList = this.pluginList.filter((item) => item.id !== id);
-  }
-
-  /**
-   * 查找插件
-   * @param id
-   * @return
-   */
-  findPlugin(id: number) {
-    return this.pluginList.find((item) => item.id === id);
+  destroyPlugin(unique: string) {
+    this.pluginList = this.pluginList.filter((item) => item.unique !== unique);
   }
 }
 

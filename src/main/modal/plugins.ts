@@ -37,7 +37,7 @@ class PluginsModal extends Model<
    */
   declare description: string;
   /**
-   * 是否分离
+   * 是否自动分离为独立窗口
    */
   declare separation: boolean;
   /**

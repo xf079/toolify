@@ -1,5 +1,5 @@
 import { createStyles, keyframes } from 'antd-style';
-import { WINDOW_HEIGHT } from '@main/config/constants';
+import { WINDOW_HEIGHT } from '@config/constants';
 
 export const useStyles = createStyles(({ token, css }) => {
   const rotate = keyframes`

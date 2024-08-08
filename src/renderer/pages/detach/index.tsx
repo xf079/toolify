@@ -7,41 +7,39 @@ import {
   LineOutlined,
   SettingOutlined
 } from '@ant-design/icons';
-import {
-  DETACH_SERVICE,
-  SEPARATE_TOOLBAR_HEIGHT
-} from '@main/config/constants';
+import { SEPARATE_TOOLBAR_HEIGHT } from '@config/constants';
 import { useState } from 'react';
 import { useOs } from '@/hooks/useOs';
 import { useMount } from 'ahooks';
 
 export default function Detach() {
+  if(!false) return <div>123</div>
   const { styles, cx } = useStyles();
   const [isMaximize, setIsMaximize] = useState(false);
   const { isMac } = useOs();
 
   const onMinimize = () => {
-    eventApi.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: `minimize` });
+    eventApi.send(`detach:${__winId__}`, { type: `minimize` });
   };
 
   const onToggleSize = () => {
     if (isMaximize) {
       setIsMaximize(false);
-      eventApi.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: `restore` });
+      eventApi.send(`detach:${__winId__}`, { type: `restore` });
     } else {
       setIsMaximize(true);
-      eventApi.send(`${DETACH_SERVICE}_${__plugin__.unique}`, {
+      eventApi.send(`detach:${__winId__}`, {
         type: `maximize`
       });
     }
   };
 
   const onClose = () => {
-    eventApi.send(`${DETACH_SERVICE}_${__plugin__.unique}`, { type: 'close' });
+    eventApi.send(`detach:${__winId__}`, { type: 'close' });
   };
 
   useMount(() => {
-    eventApi.on(`${DETACH_SERVICE}_${__plugin__.unique}`, (event, args) => {
+    eventApi.on(`detach:${__winId__}`, (event, args) => {
       switch (args.type) {
         case 'maximize':
           setIsMaximize(true);

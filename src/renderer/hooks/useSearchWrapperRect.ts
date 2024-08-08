@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useMutationObserver, useUpdateEffect } from 'ahooks';
 import {
   WINDOW_PLUGIN_HEIGHT
-} from '@main/config/constants';
+} from '@config/constants';
 
 export const useSearchWrapperRect = () => {
   const listRef = useRef<HTMLDivElement>(null);
@@ -13,7 +13,7 @@ export const useSearchWrapperRect = () => {
 
   useUpdateEffect(() => {
     eventApi.send(
-      'main:changeWindowHeight',
+      'main:setWrapperHeight',
       listHeight ? listHeight + toolbarHeight : 0
     );
   }, [listHeight, toolbarHeight]);

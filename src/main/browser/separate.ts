@@ -1,25 +1,34 @@
 import { BaseWindow, ipcMain, nativeImage, WebContentsView } from 'electron';
 import {
-  DETACH_SERVICE,
   SEPARATE_HEIGHT,
   SEPARATE_TOOLBAR_HEIGHT,
   SEPARATE_WIDTH
-} from '@main/config/constants';
+} from '@config/constants';
 import path from 'node:path';
 import loadSystemContentsUrl from '@main/utils/loadContentsUrl';
 import store from '@main/utils/store';
 import pluginStore from '@main/utils/store/plugin';
+import { isDev } from '@main/utils/is';
+
+const separateList: Separate[] = [];
 
 class Separate {
+  main: BaseWindow;
+  detach: WebContentsView;
+  content: WebContentsView;
+  plugin: IPlugin;
+  winId: number;
+
   openPlugin(plugin: IPlugin) {
+    this.plugin = plugin;
     this.createSeparate(plugin);
   }
 
   /**
    * 创建主窗口
    */
-  createSeparate(plugin: IPlugin) {
-    const main = new BaseWindow({
+  private createSeparate(plugin: IPlugin) {
+    this.main = new BaseWindow({
       width: SEPARATE_WIDTH,
       height: SEPARATE_HEIGHT,
       minWidth: SEPARATE_WIDTH,
@@ -42,19 +51,21 @@ class Separate {
         y: (SEPARATE_TOOLBAR_HEIGHT - 20) / 2
       }
     });
-    const detach = this.createDetach();
-    const content = this.createContent();
-    main.contentView.addChildView(detach);
+    this.winId = this.main.id;
+    this.createDetach();
+    this.createContent();
+    this.main.contentView.addChildView(this.detach);
+    this.main.contentView.addChildView(this.content);
 
-    main.on('will-resize', (e, newBounds) => {
-      detach.setBounds({
+    this.main.on('will-resize', (e, newBounds) => {
+      this.detach.setBounds({
         x: 0,
         y: 0,
         width: newBounds.width,
         height: SEPARATE_TOOLBAR_HEIGHT
       });
 
-      content.setBounds({
+      this.content.setBounds({
         x: 0,
         y: SEPARATE_TOOLBAR_HEIGHT,
         width: newBounds.width,
@@ -62,13 +73,15 @@ class Separate {
       });
     });
 
-    pluginStore.openPlugin(main.id, plugin, content);
-
-    // this.handler();
+    pluginStore.addPlugin(plugin, this.content, this.main.id);
+    this.handler(this.main.id);
   }
 
-  createDetach() {
-    const detach = new WebContentsView({
+  /**
+   * 创建状态栏
+   */
+  private createDetach() {
+    this.detach = new WebContentsView({
       webPreferences: {
         nodeIntegrationInWorker: true,
         contextIsolation: true,
@@ -76,36 +89,55 @@ class Separate {
       }
     });
 
-    detach.setBounds({
+    this.detach.setBounds({
       x: 0,
       y: 0,
       width: SEPARATE_WIDTH,
       height: SEPARATE_TOOLBAR_HEIGHT
     });
 
-    loadSystemContentsUrl(detach.webContents, 'detach');
-    return detach;
+    void this.detach.webContents.executeJavaScript(`
+      window.__id__ = ${this.winId};
+      window.__plugin__ = ${JSON.stringify(this.plugin)}
+    `);
+
+    loadSystemContentsUrl(this.detach.webContents, 'detach');
+
   }
 
-  createContent() {
-    const content = new WebContentsView({
-      webPreferences: {
-        nodeIntegrationInWorker: true,
-        contextIsolation: true,
-        preload: path.join(__dirname, '../preload/index.js')
-      }
-    });
+  /**
+   * 创建插件内容视图
+   */
+  private createContent() {
+    const pluginState = pluginStore.findPlugin(this.plugin.unique);
+    // 当前插件view是否存在
+    if (pluginState && !pluginState.single && pluginState.view.length) {
+      const view = pluginState.view[pluginState.view.length - 1].view;
+      console.log(view);
+      this.content = view
+    }else{
+      this.content = new WebContentsView({
+        webPreferences: {
+          nodeIntegrationInWorker: true,
+          contextIsolation: true,
+          preload: path.join(__dirname, '../preload/index.js')
+        }
+      });
+    }
 
-    content.setBounds({
+    if(isDev){
+      this.content.webContents.openDevTools()
+    }
+
+    this.content.setBounds({
       x: 0,
       y: 0,
       width: SEPARATE_WIDTH,
       height: SEPARATE_TOOLBAR_HEIGHT
     });
-    return content;
   }
 
-  handler(winId:number) {
+  handler(winId: number) {
     ipcMain.on(`detach:${winId}`, (event, args) => {
       switch (args.type) {
         case 'minimize':
@@ -138,14 +170,11 @@ class Separate {
         });
       }
     });
-
-    ipcMain.handle(`${DETACH_SERVICE}_${this.plugin.unique}`, (event, args) => {
-      console.log(args);
-      return this.plugin;
-    });
   }
 }
 
-const separateBrowser = new Separate();
-
-export default separateBrowser;
+export default function createSeparate(plugin: IPlugin) {
+  const separate = new Separate();
+  separate.openPlugin(plugin);
+  separateList.push(separate);
+}

@@ -2,7 +2,7 @@ import { createStyles } from 'antd-style';
 import {
   SEPARATE_TOOLBAR_HEIGHT,
   WINDOW_TOOLBAR_HEIGHT
-} from '@main/config/constants';
+} from '@config/constants';
 
 export const useStyles = createStyles(({ css, token }) => ({
   toolbar: css`

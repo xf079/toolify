@@ -1,5 +1,4 @@
 import { cloneDeep, orderBy } from 'lodash';
-import { nanoid } from 'nanoid';
 
 const GroupTypeList: IGroupType[] = [
   {
@@ -11,7 +10,7 @@ const GroupTypeList: IGroupType[] = [
     children: [],
     origin: [],
     morePlugin: {
-      id: nanoid(),
+      id: 100001,
       type: 'more',
       name: '查看更多系统应用',
       main: 'app',
@@ -28,7 +27,7 @@ const GroupTypeList: IGroupType[] = [
     children: [],
     origin: [],
     morePlugin: {
-      id: nanoid(),
+      id: 100002,
       type: 'more',
       name: '查看更多插件',
       main: 'plugin',
@@ -45,7 +44,7 @@ const GroupTypeList: IGroupType[] = [
     children: [],
     origin: [],
     morePlugin: {
-      id: nanoid(),
+      id: 100003,
       type: 'more',
       name: '更多AI技能',
       main: 'ai',

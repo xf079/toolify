@@ -2,14 +2,8 @@ import { KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useEventTarget, useMemoizedFn, useUpdateEffect } from 'ahooks';
 import { Avatar, Button, Flex, Typography } from 'antd';
 import { CloseOutlined, HolderOutlined } from '@ant-design/icons';
-import {
-  MAIN_OPEN_PLUGIN_MENU,
-  MAIN_PLUGIN_CLOSE,
-  MAIN_PLUGIN_OPEN
-} from '@main/config/constants';
 import { SearchItem } from '@/components/search/item';
 import { SearchToolbar } from '@/components/search/toolbar';
-
 import { useSearchWrapperRect } from '@/hooks/useSearchWrapperRect';
 import { useSearchScrollViewport } from '@/hooks/useSearchScrollViewport';
 import { generateGroupIndex, generatePluginGroup } from '@/utils/pluginHandler';
@@ -116,7 +110,7 @@ const Search = () => {
     }
     reset();
     setGroupList([]);
-    await eventApi.sync('plugin:open', item);
+    await eventApi.sync('main:openPlugin', item);
   });
 
   /**
@@ -128,7 +122,7 @@ const Search = () => {
     }
     onReset();
     setPlugin(undefined);
-    eventApi.send(MAIN_PLUGIN_CLOSE);
+    eventApi.send('main:closePlugin');
   });
 
   /**
@@ -141,7 +135,7 @@ const Search = () => {
   });
 
   const onOpenMenu = useMemoizedFn(() => {
-    eventApi.send(MAIN_OPEN_PLUGIN_MENU);
+    eventApi.send('main:openPluginMenu');
   });
 
   useSearchScrollViewport({

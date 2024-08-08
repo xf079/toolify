@@ -2,11 +2,6 @@ import { Button, Drawer, Flex, Form, Input, message, Typography } from 'antd';
 import { nanoid } from 'nanoid';
 import { useStyles } from './styles';
 import { forwardRef, useImperativeHandle, useState } from 'react';
-import {
-  BUILT_CREATE_PLUGIN,
-  BUILT_UPDATE_PLUGIN
-} from '@main/config/constants';
-
 export interface ICreateAndUpdatePluginProps {
   onFinish?: () => void;
 }
@@ -37,7 +32,7 @@ export const CreatePlugin = forwardRef<
 
   const onCreatePlugin = async (data: IPlugin) => {
     if (edit) {
-      const result = await eventApi.sync(BUILT_UPDATE_PLUGIN, data);
+      const result = await eventApi.sync('built:updatePlugin', data);
       if (result.success) {
         setOpen(false);
         onFinish?.();
@@ -46,7 +41,7 @@ export const CreatePlugin = forwardRef<
         message.error(result.message);
       }
     } else {
-      const result = await eventApi.sync(BUILT_CREATE_PLUGIN, {
+      const result = await eventApi.sync('built:createPlugin', {
         ...data,
         unique: nanoid()
       });

@@ -11,6 +11,8 @@ declare global {
   }
 
   declare const eventApi: IEventApi;
+  declare const __plugin__: IPlugin;
+  declare const __winId__: number;
 
   interface IConfig {
     theme: string;
@@ -28,7 +30,7 @@ declare global {
     name: string;
     main: string;
     logo: string;
-    description: string;
+    description?: string;
     separation?: boolean;
     single?: boolean;
     autoUninstalled?: boolean;

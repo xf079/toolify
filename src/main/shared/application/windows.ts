@@ -7,7 +7,7 @@ import {
   getDataPath,
   getFilenameWithoutExtension
 } from '@main/utils/fs';
-import { PUBLIC_PATH } from '@main/config/constants';
+import { PUBLIC_PATH } from '@config/constants';
 
 export class WindowsApplication {
   async init() {
