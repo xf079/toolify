@@ -13,7 +13,7 @@ export const useSearchWrapperRect = () => {
 
   useUpdateEffect(() => {
     eventApi.send(
-      'main:setWrapperHeight',
+      'main:updateWinHeight',
       listHeight ? listHeight + toolbarHeight : 0
     );
   }, [listHeight, toolbarHeight]);

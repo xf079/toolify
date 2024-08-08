@@ -54,8 +54,6 @@ class Separate {
     this.winId = this.main.id;
     this.createDetach();
     this.createContent();
-    this.main.contentView.addChildView(this.detach);
-    this.main.contentView.addChildView(this.content);
 
     this.main.on('will-resize', (e, newBounds) => {
       this.detach.setBounds({
@@ -64,17 +62,16 @@ class Separate {
         width: newBounds.width,
         height: SEPARATE_TOOLBAR_HEIGHT
       });
-
-      this.content.setBounds({
-        x: 0,
-        y: SEPARATE_TOOLBAR_HEIGHT,
-        width: newBounds.width,
-        height: newBounds.height - SEPARATE_TOOLBAR_HEIGHT
-      });
+      // this.content.setBounds({
+      //   x: 0,
+      //   y: SEPARATE_TOOLBAR_HEIGHT,
+      //   width: newBounds.width,
+      //   height: newBounds.height - SEPARATE_TOOLBAR_HEIGHT
+      // });
     });
 
     pluginStore.addPlugin(plugin, this.content, this.main.id);
-    this.handler(this.main.id);
+    // this.handler(this.main.id);
   }
 
   /**
@@ -95,14 +92,17 @@ class Separate {
       width: SEPARATE_WIDTH,
       height: SEPARATE_TOOLBAR_HEIGHT
     });
-
     void this.detach.webContents.executeJavaScript(`
-      window.__id__ = ${this.winId};
-      window.__plugin__ = ${JSON.stringify(this.plugin)}
+      localStorage.setItem('winId','${this.winId}');
+      localStorage.setItem('plugin','${JSON.stringify(this.plugin)}');
     `);
-
     loadSystemContentsUrl(this.detach.webContents, 'detach');
 
+    if(isDev){
+      this.detach.webContents.openDevTools();
+    }
+
+    this.main.contentView.addChildView(this.detach);
   }
 
   /**
@@ -112,10 +112,8 @@ class Separate {
     const pluginState = pluginStore.findPlugin(this.plugin.unique);
     // 当前插件view是否存在
     if (pluginState && !pluginState.single && pluginState.view.length) {
-      const view = pluginState.view[pluginState.view.length - 1].view;
-      console.log(view);
-      this.content = view
-    }else{
+      this.content = pluginState.view[pluginState.view.length - 1].view;
+    } else {
       this.content = new WebContentsView({
         webPreferences: {
           nodeIntegrationInWorker: true,
@@ -123,17 +121,18 @@ class Separate {
           preload: path.join(__dirname, '../preload/index.js')
         }
       });
+      loadSystemContentsUrl(this.content.webContents, this.plugin.main);
     }
-
-    if(isDev){
-      this.content.webContents.openDevTools()
+    this.main.contentView.addChildView(this.content);
+    if (isDev) {
+      this.content.webContents.openDevTools();
     }
 
     this.content.setBounds({
       x: 0,
-      y: 0,
+      y: SEPARATE_TOOLBAR_HEIGHT,
       width: SEPARATE_WIDTH,
-      height: SEPARATE_TOOLBAR_HEIGHT
+      height: SEPARATE_HEIGHT
     });
   }
 

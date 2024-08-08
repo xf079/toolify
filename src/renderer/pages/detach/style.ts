@@ -11,8 +11,11 @@ export const useStyles = createStyles(({ css, token }) => ({
     background-color: ${token.colorBgLayout};
     -webkit-app-region: drag;
   `,
-  logo:css`
+  logo: css`
     background-color: ${token.colorBgBase};
+  `,
+  obtn: css`
+    -webkit-app-region: no-drag;
   `,
   btn: css`
     width: ${SEPARATE_TOOLBAR_HEIGHT}px;

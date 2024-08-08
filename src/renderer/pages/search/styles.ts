@@ -22,8 +22,8 @@ export const useStyles = createStyles(({ token, css }) => {
       border-bottom: 1px solid ${token.colorSplit};
     `,
     logo: css`
-      width: ${WINDOW_HEIGHT - 20}px;
-      height: ${WINDOW_HEIGHT - 20}px;
+      width: 44px;
+      height: 44px;
       background-color: ${token.colorBgContainer};
       border-radius: 50%;
       padding: 6px;

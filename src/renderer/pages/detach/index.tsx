@@ -7,39 +7,42 @@ import {
   LineOutlined,
   SettingOutlined
 } from '@ant-design/icons';
-import { SEPARATE_TOOLBAR_HEIGHT } from '@config/constants';
-import { useState } from 'react';
-import { useOs } from '@/hooks/useOs';
+import { useRef, useState } from 'react';
 import { useMount } from 'ahooks';
+import { SEPARATE_TOOLBAR_HEIGHT } from '@config/constants';
+import { useOs } from '@/hooks/useOs';
 
 export default function Detach() {
-  if(!false) return <div>123</div>
   const { styles, cx } = useStyles();
+
+  const winId = useRef(localStorage.getItem('winId')).current;
+  const plugin = useRef(JSON.parse(localStorage.getItem('plugin') || '{}')).current as IPlugin;
+
   const [isMaximize, setIsMaximize] = useState(false);
   const { isMac } = useOs();
 
   const onMinimize = () => {
-    eventApi.send(`detach:${__winId__}`, { type: `minimize` });
+    eventApi.send(`detach:${winId}`, { type: `minimize` });
   };
 
   const onToggleSize = () => {
     if (isMaximize) {
       setIsMaximize(false);
-      eventApi.send(`detach:${__winId__}`, { type: `restore` });
+      eventApi.send(`detach:${winId}`, { type: `restore` });
     } else {
       setIsMaximize(true);
-      eventApi.send(`detach:${__winId__}`, {
+      eventApi.send(`detach:${winId}`, {
         type: `maximize`
       });
     }
   };
 
   const onClose = () => {
-    eventApi.send(`detach:${__winId__}`, { type: 'close' });
+    eventApi.send(`detach:${winId}`, { type: 'close' });
   };
 
   useMount(() => {
-    eventApi.on(`detach:${__winId__}`, (event, args) => {
+    eventApi.on(`detach:${winId}`, (event, args) => {
       switch (args.type) {
         case 'maximize':
           setIsMaximize(true);
@@ -57,21 +60,21 @@ export default function Detach() {
       justify='space-between'
       align='center'
     >
-      {__plugin__ ? (
+      {plugin ? (
         <Flex gap={12} className='pl-2.5' align='center'>
           <Avatar
-            src={__plugin__.logo}
+            src={plugin.logo}
             size={SEPARATE_TOOLBAR_HEIGHT * 0.6}
             shape='square'
             className={cx(styles.logo, 'p-1')}
           />
-          <Typography.Text strong>{__plugin__.name}</Typography.Text>
+          <Typography.Text strong>{plugin.name}</Typography.Text>
         </Flex>
       ) : null}
       <Flex gap={12} align='center'>
-        <Flex align='center' gap={2}>
-          <Button type='text' size='middle' icon={<BulbOutlined />} />
-          <Button type='text' size='middle' icon={<SettingOutlined />} />
+        <Flex align='center' gap={2} className='pr-2'>
+          <Button className={styles.obtn} type='text' size='middle' icon={<BulbOutlined />} />
+          <Button className={styles.obtn} type='text' size='middle' icon={<SettingOutlined />} />
         </Flex>
         {!isMac ? (
           <Flex gap={6}>

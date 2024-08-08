@@ -10,6 +10,7 @@ import loadSystemContentsUrl from '@main/utils/loadContentsUrl';
 import { getDataPath } from '@main/utils/fs';
 import store from '@main/utils/store';
 import pluginStore from '@main/utils/store/plugin';
+import { isDev } from '@main/utils/is';
 
 export class MainBrowser {
   private main: BaseWindow;
@@ -20,13 +21,6 @@ export class MainBrowser {
 
   public init() {
     this.createMainWindow();
-  }
-
-  public getWindows() {
-    return {
-      main: this.main,
-      search: this.search
-    };
   }
   /**
    * 显示窗口
@@ -50,6 +44,7 @@ export class MainBrowser {
    */
   public async openPlugin(plugin: IPlugin) {
     this.plugin = plugin;
+    this.search.webContents.send('main:pluginInfo',plugin)
     if (plugin.type === 'built') {
       return await this.createBuiltPluginView(plugin);
     } else if (plugin.type === 'plugin-prod' || plugin.type === 'plugin-dev') {
@@ -61,13 +56,14 @@ export class MainBrowser {
    * 关闭插件
    * @param destroy 是否卸载
    */
-  public closePlugin(destroy = true) {
+  public closePlugin(destroy = false) {
     if (!this.plugin || !this.pluginView) return;
     // 插件设置了自动卸载
     if (this.plugin.autoUninstalled && destroy) {
       pluginStore.destroyPlugin(this.plugin.unique);
     }
     this.main.contentView.removeChildView(this.pluginView);
+    this.search.webContents.send('main:clearPluginInfo');
     this.plugin = undefined;
     this.pluginView = undefined;
     this.setWindowCustomHeight(0);
@@ -221,6 +217,10 @@ export class MainBrowser {
     loadSystemContentsUrl(this.search.webContents);
 
     this.main.contentView.addChildView(this.search);
+
+    if(isDev){
+      this.search.webContents.openDevTools();
+    }
   }
 }
 

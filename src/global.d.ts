@@ -10,9 +10,12 @@ declare global {
     sync(event: string, ...args: any[]): Promise<any>;
   }
 
+  namespace window{
+    declare const WINDOW_ID: number;
+    declare const PLUGIN: IPlugin;
+  }
+
   declare const eventApi: IEventApi;
-  declare const __plugin__: IPlugin;
-  declare const __winId__: number;
 
   interface IConfig {
     theme: string;

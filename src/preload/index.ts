@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
-contextBridge.exposeInMainWorld('eventApi',{
+contextBridge.exposeInMainWorld('eventApi', {
   on(...args: Parameters<typeof ipcRenderer.on>) {
     const [channel, listener] = args;
     return ipcRenderer.on(channel, (event, ...args) =>
@@ -19,4 +19,4 @@ contextBridge.exposeInMainWorld('eventApi',{
     const [channel, ...omit] = args;
     return ipcRenderer.invoke(channel, ...omit);
   }
-})
+});

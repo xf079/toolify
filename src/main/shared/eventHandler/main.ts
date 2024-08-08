@@ -7,6 +7,7 @@ import { onSearch } from '@main/common/search';
 import SettingsModal from '@main/modal/settings';
 import createSeparate from '@main/browser/separate';
 import { isMac } from '@main/utils/is';
+import PluginsModal from '@main/modal/plugins';
 
 function openApp(plugin: IPlugin) {
   if (isMac) {
@@ -16,12 +17,18 @@ function openApp(plugin: IPlugin) {
   }
 }
 
+const WINDOW_PLUGIN_KEYS = ['built', 'plugin-dev', 'plugin-prod'];
 
 export const mainEventHandler = () => {
+  /**
+   * 获取设置
+   */
   ipcMain.handle('main:getSetting', () => {
     return store.getConfig();
   });
-
+  /**
+   * 更新设置
+   */
   ipcMain.handle('main:setSetting', async (event, setting) => {
     const [count, settings] = await SettingsModal.update(setting, {
       where: {
@@ -34,79 +41,80 @@ export const mainEventHandler = () => {
       store.setConfig(values[0]);
     }
   });
-
-  ipcMain.handle('main:search', async (event, value: string) => {
-    return await onSearch(value);
-  });
-
-  ipcMain.handle('main:currentPlugin', () => {
-    const { plugin } = mainBrowser.getCurrentPlugin();
-    return plugin;
-  });
-
   /**
-   * change window height
+   * 搜索
    */
-  ipcMain.on('main:setWindowCustomHeight', (event, height) => {
+  ipcMain.handle('main:search', async (event, value: string) => {
+    const list = await onSearch(value);
+    return list;
+  });
+  /**
+   * 更新窗口高度
+   */
+  ipcMain.on('main:updateWinHeight', (event, height) => {
     mainBrowser.setWindowCustomHeight(height);
   });
-
-
   /**
    * 打开插件
    */
   ipcMain.handle('main:openPlugin', async (event, plugin: IPlugin) => {
-    switch (plugin.type) {
-      case 'app':
-        openApp(plugin);
-        break;
-      case 'built':
-      case 'plugin':
-      case 'plugin:dev':
-        // 是否分离为独立窗口
-        const separation = plugin.separation;
-        if(separation){
-          // 当前插件是否已经打开
-          const isSelfPluginOpen = pluginStore.isSelfPluginOpen(plugin);
-          // 没有打开或者支持多开
-          if(!isSelfPluginOpen || plugin.single){
-            // 创建插件窗口
-            createSeparate(plugin)
-          }else{
-            // 当前插件已经打开
-            // 窗口聚焦
-            const pluginsState = pluginStore.findPlugin(plugin.unique)
-            if(pluginsState){
-
-            }
+    const type = plugin.type;
+    if (WINDOW_PLUGIN_KEYS.includes(type)) {
+      // 是否分离为独立窗口
+      const separation = plugin.separation;
+      if (separation) {
+        // 当前插件是否已经打开
+        const isSelfPluginOpen = pluginStore.isSelfPluginOpen(plugin);
+        // 没有打开或者支持多开
+        if (!isSelfPluginOpen || plugin.single) {
+          // 创建插件窗口
+          createSeparate(plugin);
+        } else {
+          // 当前插件已经打开
+          // 窗口聚焦
+          const pluginsState = pluginStore.findPlugin(plugin.unique);
+          if (pluginsState) {
           }
-        }else{
-          await mainBrowser.openPlugin(plugin);
         }
-        break;
-      case 'ai':
-        break;
+      } else {
+        await mainBrowser.openPlugin(plugin);
+      }
+    } else if (type === 'ai') {
+    } else if (type === 'app') {
+      openApp(plugin);
     }
   });
-
   /**
    * 关闭插件
    */
-  ipcMain.on('main:closePlugin', (event, plugin: IPlugin) => {
-    mainBrowser.closePlugin()
+  ipcMain.on('main:closePlugin', () => {
+    mainBrowser.closePlugin();
   });
 
-  ipcMain.handle('main:openSystemPlugin',(event,args)=>{
-
-  })
-
   /**
-   * 关闭插件
+   * 打开系统自带插件
+   */
+  ipcMain.on('main:openSystemPlugin', async (event, { type }) => {
+    const currentSystemPlugin = await PluginsModal.findOne({
+      where: {
+        unique: type
+      }
+    });
+
+    if (currentSystemPlugin) {
+      void mainBrowser.openPlugin(currentSystemPlugin.dataValues);
+    }
+  });
+  /**
+   * 卸载插件
    */
   ipcMain.on('main:destroyPlugin', (event, plugin: IPlugin) => {
-    mainBrowser.closePlugin()
+    mainBrowser.closePlugin();
   });
 
+  /**
+   * 打开插件设置菜单
+   */
   ipcMain.on('main:openPluginMenu', () => {
     const template = [
       {
@@ -116,8 +124,9 @@ export const mainEventHandler = () => {
           if (plugin) {
             // 主窗口关闭
             mainBrowser.closePlugin();
+            mainBrowser.hide();
             // 从独立窗口打开
-            createSeparate(plugin)
+            createSeparate(plugin);
           }
         }
       },
