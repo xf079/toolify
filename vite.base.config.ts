@@ -1,13 +1,11 @@
 import { builtinModules } from 'node:module';
 import type { AddressInfo } from 'node:net';
 import type { ConfigEnv, Plugin, UserConfig } from 'vite';
-import pkg from './package.json';
 import path from 'node:path';
+import pkg from './package.json';
 
 export const builtins = [
   'electron',
-  'sequelize',
-  'sqlite3',
   ...builtinModules.map((m) => [m, `node:${m}`]).flat()
 ];
 

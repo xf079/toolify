@@ -3,6 +3,11 @@ export {};
 declare global {
   type Recordable = Record<string, any>;
 
+  interface Window {
+    winId: number;
+    plugin: string;
+  }
+
   interface IEventApi {
     on(event: string, listener: (...args: any[]) => void): void;
     off(event: string, listener: (...args: any[]) => void): void;
@@ -10,14 +15,17 @@ declare global {
     sync(event: string, ...args: any[]): Promise<any>;
   }
 
-  namespace window{
-    declare const WINDOW_ID: number;
-    declare const PLUGIN: IPlugin;
-  }
-
   declare const eventApi: IEventApi;
 
   interface IConfig {
+    theme: string;
+    colorPrimary: string;
+    start: boolean;
+    guide: boolean;
+    language: string;
+    placeholder: string;
+  }
+  interface ISettings {
     theme: string;
     colorPrimary: string;
     start: boolean;

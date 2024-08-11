@@ -12,6 +12,14 @@ export default async function initialization() {
     where: {
       type: DEFAULT_SETTINGS_KEY
     },
+    attributes: [
+      'theme',
+      'colorPrimary',
+      'start',
+      'guide',
+      'language',
+      'placeholder'
+    ],
     defaults: defaultSettings
   });
   await PluginsModal.destroy({

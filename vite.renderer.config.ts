@@ -1,8 +1,9 @@
 import type { ConfigEnv, UserConfig } from 'vite';
 import { defineConfig } from 'vite';
 import svgr from 'vite-plugin-svgr';
-import { pluginExposeRenderer } from './vite.base.config';
 import path from 'node:path';
+import { createHtmlPlugin } from 'vite-plugin-html';
+import { pluginExposeRenderer } from './vite.base.config';
 
 // https://vitejs.dev/config
 export default defineConfig((env) => {
@@ -10,14 +11,24 @@ export default defineConfig((env) => {
   const { root, mode, forgeConfigSelf } = forgeEnv;
   const name = forgeConfigSelf.name ?? '';
 
+  console.log(root, path.join(__dirname, 'template/main.html'));
+
   return {
-    root,
+    root: root,
     mode,
     base: './',
     build: {
       outDir: `.vite/renderer/${name}`
     },
-    plugins: [svgr(), pluginExposeRenderer(name)],
+    plugins: [
+      svgr(),
+      pluginExposeRenderer(name),
+      createHtmlPlugin({
+        minify: true,
+        template: 'index.html',
+        entry: 'src/renderer/windows/main/main.tsx',
+      })
+    ],
     resolve: {
       preserveSymlinks: true,
       alias: {

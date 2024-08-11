@@ -1,6 +1,7 @@
 import { app, nativeTheme } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
+import { isDev } from '@main/utils/is';
 
 /**
  * 获取数据目录
@@ -44,8 +45,18 @@ export function copyFile(src: string, dest: string) {
   }
 }
 
-
+/**
+ * 获取对应主题公共图标
+ * @param name
+ */
 export const getPublicIcon = (name: string) => {
   const iconType = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
-  return path.join(__dirname, `../resources/icon/${iconType}/${name}.png`)
-}
+  return path.join(__dirname, `../resources/icon/${iconType}/${name}.png`);
+};
+
+export const getPublicPluginIcon = (name: string) => {
+  if (isDev) {
+    return `.vite/build/resources/plugins-icon/${name}.png`;
+  }
+  return path.join(__dirname, '..', 'resources', 'plugins-icon', `${name}.png`);
+};

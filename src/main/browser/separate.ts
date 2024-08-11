@@ -1,11 +1,18 @@
-import { BaseWindow, ipcMain, nativeImage, WebContentsView } from 'electron';
+import {
+  BaseWindow,
+  ipcMain,
+  Menu,
+  nativeImage,
+  WebContentsView,
+  MenuItemConstructorOptions,
+  MenuItem
+} from 'electron';
 import {
   SEPARATE_HEIGHT,
   SEPARATE_TOOLBAR_HEIGHT,
   SEPARATE_WIDTH
 } from '@config/constants';
 import path from 'node:path';
-import loadSystemContentsUrl from '@main/utils/loadContentsUrl';
 import store from '@main/utils/store';
 import pluginStore from '@main/utils/store/plugin';
 import { isDev } from '@main/utils/is';
@@ -18,6 +25,8 @@ class Separate {
   content: WebContentsView;
   plugin: IPlugin;
   winId: number;
+
+  scale = '100%';
 
   openPlugin(plugin: IPlugin) {
     this.plugin = plugin;
@@ -62,16 +71,16 @@ class Separate {
         width: newBounds.width,
         height: SEPARATE_TOOLBAR_HEIGHT
       });
-      // this.content.setBounds({
-      //   x: 0,
-      //   y: SEPARATE_TOOLBAR_HEIGHT,
-      //   width: newBounds.width,
-      //   height: newBounds.height - SEPARATE_TOOLBAR_HEIGHT
-      // });
+      this.content.setBounds({
+        x: 0,
+        y: SEPARATE_TOOLBAR_HEIGHT,
+        width: newBounds.width,
+        height: newBounds.height - SEPARATE_TOOLBAR_HEIGHT
+      });
     });
 
     pluginStore.addPlugin(plugin, this.content, this.main.id);
-    // this.handler(this.main.id);
+    this.handler(this.main.id);
   }
 
   /**
@@ -82,6 +91,7 @@ class Separate {
       webPreferences: {
         nodeIntegrationInWorker: true,
         contextIsolation: true,
+        zoomFactor: 1,
         preload: path.join(__dirname, '../preload/index.js')
       }
     });
@@ -93,13 +103,16 @@ class Separate {
       height: SEPARATE_TOOLBAR_HEIGHT
     });
     void this.detach.webContents.executeJavaScript(`
-      localStorage.setItem('winId','${this.winId}');
-      localStorage.setItem('plugin','${JSON.stringify(this.plugin)}');
+      window.winId = '${this.winId}';
+      window.plugin = '${JSON.stringify(this.plugin)}';
     `);
-    loadSystemContentsUrl(this.detach.webContents, 'detach');
 
-    if(isDev){
-      this.detach.webContents.openDevTools();
+    if (isDev) {
+      void this.detach.webContents.loadURL(DETACH_WINDOW_VITE_DEV_SERVER_URL);
+    } else {
+      void this.detach.webContents.loadFile(
+        `${path.join(__dirname, `../../renderer/${DETACH_WINDOW_VITE_NAME}/index.html`)}`
+      );
     }
 
     this.main.contentView.addChildView(this.detach);
@@ -121,18 +134,22 @@ class Separate {
           preload: path.join(__dirname, '../preload/index.js')
         }
       });
-      loadSystemContentsUrl(this.content.webContents, this.plugin.main);
+
+      if (isDev) {
+        void this.content.webContents.loadURL(this.plugin.main);
+      } else {
+        void this.content.webContents.loadFile(
+          `${path.join(__dirname, `../../renderer/${this.plugin.main}/index.html`)}`
+        );
+      }
     }
     this.main.contentView.addChildView(this.content);
-    if (isDev) {
-      this.content.webContents.openDevTools();
-    }
 
     this.content.setBounds({
       x: 0,
       y: SEPARATE_TOOLBAR_HEIGHT,
       width: SEPARATE_WIDTH,
-      height: SEPARATE_HEIGHT
+      height: SEPARATE_HEIGHT - SEPARATE_TOOLBAR_HEIGHT
     });
   }
 
@@ -150,6 +167,24 @@ class Separate {
           break;
         case 'close':
           this.main.close();
+          break;
+        case 'debug':
+          this.content.webContents.openDevTools();
+          break;
+        case 'pined':
+          this.main.setAlwaysOnTop(true);
+          break;
+        case 'un-pined':
+          this.main.setAlwaysOnTop(false);
+          break;
+        case 'settings':
+          this.openSettingsMenu();
+          break;
+        case 'scale':
+          this.openScaleMenu();
+          break;
+        case 'info':
+          this.openPluginInfo();
           break;
       }
 
@@ -170,6 +205,65 @@ class Separate {
       }
     });
   }
+
+  private openSettingsMenu() {
+    const template = [
+      {
+        label: '自动分离为独立窗口',
+        click: () => {
+          console.log(123);
+        }
+      },
+      {
+        label: '退出后台后立即结束运行',
+        click: () => {
+          console.log(123);
+        }
+      },
+      {
+        label: '跟随主程序同时启动运行',
+        click: () => {}
+      }
+    ];
+    const menu = Menu.buildFromTemplate(template);
+    menu.popup({});
+  }
+  private openScaleMenu() {
+    const list = [
+      '50%',
+      '67%',
+      '75%',
+      '80%',
+      '90%',
+      '100%',
+      '110%',
+      '125%',
+      '150%',
+      '175%',
+      '200%',
+      '250%',
+      '300%'
+    ];
+
+    const templateList: Array<MenuItemConstructorOptions | MenuItem> = list.map(
+      (item) => {
+        return {
+          label: item,
+          type: 'radio',
+          checked: item === this.scale,
+          click: () => {
+            this.scale = item;
+            const val = Number(item.replace('%', '')) / 100;
+            this.content.webContents.setZoomFactor(val);
+          }
+        };
+      }
+    );
+
+    const menu = Menu.buildFromTemplate(templateList);
+    menu.popup({});
+  }
+  private openPluginInfo() {}
 }
 
 export default function createSeparate(plugin: IPlugin) {

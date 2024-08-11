@@ -7,6 +7,24 @@ declare global {
   const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
   const MAIN_WINDOW_VITE_NAME: string;
 
+  const DETACH_WINDOW_VITE_DEV_SERVER_URL: string;
+  const DETACH_WINDOW_VITE_NAME: string;
+
+  const SETTINGS_WINDOW_VITE_DEV_SERVER_URL: string;
+  const SETTINGS_WINDOW_VITE_NAME: string;
+
+  const PLUGINS_WINDOW_VITE_DEV_SERVER_URL: string;
+  const PLUGINS_WINDOW_VITE_NAME: string;
+
+  const MINE_WINDOW_VITE_DEV_SERVER_URL: string;
+  const MINE_WINDOW_VITE_NAME: string;
+
+  const DEVELOPER_WINDOW_VITE_DEV_SERVER_URL: string;
+  const DEVELOPER_WINDOW_VITE_NAME: string;
+
+  const TRANSLATION_WINDOW_VITE_DEV_SERVER_URL: string;
+  const TRANSLATION_WINDOW_VITE_NAME: string;
+
   namespace NodeJS {
     interface Process {
       // Used for hot reload after preload scripts.

@@ -10,12 +10,14 @@ interface IConfigStore {
 const useSettings = create<IConfigStore>((set, get) => ({
   setting: defaultSettings,
   initSetting: async () => {
-    const setting = await eventApi.sync('main:getSetting');
-    set({ setting });
+    const settings = await toolify.getSettings()
+    console.log(settings);
+    // const setting = await eventApi.sync('main:getSetting');
+    // set({ setting });
   },
-  updateSetting: (key, value) => {
+  updateSetting: async (key, value) => {
     const newSetting = { ...get().setting, [key]: value };
-    eventApi.send('main:setSetting', newSetting);
+    await eventApi.sync('main:setSetting', newSetting);
     set({ setting: newSetting });
   }
 }));

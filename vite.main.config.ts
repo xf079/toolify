@@ -1,7 +1,6 @@
 import type { ConfigEnv, UserConfig } from 'vite';
 import { defineConfig, mergeConfig } from 'vite';
 import copyPlugin from 'rollup-plugin-copy';
-import commonjs from '@rollup/plugin-commonjs';
 import {
   getBuildConfig,
   getBuildDefine,

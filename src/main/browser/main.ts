@@ -6,18 +6,24 @@ import {
   WINDOW_PLUGIN_HEIGHT,
   WINDOW_WIDTH
 } from '@config/constants';
-import loadSystemContentsUrl from '@main/utils/loadContentsUrl';
 import { getDataPath } from '@main/utils/fs';
 import store from '@main/utils/store';
 import pluginStore from '@main/utils/store/plugin';
 import { isDev } from '@main/utils/is';
+import { getPosition } from '@main/utils/position';
 
 export class MainBrowser {
+  private x: number;
+  private y: number;
+
   private main: BaseWindow;
   private search: WebContentsView;
 
   private plugin: IPlugin;
   private pluginView: WebContentsView;
+
+
+  private resizeInProgress= false;
 
   public init() {
     this.createMainWindow();
@@ -44,7 +50,7 @@ export class MainBrowser {
    */
   public async openPlugin(plugin: IPlugin) {
     this.plugin = plugin;
-    this.search.webContents.send('main:pluginInfo',plugin)
+    this.search.webContents.send('main:pluginInfo', plugin);
     if (plugin.type === 'built') {
       return await this.createBuiltPluginView(plugin);
     } else if (plugin.type === 'plugin-prod' || plugin.type === 'plugin-dev') {
@@ -84,8 +90,15 @@ export class MainBrowser {
    * @param height
    */
   public setWindowCustomHeight(height: number) {
-    this.main.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
-    this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+    if (!this.resizeInProgress) {
+      this.resizeInProgress = true;
+      this.main.setPosition(this.x, this.y);
+      this.main.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+      this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+      setTimeout(() => {
+        this.resizeInProgress = false;
+      }, 60);
+    }
   }
 
   /**
@@ -93,14 +106,7 @@ export class MainBrowser {
    * @private
    */
   public setWindowPluginHeight() {
-    setTimeout(() => {
-      // 设置窗体大小
-      this.main.setContentSize(
-        WINDOW_WIDTH,
-        WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
-      );
-      this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT);
-    }, 120);
+    this.setWindowCustomHeight(WINDOW_PLUGIN_HEIGHT);
   }
 
   /**
@@ -127,7 +133,13 @@ export class MainBrowser {
 
       this.main.contentView.addChildView(this.pluginView);
 
-      loadSystemContentsUrl(this.pluginView.webContents, item.main);
+      if (isDev) {
+        void this.pluginView.webContents.loadURL(item.main);
+      } else {
+        void this.pluginView.webContents.loadFile(
+          `${path.join(__dirname, `../../renderer/${item.main}/index.html`)}`
+        );
+      }
 
       this.pluginView.webContents.on('did-finish-load', () => {
         // 插件加载成功
@@ -178,15 +190,14 @@ export class MainBrowser {
    * @private
    */
   private createMainWindow() {
+    const { x, y } = getPosition();
+    this.x = x;
+    this.y = y;
     this.main = new BaseWindow({
       width: WINDOW_WIDTH,
       height: WINDOW_HEIGHT,
-      minWidth: WINDOW_WIDTH,
-      maxWidth: WINDOW_WIDTH,
-      minHeight: WINDOW_HEIGHT,
-      maxHeight: WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT,
-      x: 100,
-      y: 100,
+      x,
+      y,
       useContentSize: true,
       resizable: false,
       fullscreenable: false,
@@ -202,8 +213,8 @@ export class MainBrowser {
       webPreferences: {
         nodeIntegrationInWorker: true,
         nodeIntegration: true,
-        contextIsolation: true,
-        preload: path.join(__dirname, '../preload/index.js')
+        contextIsolation: false,
+        preload: path.join(__dirname, '../preload/plugins.js')
       }
     });
 
@@ -213,14 +224,28 @@ export class MainBrowser {
       width: WINDOW_WIDTH,
       height: WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
     });
-
-    loadSystemContentsUrl(this.search.webContents);
-
+    if (isDev) {
+      void this.search.webContents.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    } else {
+      void this.search.webContents.loadFile(
+        path.join(
+          __dirname,
+          `../../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`
+        )
+      );
+    }
     this.main.contentView.addChildView(this.search);
 
-    if(isDev){
-      this.search.webContents.openDevTools();
-    }
+    this.search.webContents.openDevTools();
+
+    this.handler();
+  }
+
+  handler() {
+    this.main.on('will-move', (e, newBounds) => {
+      this.x = newBounds.x;
+      this.y = newBounds.y;
+    });
   }
 }
 

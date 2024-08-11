@@ -30,16 +30,20 @@ export const mainEventHandler = () => {
    * 更新设置
    */
   ipcMain.handle('main:setSetting', async (event, setting) => {
-    const [count, settings] = await SettingsModal.update(setting, {
+    console.log(setting);
+    const [afterCount] = await SettingsModal.update(setting, {
       where: {
         type: DEFAULT_SETTINGS_KEY
-      },
-      returning: true
+      }
     });
-    if (count) {
-      const values = settings.map((item) => item.dataValues);
-      store.setConfig(values[0]);
+    if(afterCount){
+      store.setConfig(setting);
     }
+    // if (!count) {
+    //   const values = settings.map((item) => item.dataValues);
+    //   console.log(values);
+    //   store.setConfig(values[0]);
+    // }
   });
   /**
    * 搜索

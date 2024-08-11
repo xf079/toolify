@@ -9,7 +9,10 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: false
+    asar: true,
+    name: 'Toolify',
+    overwrite: true,
+
   },
   rebuildConfig: {},
   makers: [
@@ -37,6 +40,26 @@ const config: ForgeConfig = {
         {
           name: 'main_window',
           config: 'vite.renderer.config.ts'
+        },
+        {
+          name: 'detach_window',
+          config: 'vite.renderer.detach.config.ts'
+        },
+        {
+          name: 'settings_window',
+          config: 'vite.renderer.settings.config.ts'
+        },
+        {
+          name: 'plugins_window',
+          config: 'vite.renderer.plugins.config.ts'
+        },
+        {
+          name: 'developer_window',
+          config: 'vite.renderer.developer.config.ts'
+        },
+        {
+          name: 'translation_window',
+          config: 'vite.renderer.translation.config.ts'
         }
       ]
     }),
