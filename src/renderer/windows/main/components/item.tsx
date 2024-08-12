@@ -41,7 +41,7 @@ export const SearchItem: FC<ISearchItemProps> = ({
     <Flex
       className={cx(
         styles.item,
-        'w-full px-3 h-10 cursor-pointer rounded-sm overflow-hidden',
+        'item w-full px-3 h-10 cursor-pointer rounded-sm overflow-hidden',
         active ? 'active' : ''
       )}
       align='center'

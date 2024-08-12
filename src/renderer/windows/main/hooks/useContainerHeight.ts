@@ -9,28 +9,28 @@ export interface IContainerHeight {
 }
 
 export const useContainerHeight = (options: IContainerHeight) => {
-
-  const {listRef,toolbarRef,onChange} = options;
-
+  const { listRef, toolbarRef, onChange } = options;
+  const toolbarHeight = useRef(0);
   const [listHeight, setListHeight] = useState(0);
-  const [toolbarHeight, setToolbarHeight] = useState(0);
 
   useUpdateEffect(() => {
-    console.log(listHeight ? listHeight + toolbarHeight : 0);
-    onChange(listHeight ? listHeight + toolbarHeight : 0)
-    toolify.setExpendHeight(listHeight ? listHeight + toolbarHeight : 0);
-  }, [listHeight, toolbarHeight]);
+    const _height = listHeight + toolbarHeight.current;
+    console.log(listHeight,_height);
+    onChange(listHeight);
+    toolify.setExpendHeight(listHeight > 0 ? _height  : 0);
+  }, [listHeight]);
 
   useMutationObserver(
     () => {
-      let _toolbarHeight = toolbarHeight;
+      let _toolbarHeight = toolbarHeight.current;
       if (!_toolbarHeight) {
-        _toolbarHeight = toolbarRef.current?.offsetHeight || 0;
+        toolbarHeight.current = toolbarRef.current?.offsetHeight || 0;
+        _toolbarHeight = toolbarHeight.current;
       }
+      const maxContentHeight = WINDOW_PLUGIN_HEIGHT - _toolbarHeight;
       const _listHeight = listRef.current?.offsetHeight;
-      setToolbarHeight(_toolbarHeight);
-      if (_toolbarHeight > WINDOW_PLUGIN_HEIGHT - _toolbarHeight) {
-        setListHeight(WINDOW_PLUGIN_HEIGHT - _toolbarHeight);
+      if (_listHeight >= maxContentHeight) {
+        setListHeight(maxContentHeight);
       } else {
         setListHeight(_listHeight > 30 ? _listHeight : 0);
       }
@@ -38,11 +38,4 @@ export const useContainerHeight = (options: IContainerHeight) => {
     listRef,
     { attributes: true, childList: true, characterData: true, subtree: true }
   );
-
-  return {
-    listRef,
-    toolbarRef,
-    listHeight,
-    toolbarHeight
-  };
 };

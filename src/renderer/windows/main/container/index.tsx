@@ -7,9 +7,9 @@ import {
   AudioOutlined
 } from '@ant-design/icons';
 import useSettings from '@/store';
-import BScroll from '@better-scroll/core'
-import MouseWheel from '@better-scroll/mouse-wheel'
-import ScrollBar from '@better-scroll/scroll-bar'
+import BScroll from '@better-scroll/core';
+import MouseWheel from '@better-scroll/mouse-wheel';
+import ScrollBar from '@better-scroll/scroll-bar';
 import { useContainerHeight } from '../hooks/useContainerHeight';
 import { useScrollViewport } from '../hooks/useScrollViewport';
 import { usePluginManager } from '../hooks/usePluginManager';
@@ -26,6 +26,7 @@ BScroll.use(ScrollBar);
 const Container = () => {
   const { styles, cx } = useStyles();
   const { setting } = useSettings();
+  const bsRef = useRef<BScroll>();
   const inputRef = useRef();
   const scrollRef = useRef<HTMLDivElement>();
   const listRef = useRef<HTMLDivElement>(null);
@@ -50,7 +51,11 @@ const Container = () => {
   useContainerHeight({
     listRef,
     toolbarRef,
-    onChange: setContainerHeight
+    onChange: (val) => {
+      setContainerHeight(val);
+      bsRef.current?.destroy()
+      initContainerScroll()
+    }
   });
 
   useScrollViewport({
@@ -60,20 +65,22 @@ const Container = () => {
     setIndex
   });
 
-  const initContainerScroll = ()=>{
-    const bs = new BScroll(scrollRef.current, {
+  const initContainerScroll = () => {
+    bsRef.current = new BScroll('.main-container', {
       mouseWheel: {
         speed: 20,
         invert: false,
-        easeTime: 300
+        easeTime: 100,
+        dampingFactor: 0.1
       },
-      scrollX: false,
       scrollY: true,
-      scrollbar: {
-        fade: true
-      }
-    })
-  }
+      scrollbar:{
+        interactive:true
+      },
+      bounce: false,
+      momentum: false
+    });
+  };
 
   const onOpenMenu = useMemoizedFn(() => {
     // eventApi.send('main:openPluginMenu');
@@ -83,9 +90,9 @@ const Container = () => {
     // eventApi.send('main:openSystemPlugin', { type: SYSTEM_PLUGIN_CENTER });
   };
 
-  useMount(()=>{
+  useMount(() => {
     initContainerScroll();
-  })
+  });
 
   return (
     <div className={styles.search}>
@@ -169,11 +176,11 @@ const Container = () => {
         )}
       </Flex>
       <div
-        className='w-full'
+        className='main-container w-full relative overflow-hidden'
         style={{ height: containerHeight }}
         ref={scrollRef}
       >
-        <Flex vertical className='p-2 gap-1' ref={listRef}>
+        <div className='p-2 gap-1 content' ref={listRef}>
           {plugins.map((group) => (
             <Flex vertical key={group.type} gap={2}>
               <Typography.Text
@@ -184,7 +191,7 @@ const Container = () => {
               </Typography.Text>
               {group.children.map((item) => (
                 <SearchItem
-                  key={item.id}
+                  key={item.index}
                   type={group.type}
                   item={item}
                   active={false}
@@ -193,7 +200,7 @@ const Container = () => {
               ))}
             </Flex>
           ))}
-        </Flex>
+        </div>
       </div>
       <SearchToolbar ref={toolbarRef} />
     </div>

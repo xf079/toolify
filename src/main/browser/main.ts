@@ -89,15 +89,9 @@ export class MainBrowser {
    * @param height
    */
   public setExpendHeight(height: number) {
-    if (!this.resizeInProgress) {
-      this.resizeInProgress = true;
-      this.main.setPosition(this.x, this.y);
-      this.main.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
-      this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
-      setTimeout(() => {
-        this.resizeInProgress = false;
-      }, 60);
-    }
+    this.main.setPosition(this.x, this.y);
+    this.main.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+    this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
   }
 
   /**
@@ -195,16 +189,15 @@ export class MainBrowser {
     this.main = new BaseWindow({
       width: WINDOW_WIDTH,
       height: WINDOW_HEIGHT,
-      // height: 500,
       x,
       y,
-      useContentSize: true,
+      useContentSize: false,
       resizable: false,
       fullscreenable: false,
       frame: false,
       title: 'Toolify',
       show: true,
-      transparent: true,
+      transparent: false,
       skipTaskbar: true,
       focusable: true,
       alwaysOnTop: true,

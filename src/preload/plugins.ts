@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
-import { genCommonToolify } from './common';
 import { EVENT_MESSENGER } from '@config/constants';
+import { genCommonToolify } from './common';
 
 function sync(type: string, data?: any) {
   const returnValue = ipcRenderer.invoke(EVENT_MESSENGER, {
