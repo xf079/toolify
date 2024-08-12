@@ -19,10 +19,7 @@ export const SYSTEM_DEVELOPER = 'system:plugin-developer';
  * COMMON
  */
 export const WINDOW_WIDTH = 830;
-export const WINDOW_HEIGHT = 562;
-
-export const WINDOW_TOOLBAR_WIDTH = 800;
-export const WINDOW_TOOLBAR_HEIGHT = 40;
+export const WINDOW_HEIGHT = 62;
 
 export const WINDOW_PLUGIN_HEIGHT = 520;
 
@@ -36,4 +33,6 @@ export const PANEL_HEIGHT = 340;
 export const SEPARATE_WIDTH = 920;
 export const SEPARATE_HEIGHT = 660;
 export const SEPARATE_TOOLBAR_HEIGHT = 48;
+
+export const EVENT_MESSENGER = 'event-messenger';
 

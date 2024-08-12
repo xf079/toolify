@@ -9,13 +9,9 @@ const GroupTypeList: IGroupType[] = [
     showDisplayed: false,
     children: [],
     origin: [],
-    morePlugin: {
-      id: 100001,
+    more: {
       type: 'more',
-      name: '查看更多系统应用',
-      main: 'app',
-      logo: '',
-      separation: false
+      label: '查看更多系统应用'
     }
   },
   {
@@ -26,13 +22,9 @@ const GroupTypeList: IGroupType[] = [
     showDisplayed: false,
     children: [],
     origin: [],
-    morePlugin: {
-      id: 100002,
+    more: {
       type: 'more',
-      name: '查看更多插件',
-      main: 'plugin',
-      logo: '',
-      separation: false
+      label: '查看更多插件'
     }
   },
   {
@@ -43,13 +35,9 @@ const GroupTypeList: IGroupType[] = [
     showDisplayed: false,
     children: [],
     origin: [],
-    morePlugin: {
-      id: 100003,
+    more: {
       type: 'more',
-      name: '更多AI技能',
-      main: 'ai',
-      logo: '',
-      separation: false
+      label: '更多AI技能'
     }
   }
 ];
@@ -65,10 +53,7 @@ export const generateGroupIndex = (data: IGroupType[]) => {
       count += 1;
       return { ...item, index: count };
     });
-    return {
-      ...item,
-      children
-    };
+    return { ...item, children };
   });
 };
 
@@ -77,33 +62,67 @@ export const generateGroupIndex = (data: IGroupType[]) => {
  * @param data
  */
 export const generateDisplayedList = (data: IGroupType[]) => {
-  return data.map((item) => ({
-    ...item,
-    children:
-      !item.showDisplayed && item.origin.length > item.maxDisplayedNumber
-        ? [...item.origin.slice(0, item.maxDisplayedNumber), item.morePlugin]
-        : item.origin
-  }));
+  return data.map((item) => {
+    let children: any[] = [];
+    if (item.showDisplayed) {
+      children = item.origin;
+    } else {
+      children = item.origin.slice(0, item.maxDisplayedNumber);
+      if (item.origin.length > item.maxDisplayedNumber) {
+        children.push(item.more);
+      }
+    }
+    return {
+      ...item,
+      children
+    };
+  });
+};
+
+
+export const generateToggleGroupList = (
+  data: IGroupType[],
+  type: IResultEnumType
+) => {
+  return data.map((item) => {
+    if (item.type === type) {
+      const _showDisplayed = !item.showDisplayed;
+      let children: any[] = [];
+      if (_showDisplayed) {
+        children = item.origin;
+      } else {
+        children = item.origin.slice(0, item.maxDisplayedNumber);
+        if (item.origin.length > item.maxDisplayedNumber) {
+          children.push(item.more);
+        }
+      }
+      return {
+        ...item,
+        showDisplayed: !item.showDisplayed,
+        children
+      };
+    }
+    return item;
+  });
 };
 
 /**
  * 生成插件分组
  * @param data
  */
-export const generatePluginGroup = (data: IPlugin[]) => {
+export const generatePluginGroup = (data: ISearchResult) => {
   const _groupList = cloneDeep(GroupTypeList);
-  data.forEach((item: IPlugin) => {
-    if (item.type === 'app') {
-      _groupList[0].origin.push(item);
-    } else if (item.type === 'built' || item.type === 'plugin') {
-      _groupList[1].origin.push(item);
-    } else if (item.type === 'ai') {
-      _groupList[2].origin.push(item);
-    }
-  });
-  const sortGroupList = orderBy(_groupList, 'orderBy');
+  const plugins = [];
+  plugins.push(...(data.pluginList || []));
+  plugins.push(...(data.featuresList || []));
+  plugins.push(...(data.developerList || []));
+  _groupList[1].origin = plugins;
+  _groupList[0].origin = data.appList || [];
+  _groupList[2].origin = data.aiList || [];
 
-  return generateGroupIndex(generateDisplayedList(sortGroupList)).filter(
-    (item) => item.children.length
+  const groupList = orderBy(_groupList, 'orderBy');
+
+  return generateGroupIndex(generateDisplayedList(groupList)).filter(
+    (item) => item.children.length > 0
   );
 };

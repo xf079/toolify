@@ -42,7 +42,6 @@ export class WindowsApplication {
           );
           fs.writeFileSync(iconPath, dataBuffer);
           return {
-            type: 'app',
             name: fileName,
             main: detail.target,
             logo: iconPath
@@ -53,7 +52,6 @@ export class WindowsApplication {
           );
           copyFile(detail.icon, iconPath);
           return {
-            type: 'app',
             name: fileName,
             main: detail.target,
             logo: iconPath

@@ -23,17 +23,20 @@ const useStyles = createStyles(({ token, css }) => ({
 }));
 
 export interface ISearchItemProps {
-  item: IPlugin;
+  type: IResultEnumType;
+  item: IResultType;
   active: boolean;
-  onOpenPlugin: (item: IPlugin) => void;
+  onOpenPlugin: (item: IResultType, type: IResultEnumType) => void;
 }
 
 export const SearchItem: FC<ISearchItemProps> = ({
+  type,
   item,
   active,
   onOpenPlugin
 }) => {
   const { styles, cx } = useStyles();
+
   return (
     <Flex
       className={cx(
@@ -42,7 +45,7 @@ export const SearchItem: FC<ISearchItemProps> = ({
         active ? 'active' : ''
       )}
       align='center'
-      onClick={() => onOpenPlugin(item)}
+      onClick={() => onOpenPlugin(item, type)}
     >
       <Flex justify='start' align='center' className='gap-2 flex-1'>
         {item.type === 'more' ? (
@@ -50,7 +53,7 @@ export const SearchItem: FC<ISearchItemProps> = ({
             <div className='w-5 h-5 flex flex-row items-center justify-center'>
               <MoreOutlined />
             </div>
-            <div className={styles.title}>{item.name}</div>
+            <div className={styles.title}>{item.label}</div>
           </>
         ) : (
           <>

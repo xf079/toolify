@@ -30,14 +30,6 @@ class SettingsModal extends Model<
    */
   declare start: boolean;
   /**
-   * 是否启动引导
-   */
-  declare guide: boolean;
-  /**
-   * 当前语言
-   */
-  declare language: string;
-  /**
    * 占位符
    */
   declare placeholder: string;
@@ -64,14 +56,6 @@ SettingsModal.init(
     },
     start: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
-    guide: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
-    language: {
-      type: DataTypes.STRING,
       allowNull: false
     },
     placeholder: {

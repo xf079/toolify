@@ -22,8 +22,7 @@ export class MainBrowser {
   private plugin: IPlugin;
   private pluginView: WebContentsView;
 
-
-  private resizeInProgress= false;
+  private resizeInProgress = false;
 
   public init() {
     this.createMainWindow();
@@ -72,7 +71,7 @@ export class MainBrowser {
     this.search.webContents.send('main:clearPluginInfo');
     this.plugin = undefined;
     this.pluginView = undefined;
-    this.setWindowCustomHeight(0);
+    this.setExpendHeight(0);
   }
 
   /**
@@ -89,7 +88,7 @@ export class MainBrowser {
    * 更新主窗口高度自定义高度
    * @param height
    */
-  public setWindowCustomHeight(height: number) {
+  public setExpendHeight(height: number) {
     if (!this.resizeInProgress) {
       this.resizeInProgress = true;
       this.main.setPosition(this.x, this.y);
@@ -106,7 +105,7 @@ export class MainBrowser {
    * @private
    */
   public setWindowPluginHeight() {
-    this.setWindowCustomHeight(WINDOW_PLUGIN_HEIGHT);
+    this.setExpendHeight(WINDOW_PLUGIN_HEIGHT);
   }
 
   /**
@@ -196,6 +195,7 @@ export class MainBrowser {
     this.main = new BaseWindow({
       width: WINDOW_WIDTH,
       height: WINDOW_HEIGHT,
+      // height: 500,
       x,
       y,
       useContentSize: true,
@@ -204,6 +204,7 @@ export class MainBrowser {
       frame: false,
       title: 'Toolify',
       show: true,
+      transparent: true,
       skipTaskbar: true,
       focusable: true,
       alwaysOnTop: true,
@@ -214,7 +215,7 @@ export class MainBrowser {
         nodeIntegrationInWorker: true,
         nodeIntegration: true,
         contextIsolation: false,
-        preload: path.join(__dirname, '../preload/plugins.js')
+        preload: path.join(__dirname, '../preload/index.js')
       }
     });
 

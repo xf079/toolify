@@ -1,5 +1,5 @@
-import { useRef } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { useRef, useState } from 'react';
+import { useMemoizedFn, useMount } from 'ahooks';
 import { Avatar, Button, Flex, Typography } from 'antd';
 import {
   CloseOutlined,
@@ -7,11 +7,12 @@ import {
   AudioOutlined
 } from '@ant-design/icons';
 import useSettings from '@/store';
-import { SYSTEM_PLUGIN_CENTER } from '@config/constants';
-import { useSearchWrapperRect } from '../hooks/useSearchWrapperRect';
-import { useSearchScrollViewport } from '../hooks/useSearchScrollViewport';
+import BScroll from '@better-scroll/core'
+import MouseWheel from '@better-scroll/mouse-wheel'
+import ScrollBar from '@better-scroll/scroll-bar'
+import { useContainerHeight } from '../hooks/useContainerHeight';
+import { useScrollViewport } from '../hooks/useScrollViewport';
 import { usePluginManager } from '../hooks/usePluginManager';
-
 import { SearchItem } from '../components/item';
 import { SearchToolbar } from '../components/toolbar';
 
@@ -19,11 +20,17 @@ import LogoIcon from '../assets/logo.svg?react';
 
 import { useStyles } from './styles';
 
+BScroll.use(MouseWheel);
+BScroll.use(ScrollBar);
+
 const Container = () => {
   const { styles, cx } = useStyles();
   const { setting } = useSettings();
   const inputRef = useRef();
   const scrollRef = useRef<HTMLDivElement>();
+  const listRef = useRef<HTMLDivElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState(0);
 
   const {
     value,
@@ -40,22 +47,45 @@ const Container = () => {
     onClosePlugin
   } = usePluginManager();
 
-  const { listRef, toolbarRef, listHeight } = useSearchWrapperRect();
+  useContainerHeight({
+    listRef,
+    toolbarRef,
+    onChange: setContainerHeight
+  });
 
-  useSearchScrollViewport({
+  useScrollViewport({
     wrapper: scrollRef,
-    viewportHeight: listHeight,
+    viewportHeight: containerHeight,
     index,
     setIndex
   });
 
+  const initContainerScroll = ()=>{
+    const bs = new BScroll(scrollRef.current, {
+      mouseWheel: {
+        speed: 20,
+        invert: false,
+        easeTime: 300
+      },
+      scrollX: false,
+      scrollY: true,
+      scrollbar: {
+        fade: true
+      }
+    })
+  }
+
   const onOpenMenu = useMemoizedFn(() => {
-    eventApi.send('main:openPluginMenu');
+    // eventApi.send('main:openPluginMenu');
   });
 
   const onOpenPluginCenter = () => {
-    eventApi.send('main:openSystemPlugin', { type: SYSTEM_PLUGIN_CENTER });
+    // eventApi.send('main:openSystemPlugin', { type: SYSTEM_PLUGIN_CENTER });
   };
+
+  useMount(()=>{
+    initContainerScroll();
+  })
 
   return (
     <div className={styles.search}>
@@ -139,8 +169,8 @@ const Container = () => {
         )}
       </Flex>
       <div
-        className='w-full overflow-y-auto'
-        style={{ height: listHeight }}
+        className='w-full'
+        style={{ height: containerHeight }}
         ref={scrollRef}
       >
         <Flex vertical className='p-2 gap-1' ref={listRef}>
@@ -155,8 +185,9 @@ const Container = () => {
               {group.children.map((item) => (
                 <SearchItem
                   key={item.id}
+                  type={group.type}
                   item={item}
-                  active={item.index === index}
+                  active={false}
                   onOpenPlugin={onOpenPlugin}
                 />
               ))}

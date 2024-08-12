@@ -16,8 +16,6 @@ export default async function initialization() {
       'theme',
       'colorPrimary',
       'start',
-      'guide',
-      'language',
       'placeholder'
     ],
     defaults: defaultSettings
@@ -31,7 +29,7 @@ export default async function initialization() {
 
   const settingsValues = settings.dataValues;
 
-  store.setConfig(settingsValues);
+  store.setSettings(settingsValues);
 
   if (settingsValues.theme === 'system') {
     store.setBackgroundColor(

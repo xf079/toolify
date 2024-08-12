@@ -5,8 +5,11 @@ import {
   useUpdateEffect
 } from 'ahooks';
 import { KeyboardEvent, useMemo, useState } from 'react';
-import { generateGroupIndex, generatePluginGroup } from '../utils/pluginHandler';
-import { omit } from 'lodash';
+import {
+  generateGroupIndex,
+  generatePluginGroup,
+  generateToggleGroupList
+} from '../utils/pluginHandler';
 
 export const usePluginManager = () => {
   const [value, { reset, onChange }] = useEventTarget({ initialValue: '' });
@@ -65,38 +68,31 @@ export const usePluginManager = () => {
   /**
    * 打开插件
    */
-  const onOpenPlugin = useMemoizedFn(async (item: IPlugin) => {
-    /**
-     * 展开更多处理
-     */
-    if (item.type === 'more') {
-      setPlugins((prevState) => {
-        const _state = prevState.map((group) => {
-          if (item.main === group.type) {
-            const hasShowAll = !group.showDisplayed;
-            const children = hasShowAll
-              ? group.origin
-              : group.origin.slice(0, group.maxDisplayedNumber);
-            return {
-              ...group,
-              showDisplayed: hasShowAll,
-              children: children
-            };
-          }
-          return group;
-        });
+  const onOpenPlugin = useMemoizedFn(
+    async (item: IResultType, type: IResultEnumType) => {
+      /**
+       * 展开更多处理
+       */
+      if (item.type === 'more') {
+        setPlugins(generateGroupIndex(generateToggleGroupList(plugins, type)));
+        return;
+      }
+      /**
+       * 系统app
+       */
+      if(type === 'app'){
+        toolify.shellOpenPath(item.main);
+        return;
+      }
 
-        return generateGroupIndex(_state);
-      });
-      return;
+      setPlugins([]);
+      setIndex(1);
+      reset();
+      setPluginLoading(true);
+      // await eventApi.sync('main:openPlugin', omit(item,'nameFormat'));
+      setPluginLoading(false);
     }
-    setPlugins([]);
-    setIndex(1);
-    reset();
-    setPluginLoading(true);
-    await eventApi.sync('main:openPlugin', omit(item,'nameFormat'));
-    setPluginLoading(false);
-  });
+  );
 
   /**
    * 关闭当前插件
@@ -109,7 +105,7 @@ export const usePluginManager = () => {
     setPlugins([]);
     setIndex(1);
     reset();
-    eventApi.send('main:closePlugin');
+    // eventApi.send('main:closePlugin');
   });
 
   useUpdateEffect(() => {
@@ -124,7 +120,8 @@ export const usePluginManager = () => {
     if (index !== 1) {
       setIndex(1);
     }
-    eventApi.sync('main:search', value).then((data) => {
+    toolify.onSearch(value).then((data) => {
+      console.log(generatePluginGroup(data));
       setPlugins(generatePluginGroup(data));
     });
   }, [value]);

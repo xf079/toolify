@@ -28,7 +28,6 @@ export class MacosApplication {
     const path = '/System/Library/PreferencePanes';
     return fs.readdirSync(path).map((file) => {
       return {
-        type: 'app',
         name: file.split('.')[0],
         main: path + '/' + file,
         logo: ''
@@ -59,7 +58,6 @@ export class MacosApplication {
     return list
       .filter((item) => item.name && item.Location)
       .map((item) => ({
-        type: 'app',
         name: item.name,
         logo: '',
         main: item.Location

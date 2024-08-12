@@ -6,9 +6,9 @@ import {
 } from 'sequelize';
 import { sequelize } from '@main/utils/db';
 
-class PluginsModal extends Model<
-  InferAttributes<PluginsModal>,
-  InferCreationAttributes<PluginsModal>
+class FeaturesModal extends Model<
+  InferAttributes<FeaturesModal>,
+  InferCreationAttributes<FeaturesModal>
 > {
   declare id: number;
 
@@ -61,7 +61,7 @@ class PluginsModal extends Model<
   declare platform: string;
 }
 
-PluginsModal.init(
+FeaturesModal.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -118,10 +118,11 @@ PluginsModal.init(
   },
   {
     sequelize: sequelize,
-    tableName: 'plugins',
-    createdAt: false,
-    updatedAt: false
+    tableName: 'feature',
+    timestamps: true,
+    createdAt: true,
+    updatedAt: true
   }
 );
 
-export default PluginsModal;
+export default FeaturesModal;

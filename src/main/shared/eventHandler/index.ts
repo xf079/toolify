@@ -1,19 +1,30 @@
 import { mainEventHandler } from './main';
 import { developerEventHandler } from './developer';
 import { ipcMain } from 'electron';
-import store from '@main/utils/store';
+import { onSearch } from '@main/common/search';
+import { EVENT_MESSENGER } from '@config/constants';
+import mainBrowser from '@main/browser/main';
 
 export default function initEventHandler() {
   mainEventHandler();
   developerEventHandler();
 
-  ipcMain.handle('event-trigger', (event, { type, data }) => {
+  ipcMain.handle(EVENT_MESSENGER, (event, { type, data }) => {
     console.log(type, data);
     switch (type) {
-      case 'getSettings':
-        return store.getConfig();
-      case 'setSetting':
-        return store.setConfig(data);
+      case 'search':
+        return onSearch(data);
+      default:
+        break;
+    }
+  });
+
+  ipcMain.on(EVENT_MESSENGER, (event, { type, data }) => {
+    console.log(type, data);
+    switch (type) {
+      case 'setExpendHeight':
+        mainBrowser.setExpendHeight(data);
+        break;
       default:
         break;
     }

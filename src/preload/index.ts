@@ -1,22 +1,34 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron';
+import { EVENT_MESSENGER } from '@config/constants';
+import { genCommonToolify } from './common';
 
-contextBridge.exposeInMainWorld('eventApi', {
-  on(...args: Parameters<typeof ipcRenderer.on>) {
-    const [channel, listener] = args;
-    return ipcRenderer.on(channel, (event, ...args) =>
-      listener(event, ...args)
-    );
-  },
-  off(...args: Parameters<typeof ipcRenderer.off>) {
-    const [channel, ...omit] = args;
-    return ipcRenderer.off(channel, ...omit);
-  },
-  send(...args: Parameters<typeof ipcRenderer.send>) {
-    const [channel, ...omit] = args;
-    return ipcRenderer.send(channel, ...omit);
-  },
-  sync(...args: Parameters<typeof ipcRenderer.invoke>) {
-    const [channel, ...omit] = args;
-    return ipcRenderer.invoke(channel, ...omit);
-  }
-});
+function sync(type: string, data?: any) {
+  const returnValue = ipcRenderer.invoke(EVENT_MESSENGER, {
+    type,
+    data
+  });
+  if (returnValue instanceof Error) throw returnValue;
+  return returnValue;
+}
+
+function send(type: string, data: any) {
+  ipcRenderer.send(EVENT_MESSENGER, {
+    type,
+    data
+  });
+}
+
+(function () {
+  const commonToolify = genCommonToolify(sync, send);
+  const _toolify: Toolify = {
+    ...commonToolify,
+    onSearch(value) {
+      return sync('search', value);
+    }
+  };
+  Object.defineProperty(window, 'toolify', {
+    value: _toolify,
+    configurable: false,
+    writable: false
+  });
+})();

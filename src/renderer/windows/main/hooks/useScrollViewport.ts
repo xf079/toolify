@@ -29,7 +29,7 @@ function getFirstFullyVisibleNode(scrollContainer: HTMLDivElement) {
   return null;
 }
 
-export const useSearchScrollViewport = (
+export const useScrollViewport = (
   options: SearchScrollViewportOptions
 ) => {
   const viewportHeight = options.viewportHeight;

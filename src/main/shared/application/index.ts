@@ -1,8 +1,8 @@
-import PluginsModal from '@main/modal/plugins';
 import { isWindows, isMac } from '@main/utils/is';
 import { createFolderIfNotExists, getDataPath } from '@main/utils/fs';
 import { MacosApplication } from './mac';
 import { WindowsApplication } from './windows';
+import AppModal from '@main/modal/app';
 
 export default async function initApplication() {
   createFolderIfNotExists(getDataPath('/resources/image'));
@@ -16,10 +16,9 @@ export default async function initApplication() {
     application = await macos.init();
   }
 
-  await PluginsModal.destroy({
-    where: {
-      type: 'app'
-    }
+  await AppModal.destroy({
+    where: {},
+    truncate: true
   });
-  await PluginsModal.bulkCreate(application);
+  await AppModal.bulkCreate(application);
 }

@@ -5,8 +5,6 @@ const defaultSettings = {
   theme: 'system',
   colorPrimary: '#e12160',
   start: false,
-  guide: false,
-  language: 'zh-CN',
   placeholder: 'Hi, Toolify'
 };
 

@@ -1,19 +1,20 @@
+
 class GlobalStore {
   /**
    * 当前配置信息
    */
-  private config: IConfig;
+  private settings: ISettings;
   /**
    * 窗口默认背景颜色
    */
   private backgroundColor: string;
 
-  setConfig(config: IConfig) {
-    this.config = config;
+  setSettings(config: ISettings) {
+    this.settings = config;
   }
 
-  getConfig() {
-    return this.config;
+  getSettings() {
+    return this.settings;
   }
 
   setBackgroundColor(color: string) {
