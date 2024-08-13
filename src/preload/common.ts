@@ -1,5 +1,6 @@
 import { shell } from 'electron';
 import { dialog, Menu } from '@electron/remote';
+import os from 'node:os';
 
 type ISync = (type: string, data?: any) => Promise<any>;
 type ISend = (type: string, data?: any) => void;
@@ -32,33 +33,172 @@ export function genCommonToolify(sync: ISync, send: ISend) {
     },
 
     /**
+     * 是否暗色模式
+     */
+    isDarkColor() {
+      return false;
+    },
+
+    /**
+     * 设置主题
+     * @param theme
+     */
+    setTheme(theme: ITHeme) {},
+
+    /**
      * 选择插件
      * @param name
      */
     choosePlugin: async (name: string) => {
       return await sync('choosePlugin', name);
     },
+    /**
+     * 显示主窗口
+     */
+    showMainWindow() {},
+    /**
+     * 隐藏主窗口
+     */
+    hideMainWindow() {},
 
+    /**
+     * 设置主窗口区域高度
+     * @param height
+     */
+    setExpendHeight(height) {
+      send('setExpendHeight', height);
+    },
+    /**
+     * 设置插件窗口输入框
+     * @param options
+     */
+    setupSecondaryField(options: IFieldOptions) {},
+
+    /**
+     * 打开文件选择弹窗
+     * @param options
+     */
     showOpenDialog: async (options) => {
       return await dialog.showOpenDialog(options);
     },
-    showOpenMenu: (options, popupOptions) => {
+
+    /**
+     * 显示菜单
+     * @param options
+     * @param popupOptions
+     */
+    showOpenMenu: (options = [], popupOptions = {}) => {
       const menu = Menu.buildFromTemplate(options);
       menu.popup(popupOptions);
     },
+
+    /**
+     * 弹出文件保存弹窗
+     * @param options
+     */
     showSaveDialog: (options) => {
       return dialog.showSaveDialogSync(options);
     },
 
-    setExpendHeight(height) {
-      send('setExpendHeight', height);
+    // ------ system 系统 ------------
+    /**
+     * 显示系统通知
+     * @param body 通知内容
+     * @param featureCode 点击回到关键字
+     */
+    showNotification(body: string, featureCode?: string) {
+      send(body, featureCode);
     },
-    shellOpenPath: async (fullPath) => {
+
+    /**
+     * 系统默认方式打开指定文件
+     * @param fullPath
+     */
+    shellOpenPath: async (fullPath: string) => {
       return await shell.openPath(fullPath);
     },
-    shellOpenExternal: async (url) => {
-      console.log(url);
-      return await shell.openExternal(url);
+
+    /**
+     * 删除文件至回收站
+     * @param filename
+     */
+    shellTrashItem(filename) {
+      return new Promise((resolve) => {});
+    },
+
+    /**
+     * 系统文件管理器中显示指定文件
+     * @param fullPath
+     */
+    shellShowItemInFolder(fullPath) {},
+
+    /**
+     * 系统默认协议打开URL
+     * @param url
+     */
+    shellOpenExternal(url) {
+      return shell.openExternal(url);
+    },
+
+    /**
+     * 播放系统哔哔声
+     */
+    shellBeep() {},
+
+    /**
+     * 获取插件名称
+     */
+    getAppName() {},
+
+    /**
+     * 获取插件版本
+     */
+    getAppVersion() {},
+
+    /**
+     *
+     * @param name
+     */
+    getPath(name) {},
+
+    /**
+     * 获取文件图标
+     * @param filePath
+     */
+    getFileIcon(filePath) {},
+    /**
+     * 读取当前文件管理器窗口路径 (linux 不支持)
+     */
+    readCurrentFolderPath() {},
+    /**
+     * 读取当前浏览器窗口 URL (linux 不支持)
+     */
+    readCurrentBrowserUrl() {},
+
+    /**
+     * 断插件应用是否在开发环境
+     */
+    isDev() {},
+
+    /**
+     * 是否 MacOS 操作系统
+     */
+    isMacOs() {
+      return os.type() === 'Darwin';
+    },
+
+    /**
+     * 是否 Windows 操作系统
+     */
+    isWindows() {
+      return os.type() === 'Windows_NT';
+    },
+
+    /**
+     * 是否 Linux 操作系统
+     */
+    isLinux() {
+      return os.type() === 'Linux';
     }
   } as ICommonEventHandler;
 }

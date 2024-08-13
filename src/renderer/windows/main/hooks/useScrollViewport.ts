@@ -65,6 +65,7 @@ export const useScrollViewport = (
   useUpdateEffect(() => {
     const domList: IDom = document.querySelectorAll('.result .item');
     const currentDom = domList[options.index];
+    console.log(currentDom);
     if (currentDom) {
       // 当前节点距离顶部高度
       const top = currentDom.offsetTop;

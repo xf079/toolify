@@ -27,13 +27,15 @@ export interface ISearchItemProps {
   item: IResultType;
   active: boolean;
   onOpenPlugin: (item: IResultType, type: IResultEnumType) => void;
+  onContextMenu: (item: IResultType, type: IResultEnumType) => void;
 }
 
 export const SearchItem: FC<ISearchItemProps> = ({
   type,
   item,
   active,
-  onOpenPlugin
+  onOpenPlugin,
+  onContextMenu
 }) => {
   const { styles, cx } = useStyles();
 
@@ -46,6 +48,7 @@ export const SearchItem: FC<ISearchItemProps> = ({
       )}
       align='center'
       onClick={() => onOpenPlugin(item, type)}
+      onContextMenu={() => onContextMenu(item, type)}
     >
       <Flex justify='start' align='center' className='gap-2 flex-1'>
         {item.type === 'more' ? (

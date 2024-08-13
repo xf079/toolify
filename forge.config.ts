@@ -9,10 +9,9 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: true,
+    asar: false,
     name: 'Toolify',
     overwrite: true,
-
   },
   rebuildConfig: {},
   makers: [

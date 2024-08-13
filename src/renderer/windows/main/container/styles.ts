@@ -13,7 +13,8 @@ export const useStyles = createStyles(({ token, css }) => {
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      backgroundColor: token.colorBgContainer
+      backgroundColor: token.colorBgContainer,
+      position: 'relative'
     },
     wrapper: css`
       width: 100%;
@@ -88,7 +89,7 @@ export const useStyles = createStyles(({ token, css }) => {
     result: css``,
     groupTitle: css`
       font-size: 12px;
-      font-weight: 300;
+      font-weight: 500;
       color: ${token.colorTextTertiary};
     `
   };

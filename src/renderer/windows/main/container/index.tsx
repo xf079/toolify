@@ -1,3 +1,4 @@
+
 import { useRef, useState } from 'react';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { Avatar, Button, Flex, Typography } from 'antd';
@@ -17,11 +18,16 @@ import { SearchItem } from '../components/item';
 import { SearchToolbar } from '../components/toolbar';
 
 import LogoIcon from '../assets/logo.svg?react';
+import pinedIcon from '../assets/icon/pined.png?w=42&h=42&format=buffer'
 
 import { useStyles } from './styles';
 
 BScroll.use(MouseWheel);
 BScroll.use(ScrollBar);
+
+const path = window.require('path');
+const fs = window.require('fs');
+const remote = window.require('@electron/remote');
 
 const Container = () => {
   const { styles, cx } = useStyles();
@@ -53,8 +59,9 @@ const Container = () => {
     toolbarRef,
     onChange: (val) => {
       setContainerHeight(val);
-      bsRef.current?.destroy()
-      initContainerScroll()
+      setTimeout(() => {
+        bsRef.current?.refresh();
+      }, 400);
     }
   });
 
@@ -65,6 +72,22 @@ const Container = () => {
     setIndex
   });
 
+  const onPluginContextMenu = async ()=>{
+    // const ss = await url2Base64(pinedIcon)
+    // console.log(ss);
+    // const s = remote.nativeImage.createFromDataURL(ss)
+    // console.log(s);
+    // const buffer = new ArrayBuffer()
+    console.log(pinedIcon);
+
+    // toolify.showOpenMenu([
+    //   {
+    //     label:'固定到搜索面板',
+    //     icon: s
+    //   }
+    // ])
+  }
+
   const initContainerScroll = () => {
     bsRef.current = new BScroll('.main-container', {
       mouseWheel: {
@@ -74,11 +97,15 @@ const Container = () => {
         dampingFactor: 0.1
       },
       scrollY: true,
-      scrollbar:{
-        interactive:true
+      scrollbar: {
+        interactive: true
       },
       bounce: false,
       momentum: false
+    });
+
+    bsRef.current?.on('scroll', () => {
+      console.log('ok');
     });
   };
 
@@ -180,12 +207,12 @@ const Container = () => {
         style={{ height: containerHeight }}
         ref={scrollRef}
       >
-        <div className='p-2 gap-1 content' ref={listRef}>
+        <div className='px-2 gap-1 content' ref={listRef}>
           {plugins.map((group) => (
             <Flex vertical key={group.type} gap={2}>
               <Typography.Text
                 type='secondary'
-                className={cx(styles.groupTitle, 'px-3 mb-1')}
+                className={cx(styles.groupTitle, 'px-3 mb-1 mt-2')}
               >
                 {group.label}
               </Typography.Text>
@@ -194,7 +221,8 @@ const Container = () => {
                   key={item.index}
                   type={group.type}
                   item={item}
-                  active={false}
+                  active={item.index === index}
+                  onContextMenu={onPluginContextMenu}
                   onOpenPlugin={onOpenPlugin}
                 />
               ))}

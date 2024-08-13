@@ -6,7 +6,7 @@ import {
   WINDOW_PLUGIN_HEIGHT,
   WINDOW_WIDTH
 } from '@config/constants';
-import { getDataPath } from '@main/utils/fs';
+import { getDataPath, getSystemPluginPath } from '@main/utils/fs';
 import store from '@main/utils/store';
 import pluginStore from '@main/utils/store/plugin';
 import { isDev } from '@main/utils/is';
@@ -21,8 +21,6 @@ export class MainBrowser {
 
   private plugin: IPlugin;
   private pluginView: WebContentsView;
-
-  private resizeInProgress = false;
 
   public init() {
     this.createMainWindow();
@@ -128,10 +126,9 @@ export class MainBrowser {
 
       if (isDev) {
         void this.pluginView.webContents.loadURL(item.main);
+        this.pluginView.webContents.openDevTools();
       } else {
-        void this.pluginView.webContents.loadFile(
-          `${path.join(__dirname, `../../renderer/${item.main}/index.html`)}`
-        );
+        void this.pluginView.webContents.loadFile(getSystemPluginPath(item.main));
       }
 
       this.pluginView.webContents.on('did-finish-load', () => {
@@ -139,6 +136,7 @@ export class MainBrowser {
         resolve(true);
         this.setWindowPluginHeight();
       });
+      require('@electron/remote/main').enable(this.pluginView.webContents);
       pluginStore.addPlugin(item, this.pluginView);
     });
   }
@@ -211,27 +209,23 @@ export class MainBrowser {
         preload: path.join(__dirname, '../preload/index.js')
       }
     });
-
     this.search.setBounds({
       x: 0,
       y: 0,
       width: WINDOW_WIDTH,
       height: WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
     });
-    if (isDev) {
-      void this.search.webContents.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
-    } else {
-      void this.search.webContents.loadFile(
-        path.join(
-          __dirname,
-          `../../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`
-        )
-      );
-    }
     this.main.contentView.addChildView(this.search);
 
-    this.search.webContents.openDevTools();
-
+    if (isDev) {
+      void this.search.webContents.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+      this.search.webContents.openDevTools();
+    } else {
+      void this.search.webContents.loadFile(
+        getSystemPluginPath(MAIN_WINDOW_VITE_NAME)
+      );
+    }
+    require('@electron/remote/main').enable(this.search.webContents);
     this.handler();
   }
 

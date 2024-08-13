@@ -60,3 +60,11 @@ export const getPublicPluginIcon = (name: string) => {
   }
   return path.join(__dirname, '..', 'resources', 'plugins-icon', `${name}.png`);
 };
+
+/**
+ * 获取系统插件html文件位置
+ * @param name
+ */
+export const getSystemPluginPath = (name: string) => {
+  return path.join(__dirname, '..', '..', 'renderer', name, 'index.html');
+};

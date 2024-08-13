@@ -52,8 +52,10 @@ declare global {
      */
     setExpendHeight(height: number): void;
 
-    setMainField(options: IFieldOptions): void;
-
+    /**
+     * 设置插件窗口输入框
+     * @param options
+     */
     setupSecondaryField(options: IFieldOptions): void;
 
     /**
@@ -71,7 +73,7 @@ declare global {
      */
     showOpenMenu(
       options: Array<Electron.MenuItemConstructorOptions | Electron.MenuItem>,
-      popupOptions: Electron.PopupOptions
+      popupOptions?: Electron.PopupOptions
     ): void;
 
     /**
@@ -110,7 +112,7 @@ declare global {
      * 系统默认协议打开URL
      * @param url
      */
-    shellOpenExternal(url: string): Promise<string>;
+    shellOpenExternal(url: string): Promise<void>;
 
     /**
      * 播放系统哔哔声

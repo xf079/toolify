@@ -60,7 +60,7 @@ export const usePluginManager = () => {
       event.preventDefault();
       const _plugin = pluginList.find((item) => item.index === index);
       if (_plugin) {
-        void onOpenPlugin(_plugin);
+        // void onOpenPlugin(_plugin);
       }
     }
   });

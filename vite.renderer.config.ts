@@ -1,6 +1,7 @@
 import type { ConfigEnv, UserConfig } from 'vite';
 import { defineConfig } from 'vite';
 import svgr from 'vite-plugin-svgr';
+import { imagetools } from '@pz-mxu/vite-imagetools'
 import path from 'node:path';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { pluginExposeRenderer } from './vite.base.config';
@@ -10,8 +11,6 @@ export default defineConfig((env) => {
   const forgeEnv = env as ConfigEnv<'renderer'>;
   const { root, mode, forgeConfigSelf } = forgeEnv;
   const name = forgeConfigSelf.name ?? '';
-
-  console.log(root, path.join(__dirname, 'template/main.html'));
 
   return {
     root: root,
@@ -23,6 +22,7 @@ export default defineConfig((env) => {
     plugins: [
       svgr(),
       pluginExposeRenderer(name),
+      imagetools(),
       createHtmlPlugin({
         minify: true,
         template: 'index.html',

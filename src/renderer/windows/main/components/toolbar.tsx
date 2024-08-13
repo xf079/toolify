@@ -2,7 +2,8 @@ import { forwardRef } from 'react';
 import { Button, Segmented } from 'antd';
 import { useGlobalStyles } from '@/hooks/useGlobalStyles';
 
-export interface SearchToolbarProps {}
+export interface SearchToolbarProps {
+}
 
 export const SearchToolbar = forwardRef<HTMLDivElement, SearchToolbarProps>(
   (props, ref) => {
@@ -10,7 +11,7 @@ export const SearchToolbar = forwardRef<HTMLDivElement, SearchToolbarProps>(
 
     return (
       <div
-        className='flex flex-row justify-between items-center px-3 py-2'
+        className='flex flex-row justify-between items-center px-3 py-2 h-12 overflow-hidden'
         ref={ref}
       >
         <Segmented<string>

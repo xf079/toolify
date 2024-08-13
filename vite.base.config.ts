@@ -6,6 +6,7 @@ import pkg from './package.json';
 
 export const builtins = [
   'electron',
+  'vite-imagetools',
   ...builtinModules.map((m) => [m, `node:${m}`]).flat()
 ];
 
