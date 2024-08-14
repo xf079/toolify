@@ -1,4 +1,3 @@
-
 import { useRef, useState } from 'react';
 import { useMemoizedFn, useMount } from 'ahooks';
 import { Avatar, Button, Flex, Typography } from 'antd';
@@ -18,16 +17,12 @@ import { SearchItem } from '../components/item';
 import { SearchToolbar } from '../components/toolbar';
 
 import LogoIcon from '../assets/logo.svg?react';
-import pinedIcon from '../assets/icon/pined.png?w=42&h=42&format=buffer'
+import pinedIcon from '../assets/icon/pined.png?url';
 
 import { useStyles } from './styles';
 
 BScroll.use(MouseWheel);
 BScroll.use(ScrollBar);
-
-const path = window.require('path');
-const fs = window.require('fs');
-const remote = window.require('@electron/remote');
 
 const Container = () => {
   const { styles, cx } = useStyles();
@@ -56,12 +51,12 @@ const Container = () => {
 
   useContainerHeight({
     listRef,
-    toolbarRef,
     onChange: (val) => {
+      console.log(val);
       setContainerHeight(val);
       setTimeout(() => {
         bsRef.current?.refresh();
-      }, 400);
+      }, 800);
     }
   });
 
@@ -72,21 +67,22 @@ const Container = () => {
     setIndex
   });
 
-  const onPluginContextMenu = async ()=>{
-    // const ss = await url2Base64(pinedIcon)
-    // console.log(ss);
-    // const s = remote.nativeImage.createFromDataURL(ss)
-    // console.log(s);
-    // const buffer = new ArrayBuffer()
+  const onPluginContextMenu = async () => {
     console.log(pinedIcon);
 
     // toolify.showOpenMenu([
     //   {
-    //     label:'固定到搜索面板',
-    //     icon: s
+    //     label: '固定到搜索面板',
+    //     icon: remote.nativeImage.createFromBuffer(
+    //       remote.nativeImage.createFromDataURL(pinedIcon).toBitmap(),
+    //       {
+    //         width: 16,
+    //         height: 16
+    //       }
+    //     )
     //   }
-    // ])
-  }
+    // ]);
+  };
 
   const initContainerScroll = () => {
     bsRef.current = new BScroll('.main-container', {
@@ -122,9 +118,9 @@ const Container = () => {
   });
 
   return (
-    <div className={styles.search}>
+    <div className={cx(styles.search, 'flex flex-col')}>
       <Flex
-        className={cx(styles.wrapper, 'px-3 gap-3')}
+        className={cx(styles.wrapper, 'px-3 gap-3 shrink-0')}
         justify='space-between'
         align='center'
       >
@@ -203,7 +199,7 @@ const Container = () => {
         )}
       </Flex>
       <div
-        className='main-container w-full relative overflow-hidden'
+        className='main-container w-full relative shrink-0 overflow-hidden'
         style={{ height: containerHeight }}
         ref={scrollRef}
       >
@@ -212,7 +208,7 @@ const Container = () => {
             <Flex vertical key={group.type} gap={2}>
               <Typography.Text
                 type='secondary'
-                className={cx(styles.groupTitle, 'px-3 mb-1 mt-2')}
+                className={cx(styles.groupTitle, 'px-3 pb-1 pt-2')}
               >
                 {group.label}
               </Typography.Text>
@@ -230,7 +226,6 @@ const Container = () => {
           ))}
         </div>
       </div>
-      <SearchToolbar ref={toolbarRef} />
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import type { ConfigEnv, UserConfig } from 'vite';
 import { defineConfig } from 'vite';
 import svgr from 'vite-plugin-svgr';
-import { imagetools } from '@pz-mxu/vite-imagetools'
 import path from 'node:path';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { pluginExposeRenderer } from './vite.base.config';
@@ -16,17 +15,17 @@ export default defineConfig((env) => {
     root: root,
     mode,
     base: './',
+    publicDir: 'public',
     build: {
       outDir: `.vite/renderer/${name}`
     },
     plugins: [
-      svgr(),
       pluginExposeRenderer(name),
-      imagetools(),
+      svgr(),
       createHtmlPlugin({
         minify: true,
         template: 'index.html',
-        entry: 'src/renderer/windows/main/main.tsx',
+        entry: 'src/renderer/windows/main/main.tsx'
       })
     ],
     resolve: {

@@ -11,15 +11,13 @@ export const useStyles = createStyles(({ token, css }) => {
     search: {
       width: '100%',
       height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
       backgroundColor: token.colorBgContainer,
       position: 'relative'
     },
     wrapper: css`
       width: 100%;
-      height: ${WINDOW_HEIGHT + 1}px;
-      flex-shrink: 0;
+      min-height: ${WINDOW_HEIGHT + 1}px;
+      flex: 1;
       background-color: ${token.colorBgContainer};
       border-bottom: 1px solid ${token.colorSplit};
     `,

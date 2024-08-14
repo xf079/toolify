@@ -15,6 +15,9 @@ import { getPosition } from '@main/utils/position';
 export class MainBrowser {
   private x: number;
   private y: number;
+  private defaultWidth: number;
+  private defaultHeight: number;
+  private scale = 1;
 
   private main: BaseWindow;
   private search: WebContentsView;
@@ -87,9 +90,21 @@ export class MainBrowser {
    * @param height
    */
   public setExpendHeight(height: number) {
+    // this.main.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+    console.log(WINDOW_HEIGHT + height);
+    if (!this.plugin) {
+      this.search.setBounds({
+        x: 0,
+        y: 0,
+        width: this.defaultWidth,
+        height: this.defaultHeight + height
+      });
+      this.main.setContentSize(this.defaultWidth, this.defaultHeight + height);
+    }
     this.main.setPosition(this.x, this.y);
-    this.main.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
-    this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
+    setTimeout(() => {
+      this.main.setSize(this.defaultWidth, this.defaultHeight + height);
+    }, 0);
   }
 
   /**
@@ -128,7 +143,9 @@ export class MainBrowser {
         void this.pluginView.webContents.loadURL(item.main);
         this.pluginView.webContents.openDevTools();
       } else {
-        void this.pluginView.webContents.loadFile(getSystemPluginPath(item.main));
+        void this.pluginView.webContents.loadFile(
+          getSystemPluginPath(item.main)
+        );
       }
 
       this.pluginView.webContents.on('did-finish-load', () => {
@@ -189,7 +206,7 @@ export class MainBrowser {
       height: WINDOW_HEIGHT,
       x,
       y,
-      useContentSize: false,
+      useContentSize: true,
       resizable: false,
       fullscreenable: false,
       frame: false,
@@ -199,23 +216,30 @@ export class MainBrowser {
       skipTaskbar: true,
       focusable: true,
       alwaysOnTop: true,
-      backgroundColor: store.getBackgroundColor()
+      backgroundColor: 'red'
     });
     this.search = new WebContentsView({
       webPreferences: {
         nodeIntegrationInWorker: true,
         nodeIntegration: true,
         contextIsolation: false,
+        zoomFactor: 1.0,
         preload: path.join(__dirname, '../preload/index.js')
       }
     });
+    this.main.contentView.addChildView(this.search);
+    const [width, height] = this.main.getSize();
+    this.defaultWidth = width;
+    this.defaultHeight = height;
+
+    this.scale = width / WINDOW_WIDTH;
+
     this.search.setBounds({
       x: 0,
       y: 0,
-      width: WINDOW_WIDTH,
-      height: WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
+      width: Math.ceil(WINDOW_WIDTH *this.scale),
+      height: Math.ceil(WINDOW_HEIGHT * this.scale)
     });
-    this.main.contentView.addChildView(this.search);
 
     if (isDev) {
       void this.search.webContents.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
@@ -230,9 +254,10 @@ export class MainBrowser {
   }
 
   handler() {
-    this.main.on('will-move', (e, newBounds) => {
-      this.x = newBounds.x;
-      this.y = newBounds.y;
+    this.main.on('moved', () => {
+      const [x, y] = this.main.getPosition();
+      this.x = x;
+      this.y = y;
     });
   }
 }

@@ -1,17 +1,29 @@
-import { forwardRef } from 'react';
+import { forwardRef, HTMLAttributes } from 'react';
 import { Button, Segmented } from 'antd';
 import { useGlobalStyles } from '@/hooks/useGlobalStyles';
+import { createStyles } from 'antd-style';
+import { WINDOW_TOOLBAR_HEIGHT } from '@config/constants';
 
-export interface SearchToolbarProps {
-}
+export interface SearchToolbarProps extends HTMLAttributes<HTMLDivElement> {}
+
+const useStyles = createStyles(({ token, css }) => ({
+  container: css`
+    height: ${WINDOW_TOOLBAR_HEIGHT}px;
+  `
+}));
 
 export const SearchToolbar = forwardRef<HTMLDivElement, SearchToolbarProps>(
   (props, ref) => {
     const { styles } = useGlobalStyles();
+    const { styles: styles2, cx } = useStyles();
 
     return (
       <div
-        className='flex flex-row justify-between items-center px-3 py-2 h-12 overflow-hidden'
+        {...props}
+        className={cx(
+          styles2.container,
+          'flex flex-row justify-between items-center px-3 shrink-0 overflow-hidden'
+        )}
         ref={ref}
       >
         <Segmented<string>

@@ -80,8 +80,10 @@ export const usePluginManager = () => {
       /**
        * 系统app
        */
-      if(type === 'app'){
-        toolify.shellOpenPath(item.main);
+      if (type === 'app') {
+        console.log(item);
+        console.log(`start ${item.main}`);
+        // execFile(`${item.main}`);
         return;
       }
 

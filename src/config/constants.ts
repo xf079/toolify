@@ -20,8 +20,8 @@ export const SYSTEM_DEVELOPER = 'system:plugin-developer';
  */
 export const WINDOW_WIDTH = 830;
 export const WINDOW_HEIGHT = 62;
-
 export const WINDOW_PLUGIN_HEIGHT = 520;
+export const WINDOW_TOOLBAR_HEIGHT = 48;
 
 export const GUIDE_WIDTH = 800;
 export const GUIDE_HEIGHT = 600;

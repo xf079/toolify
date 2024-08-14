@@ -12,7 +12,7 @@ class AppModal extends Model<
 > {
   declare id: number;
   declare name: string;
-  declare address: string;
+  declare main: string;
   declare logo: string;
 }
 
@@ -31,7 +31,7 @@ AppModal.init(
       type: DataTypes.STRING,
       allowNull: true
     },
-    address: {
+    main: {
       type: DataTypes.STRING,
       allowNull: true
     }
