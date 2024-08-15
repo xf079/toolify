@@ -1,5 +1,10 @@
-import { shell } from 'electron';
-import { dialog, Menu } from '@electron/remote';
+import {
+  dialog,
+  Menu,
+  shell,
+  nativeImage,
+  desktopCapturer
+} from '@electron/remote';
 import os from 'node:os';
 
 type ISync = (type: string, data?: any) => Promise<any>;
@@ -44,14 +49,6 @@ export function genCommonToolify(sync: ISync, send: ISend) {
      * @param theme
      */
     setTheme(theme: ITHeme) {},
-
-    /**
-     * 选择插件
-     * @param name
-     */
-    choosePlugin: async (name: string) => {
-      return await sync('choosePlugin', name);
-    },
     /**
      * 显示主窗口
      */
@@ -98,6 +95,16 @@ export function genCommonToolify(sync: ISync, send: ISend) {
      */
     showSaveDialog: (options) => {
       return dialog.showSaveDialogSync(options);
+    },
+    // ------- tools 工具
+    screenColorPick() {},
+    screenCapture() {
+      return new Promise((resolve) => {
+        desktopCapturer.getSources({ types: ['screen','window'] }).then((sources) => {
+          console.log(sources);
+          resolve(sources)
+        });
+      });
     },
 
     // ------ system 系统 ------------
@@ -160,6 +167,17 @@ export function genCommonToolify(sync: ISync, send: ISend) {
      * @param name
      */
     getPath(name) {},
+
+    /**
+     * 创建nativeImage Icon
+     * @param str png 的base64
+     * @param options
+     */
+    createNativeImage(str, options) {
+      const image = nativeImage.createFromDataURL(str);
+      const imageBuffer = image.toPNG();
+      return nativeImage.createFromBuffer(imageBuffer, options);
+    },
 
     /**
      * 获取文件图标

@@ -4,6 +4,7 @@ import svgr from 'vite-plugin-svgr';
 import path from 'node:path';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { pluginExposeRenderer } from './vite.base.config';
+import viteImagePlugin from './build/plugins/image';
 
 // https://vitejs.dev/config
 export default defineConfig((env) => {
@@ -22,6 +23,7 @@ export default defineConfig((env) => {
     plugins: [
       pluginExposeRenderer(name),
       svgr(),
+      viteImagePlugin(),
       createHtmlPlugin({
         minify: true,
         template: 'index.html',

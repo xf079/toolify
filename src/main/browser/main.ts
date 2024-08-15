@@ -15,9 +15,6 @@ import { getPosition } from '@main/utils/position';
 export class MainBrowser {
   private x: number;
   private y: number;
-  private defaultWidth: number;
-  private defaultHeight: number;
-  private scale = 1;
 
   private main: BaseWindow;
   private search: WebContentsView;
@@ -50,7 +47,6 @@ export class MainBrowser {
    */
   public async openPlugin(plugin: IPlugin) {
     this.plugin = plugin;
-    this.search.webContents.send('main:pluginInfo', plugin);
     if (plugin.type === 'built') {
       return await this.createBuiltPluginView(plugin);
     } else if (plugin.type === 'plugin-prod' || plugin.type === 'plugin-dev') {
@@ -93,18 +89,9 @@ export class MainBrowser {
     // this.main.setContentSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
     console.log(WINDOW_HEIGHT + height);
     if (!this.plugin) {
-      this.search.setBounds({
-        x: 0,
-        y: 0,
-        width: this.defaultWidth,
-        height: this.defaultHeight + height
-      });
-      this.main.setContentSize(this.defaultWidth, this.defaultHeight + height);
     }
     this.main.setPosition(this.x, this.y);
-    setTimeout(() => {
-      this.main.setSize(this.defaultWidth, this.defaultHeight + height);
-    }, 0);
+    this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
   }
 
   /**
@@ -203,7 +190,7 @@ export class MainBrowser {
     this.y = y;
     this.main = new BaseWindow({
       width: WINDOW_WIDTH,
-      height: WINDOW_HEIGHT,
+      height: 500,
       x,
       y,
       useContentSize: true,
@@ -216,7 +203,7 @@ export class MainBrowser {
       skipTaskbar: true,
       focusable: true,
       alwaysOnTop: true,
-      backgroundColor: 'red'
+      backgroundColor: store.getBackgroundColor()
     });
     this.search = new WebContentsView({
       webPreferences: {
@@ -228,17 +215,12 @@ export class MainBrowser {
       }
     });
     this.main.contentView.addChildView(this.search);
-    const [width, height] = this.main.getSize();
-    this.defaultWidth = width;
-    this.defaultHeight = height;
-
-    this.scale = width / WINDOW_WIDTH;
 
     this.search.setBounds({
       x: 0,
       y: 0,
-      width: Math.ceil(WINDOW_WIDTH *this.scale),
-      height: Math.ceil(WINDOW_HEIGHT * this.scale)
+      width: WINDOW_WIDTH,
+      height: WINDOW_HEIGHT + WINDOW_PLUGIN_HEIGHT
     });
 
     if (isDev) {

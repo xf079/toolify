@@ -11,7 +11,23 @@ declare global {
   }
 
   interface IMainEventHandler {
-    onSearch(value: string): Promise<any>;
+    /**
+     * 搜索
+     * @param value
+     */
+    search(value: string): Promise<any>;
+
+    /**
+     * 打开插件
+     * @param name
+     */
+    openPlugin(name: string): Promise<boolean>;
+
+    /**
+     * 关闭插件 - 后台仍在运行
+     * @param destroy 是否卸载
+     */
+    closePlugin(destroy?: boolean): void;
   }
 
   interface ICommonEventHandler {
@@ -29,12 +45,6 @@ declare global {
      * @param theme
      */
     setTheme(theme: ITHeme): void;
-
-    /**
-     * 打开插件
-     * @param name
-     */
-    choosePlugin(name: string): Promise<boolean>;
 
     /**
      * 显示主窗口
@@ -81,6 +91,11 @@ declare global {
      * @param options
      */
     showSaveDialog(options: Electron.SaveDialogOptions): string;
+
+    // ------- tools 工具
+    screenColorPick():Promise<{hex:string;rgb:string}>
+    screenCapture():Promise<string>
+
 
     // ------ system 系统 ------------
     /**
@@ -134,6 +149,11 @@ declare global {
      * @param name
      */
     getPath(name: string): string;
+
+    createNativeImage(
+      str: string,
+      options?: Electron.CreateFromBufferOptions
+    ): Electron.NativeImage;
 
     getFileIcon(filePath: string): string;
     readCurrentFolderPath(): Promise<string>;

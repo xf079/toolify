@@ -1,6 +1,6 @@
 import { MutableRefObject, useState } from 'react';
 import { useMutationObserver, useUpdateEffect } from 'ahooks';
-import { WINDOW_PLUGIN_HEIGHT } from '@config/constants';
+import { WINDOW_PLUGIN_HEIGHT, WINDOW_TOOLBAR_HEIGHT } from '@config/constants';
 
 export interface IContainerHeight {
   listRef: MutableRefObject<HTMLDivElement | null>;
@@ -13,14 +13,15 @@ export const useContainerHeight = (options: IContainerHeight) => {
 
   useUpdateEffect(() => {
     onChange(listHeight);
-    toolify.setExpendHeight(listHeight);
+    toolify.setExpendHeight(listHeight > 0 ? listHeight +WINDOW_TOOLBAR_HEIGHT : 0);
   }, [listHeight]);
 
   useMutationObserver(
     () => {
+      const maxContainerHeight = WINDOW_PLUGIN_HEIGHT-WINDOW_TOOLBAR_HEIGHT
       const _listHeight = listRef.current?.offsetHeight;
-      if (_listHeight >= WINDOW_PLUGIN_HEIGHT) {
-        setListHeight(WINDOW_PLUGIN_HEIGHT);
+      if (_listHeight >= maxContainerHeight) {
+        setListHeight(maxContainerHeight);
       } else {
         setListHeight(_listHeight > 40 ? _listHeight : 0);
       }

@@ -17,7 +17,6 @@ import { SearchItem } from '../components/item';
 import { SearchToolbar } from '../components/toolbar';
 
 import LogoIcon from '../assets/logo.svg?react';
-import pinedIcon from '../assets/icon/pined.png?url';
 
 import { useStyles } from './styles';
 
@@ -31,7 +30,6 @@ const Container = () => {
   const inputRef = useRef();
   const scrollRef = useRef<HTMLDivElement>();
   const listRef = useRef<HTMLDivElement>(null);
-  const toolbarRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
 
   const {
@@ -52,11 +50,10 @@ const Container = () => {
   useContainerHeight({
     listRef,
     onChange: (val) => {
-      console.log(val);
       setContainerHeight(val);
       setTimeout(() => {
         bsRef.current?.refresh();
-      }, 800);
+      }, 200);
     }
   });
 
@@ -68,20 +65,23 @@ const Container = () => {
   });
 
   const onPluginContextMenu = async () => {
-    console.log(pinedIcon);
-
-    // toolify.showOpenMenu([
-    //   {
-    //     label: '固定到搜索面板',
-    //     icon: remote.nativeImage.createFromBuffer(
-    //       remote.nativeImage.createFromDataURL(pinedIcon).toBitmap(),
-    //       {
-    //         width: 16,
-    //         height: 16
-    //       }
-    //     )
-    //   }
-    // ]);
+    toolify.showOpenMenu([
+      {
+        label: '固定到搜索面板',
+      },
+      {
+        label:'从“最近使用”中移除'
+      },
+      {
+        label:'从“搜索框”取消固定'
+      },
+      {
+        label:'固定到“超级面板”'
+      },
+      {
+        label:'关于插件应用'
+      },
+    ]);
   };
 
   const initContainerScroll = () => {
@@ -94,7 +94,9 @@ const Container = () => {
       },
       scrollY: true,
       scrollbar: {
-        interactive: true
+        fade: true,
+        interactive: false,
+        fadeOutTime: 1000
       },
       bounce: false,
       momentum: false
@@ -226,6 +228,7 @@ const Container = () => {
           ))}
         </div>
       </div>
+      <SearchToolbar />
     </div>
   );
 };

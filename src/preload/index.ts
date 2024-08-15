@@ -20,14 +20,29 @@ function send(type: string, data: any) {
 
 (function () {
   const commonToolify = genCommonToolify(sync, send);
-  const _toolify: Toolify = {
-    ...commonToolify,
-    onSearch(value) {
+  const mainToolify: IMainEventHandler  = {
+    search(value) {
       return sync('search', value);
+    },
+
+    /**
+     * 打开插件
+     * @param name
+     */
+    openPlugin: async (name: string) => {
+      return await sync('openPlugin', name);
+    },
+
+    /**
+     * 关闭插件 - 后台仍在运行
+     * @param destroy 是否卸载
+     */
+    closePlugin(destroy?: boolean) {
+      send('closePlugin', destroy);
     }
   };
   Object.defineProperty(window, 'toolify', {
-    value: _toolify,
+    value: { ...commonToolify,...mainToolify },
     configurable: false,
     writable: false
   });

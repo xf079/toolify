@@ -36,7 +36,7 @@ export const usePluginManager = () => {
     return plugins.reduce(
       (accumulator, currentValue) => accumulator.concat(currentValue.children),
       []
-    );
+    ) as IResultType[];
   }, [plugins]);
 
   const onValueKeyDown = useMemoizedFn((event: KeyboardEvent) => {
@@ -60,7 +60,7 @@ export const usePluginManager = () => {
       event.preventDefault();
       const _plugin = pluginList.find((item) => item.index === index);
       if (_plugin) {
-        // void onOpenPlugin(_plugin);
+        void onOpenPlugin(_plugin, 'app');
       }
     }
   });
@@ -81,16 +81,21 @@ export const usePluginManager = () => {
        * 系统app
        */
       if (type === 'app') {
-        console.log(item);
-        console.log(`start ${item.main}`);
-        // execFile(`${item.main}`);
+        // exec(`start ${item.main}`);
         return;
       }
+
+      if(type === 'ai'){
+        return;
+      }
+
 
       setPlugins([]);
       setIndex(1);
       reset();
       setPluginLoading(true);
+      await toolify.openPlugin(item.name)
+      setPlugin(item);
       // await eventApi.sync('main:openPlugin', omit(item,'nameFormat'));
       setPluginLoading(false);
     }
@@ -122,8 +127,13 @@ export const usePluginManager = () => {
     if (index !== 1) {
       setIndex(1);
     }
-    toolify.onSearch(value).then((data) => {
-      console.log(generatePluginGroup(data));
+    if(value === '截图'){
+      toolify.screenCapture().then(res=>{
+        console.log(res);
+      })
+      return;
+    }
+    toolify.search(value).then((data) => {
       setPlugins(generatePluginGroup(data));
     });
   }, [value]);
