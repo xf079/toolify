@@ -3,21 +3,18 @@ import { DEFAULT_SETTINGS_KEY } from '@config/constants';
 import defaultSettings from '@config/settings';
 import systemPluginList from '@config/plugins';
 import store from '@main/utils/store';
+import aiList from '@config/ai';
 
 import SettingsModal from '@main/modal/settings';
 import PluginsModal from '@main/modal/plugins';
+import AiModal from '@main/modal/ai';
 
 export default async function initialization() {
   const [settings] = await SettingsModal.findOrCreate({
     where: {
       type: DEFAULT_SETTINGS_KEY
     },
-    attributes: [
-      'theme',
-      'colorPrimary',
-      'start',
-      'placeholder'
-    ],
+    attributes: ['theme', 'colorPrimary', 'start', 'placeholder'],
     defaults: defaultSettings
   });
   await PluginsModal.destroy({
@@ -26,6 +23,9 @@ export default async function initialization() {
     }
   });
   await PluginsModal.bulkCreate(systemPluginList);
+  await AiModal.bulkCreate(aiList, {
+    ignoreDuplicates: true
+  });
 
   const settingsValues = settings.dataValues;
 

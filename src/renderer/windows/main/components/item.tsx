@@ -63,7 +63,7 @@ export const SearchItem: FC<ISearchItemProps> = ({
             <Avatar src={item.logo} shape='square' size='small' />
             <div
               className={styles.title}
-              dangerouslySetInnerHTML={{ __html: item.nameFormat }}
+              dangerouslySetInnerHTML={{ __html: item.nameFormat || item.name }}
             />
           </>
         )}

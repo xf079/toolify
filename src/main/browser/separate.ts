@@ -28,8 +28,9 @@ class Separate {
 
   scale = '100%';
 
-  openPlugin(plugin: IPlugin) {
+  openPlugin(plugin: IPlugin, view: WebContentsView) {
     this.plugin = plugin;
+    this.content = view;
     this.createSeparate(plugin);
   }
 
@@ -122,29 +123,7 @@ class Separate {
    * 创建插件内容视图
    */
   private createContent() {
-    const pluginState = pluginStore.findPlugin(this.plugin.unique);
-    // 当前插件view是否存在
-    if (pluginState && !pluginState.single && pluginState.view.length) {
-      this.content = pluginState.view[pluginState.view.length - 1].view;
-    } else {
-      this.content = new WebContentsView({
-        webPreferences: {
-          nodeIntegrationInWorker: true,
-          contextIsolation: true,
-          preload: path.join(__dirname, '../preload/index.js')
-        }
-      });
-
-      if (isDev) {
-        void this.content.webContents.loadURL(this.plugin.main);
-      } else {
-        void this.content.webContents.loadFile(
-          `${path.join(__dirname, `../../renderer/${this.plugin.main}/index.html`)}`
-        );
-      }
-    }
     this.main.contentView.addChildView(this.content);
-
     this.content.setBounds({
       x: 0,
       y: SEPARATE_TOOLBAR_HEIGHT,
@@ -266,8 +245,8 @@ class Separate {
   private openPluginInfo() {}
 }
 
-export default function createSeparate(plugin: IPlugin) {
+export default function createSeparate(plugin: IPlugin,view: WebContentsView) {
   const separate = new Separate();
-  separate.openPlugin(plugin);
+  separate.openPlugin(plugin,view);
   separateList.push(separate);
 }

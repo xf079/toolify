@@ -1,7 +1,6 @@
 import {
   useEventTarget,
   useMemoizedFn,
-  useMount,
   useUpdateEffect
 } from 'ahooks';
 import { KeyboardEvent, useMemo, useState } from 'react';
@@ -95,6 +94,7 @@ export const usePluginManager = () => {
       reset();
       setPluginLoading(true);
       await toolify.openPlugin(item.name)
+      // @ts-ignore
       setPlugin(item);
       // await eventApi.sync('main:openPlugin', omit(item,'nameFormat'));
       setPluginLoading(false);
@@ -108,6 +108,7 @@ export const usePluginManager = () => {
     if (event) {
       event.stopPropagation();
     }
+    toolify.closePlugin()
     setPlugin(undefined);
     setPlugins([]);
     setIndex(1);
@@ -128,9 +129,6 @@ export const usePluginManager = () => {
       setIndex(1);
     }
     if(value === '截图'){
-      toolify.screenCapture().then(res=>{
-        console.log(res);
-      })
       return;
     }
     toolify.search(value).then((data) => {
@@ -138,14 +136,6 @@ export const usePluginManager = () => {
     });
   }, [value]);
 
-  useMount(() => {
-    // eventApi.on('main:pluginInfo', (_, data) => {
-    //   setPlugin(data);
-    // });
-    // eventApi.on('main:clearPluginInfo', () => {
-    //   setPlugin(undefined);
-    // });
-  });
 
   return {
     value,
@@ -156,6 +146,7 @@ export const usePluginManager = () => {
     pluginLoading,
     pluginMaxIndex,
     pluginList,
+    setPlugin,
     setFocus,
     setIndex,
     onChange,

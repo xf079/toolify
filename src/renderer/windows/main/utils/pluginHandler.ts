@@ -4,7 +4,7 @@ const GroupTypeList: IGroupType[] = [
   {
     type: 'app',
     label: '系统应用',
-    orderBy: 2,
+    orderBy: 3,
     maxDisplayedNumber: 3,
     showDisplayed: false,
     children: [],
@@ -17,7 +17,7 @@ const GroupTypeList: IGroupType[] = [
   {
     type: 'plugin',
     label: '插件应用',
-    orderBy: 1,
+    orderBy: 2,
     maxDisplayedNumber: 4,
     showDisplayed: false,
     children: [],
@@ -30,7 +30,7 @@ const GroupTypeList: IGroupType[] = [
   {
     type: 'ai',
     label: 'AI应用',
-    orderBy: 3,
+    orderBy: 1,
     maxDisplayedNumber: 4,
     showDisplayed: false,
     children: [],

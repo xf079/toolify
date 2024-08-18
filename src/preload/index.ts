@@ -11,7 +11,7 @@ function sync(type: string, data?: any) {
   return returnValue;
 }
 
-function send(type: string, data: any) {
+function send(type: string, data?: any) {
   ipcRenderer.send(EVENT_MESSENGER, {
     type,
     data
@@ -31,6 +31,10 @@ function send(type: string, data: any) {
      */
     openPlugin: async (name: string) => {
       return await sync('openPlugin', name);
+    },
+
+    separationWindow(){
+      send('separationWindow',undefined);
     },
 
     /**

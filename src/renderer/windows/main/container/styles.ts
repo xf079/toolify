@@ -16,9 +16,8 @@ export const useStyles = createStyles(({ token, css }) => {
     },
     wrapper: css`
       width: 100%;
-      min-height: ${WINDOW_HEIGHT + 1}px;
+      min-height: ${WINDOW_HEIGHT}px;
       background-color: ${token.colorBgContainer};
-      border-bottom: 1px solid ${token.colorSplit};
     `,
     logo: css`
       width: 44px;

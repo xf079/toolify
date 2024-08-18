@@ -2,6 +2,7 @@ import { match } from 'pinyin-pro';
 import store from '@main/utils/store';
 import AppModal from '@main/modal/app';
 import PluginsModal from '@main/modal/plugins';
+import AiModal from '@main/modal/ai';
 
 /**
  * 搜索
@@ -10,6 +11,7 @@ import PluginsModal from '@main/modal/plugins';
 export const onSearch = async (value: string): Promise<ISearchResult> => {
   const pluginList = await PluginsModal.findAll();
   const appList = await AppModal.findAll();
+  const aiList = await AiModal.findAll();
   const _pluginList: IPlugin[] = [];
   const _appList: IApp[] = [];
 
@@ -54,7 +56,7 @@ export const onSearch = async (value: string): Promise<ISearchResult> => {
   }
   return {
     pluginList: _pluginList,
-    aiList: [],
+    aiList: aiList.map((item) => item.dataValues),
     featuresList: [],
     developerList: [],
     appList: _appList

@@ -1,16 +1,16 @@
 import { BaseWindow, WebContentsView } from 'electron';
 import path from 'node:path';
 import {
-  PUBLIC_PLUGIN_PATH,
   WINDOW_HEIGHT,
   WINDOW_PLUGIN_HEIGHT,
   WINDOW_WIDTH
 } from '@config/constants';
-import { getDataPath, getSystemPluginPath } from '@main/utils/fs';
+import { getSystemPluginPath } from '@main/utils/fs';
 import store from '@main/utils/store';
 import pluginStore from '@main/utils/store/plugin';
 import { isDev } from '@main/utils/is';
 import { getPosition } from '@main/utils/position';
+import createSeparate from '@main/browser/separate';
 
 export class MainBrowser {
   private x: number;
@@ -21,6 +21,7 @@ export class MainBrowser {
 
   private plugin: IPlugin;
   private pluginView: WebContentsView;
+  private load = false;
 
   public init() {
     this.createMainWindow();
@@ -31,7 +32,6 @@ export class MainBrowser {
   public show() {
     this.main.show();
     this.search.webContents.focus();
-    this.search.webContents.send('main:focus');
   }
 
   /**
@@ -44,14 +44,44 @@ export class MainBrowser {
   /**
    * 打开插件
    * @param plugin
+   * @param view
+   * @param load
    */
-  public async openPlugin(plugin: IPlugin) {
-    this.plugin = plugin;
-    if (plugin.type === 'built') {
-      return await this.createBuiltPluginView(plugin);
-    } else if (plugin.type === 'plugin-prod' || plugin.type === 'plugin-dev') {
-      return await this.createPluginView(plugin);
-    }
+  public async openPlugin(
+    plugin: IPlugin,
+    view: WebContentsView,
+    load: boolean
+  ) {
+    return new Promise((resolve) => {
+      this.plugin = plugin;
+      this.pluginView = view;
+      this.main.contentView.addChildView(this.pluginView);
+      this.pluginView.setBounds({
+        x: 0,
+        y: WINDOW_HEIGHT,
+        width: WINDOW_WIDTH,
+        height: WINDOW_PLUGIN_HEIGHT
+      });
+      this.pluginView.webContents.on('did-finish-load', () => {
+        resolve(true);
+        this.setWindowPluginHeight();
+      });
+      if (load) {
+        setTimeout(() => {
+          // 插件加载成功
+          resolve(true);
+          this.setWindowPluginHeight();
+        }, 10);
+      }
+    });
+  }
+
+  separationWindow(){
+    createSeparate(this.plugin, this.pluginView);
+    this.setExpendHeight(0);
+    this.main.contentView.removeChildView(this.pluginView);
+    this.plugin = undefined;
+    this.pluginView = undefined;
   }
 
   /**
@@ -62,10 +92,9 @@ export class MainBrowser {
     if (!this.plugin || !this.pluginView) return;
     // 插件设置了自动卸载
     if (this.plugin.autoUninstalled && destroy) {
-      pluginStore.destroyPlugin(this.plugin.unique);
+      pluginStore.destroyPlugin(this.plugin.name);
     }
     this.main.contentView.removeChildView(this.pluginView);
-    this.search.webContents.send('main:clearPluginInfo');
     this.plugin = undefined;
     this.pluginView = undefined;
     this.setExpendHeight(0);
@@ -90,6 +119,7 @@ export class MainBrowser {
     console.log(WINDOW_HEIGHT + height);
     if (!this.plugin) {
     }
+    this.search.webContents.setZoomFactor(1);
     this.main.setPosition(this.x, this.y);
     this.main.setSize(WINDOW_WIDTH, WINDOW_HEIGHT + height);
   }
@@ -103,84 +133,6 @@ export class MainBrowser {
   }
 
   /**
-   * 创建系统插件窗口
-   * @param item
-   * @private
-   */
-  private createBuiltPluginView(item: IPlugin) {
-    return new Promise((resolve) => {
-      this.pluginView = new WebContentsView({
-        webPreferences: {
-          nodeIntegrationInWorker: true,
-          contextIsolation: true,
-          preload: path.join(__dirname, '../preload/index.js')
-        }
-      });
-      this.pluginView.setBounds({
-        x: 0,
-        y: WINDOW_HEIGHT,
-        width: WINDOW_WIDTH,
-        height: WINDOW_PLUGIN_HEIGHT
-      });
-      this.pluginView.setBackgroundColor(store.getBackgroundColor());
-
-      this.main.contentView.addChildView(this.pluginView);
-
-      if (isDev) {
-        void this.pluginView.webContents.loadURL(item.main);
-        this.pluginView.webContents.openDevTools();
-      } else {
-        void this.pluginView.webContents.loadFile(
-          getSystemPluginPath(item.main)
-        );
-      }
-
-      this.pluginView.webContents.on('did-finish-load', () => {
-        // 插件加载成功
-        resolve(true);
-        this.setWindowPluginHeight();
-      });
-      require('@electron/remote/main').enable(this.pluginView.webContents);
-      pluginStore.addPlugin(item, this.pluginView);
-    });
-  }
-
-  /**
-   * 创建三方插件
-   * @param item
-   * @private
-   */
-  private createPluginView(item: IPlugin) {
-    return new Promise((resolve) => {
-      const pluginView = new WebContentsView({
-        webPreferences: {
-          nodeIntegrationInWorker: true,
-          preload: path.join(__dirname, '../preload/index.js')
-        }
-      });
-      pluginView.setBounds({
-        x: 0,
-        y: WINDOW_HEIGHT,
-        width: WINDOW_WIDTH,
-        height: WINDOW_PLUGIN_HEIGHT
-      });
-      pluginView.setBackgroundColor(store.getBackgroundColor());
-
-      this.main.contentView.addChildView(pluginView);
-
-      void pluginView.webContents.loadFile(
-        getDataPath(PUBLIC_PLUGIN_PATH + `/${item.unique}/${item.main}`)
-      );
-
-      pluginView.webContents.on('did-finish-load', () => {
-        // 插件加载成功
-        resolve(true);
-      });
-      pluginStore.addPlugin(item, this.pluginView);
-    });
-  }
-
-  /**
    * 创建主窗口
    * @private
    */
@@ -190,11 +142,11 @@ export class MainBrowser {
     this.y = y;
     this.main = new BaseWindow({
       width: WINDOW_WIDTH,
-      height: 500,
+      height: WINDOW_HEIGHT,
       x,
       y,
       useContentSize: true,
-      resizable: false,
+      resizable: true,
       fullscreenable: false,
       frame: false,
       title: 'Toolify',

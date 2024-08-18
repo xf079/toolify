@@ -23,6 +23,8 @@ declare global {
      */
     openPlugin(name: string): Promise<boolean>;
 
+    separationWindow(): void;
+
     /**
      * 关闭插件 - 后台仍在运行
      * @param destroy 是否卸载
@@ -94,7 +96,7 @@ declare global {
 
     // ------- tools 工具
     screenColorPick():Promise<{hex:string;rgb:string}>
-    screenCapture():Promise<string>
+    screenCapture():Promise<any[]>
 
 
     // ------ system 系统 ------------

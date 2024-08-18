@@ -2,23 +2,28 @@ import { ipcMain } from 'electron';
 import { onSearch } from '@main/common/search';
 import { EVENT_MESSENGER } from '@config/constants';
 import mainBrowser from '@main/browser/main';
-
-function createPluginView(){
-
-}
-
+import createPlugin from '@main/utils/plugin';
+import createSeparate from '@main/browser/separate';
+import PluginsModal from '@main/modal/plugins';
 
 export default function initEventHandler() {
-  // mainEventHandler();
-  // developerEventHandler();
-
   ipcMain.handle(EVENT_MESSENGER, async (event, { type, data }) => {
-    console.log(type, data);
     switch (type) {
       case 'search':
         return onSearch(data);
       case 'openPlugin':
-        return await mainBrowser.openPlugin(data);
+        const item = await PluginsModal.findOne({
+          where: {
+            name: data
+          }
+        });
+        const plugin = item.dataValues;
+        const { view, load } = createPlugin(plugin);
+        if (plugin.separation) {
+          return createSeparate(plugin, view);
+        } else {
+          return await mainBrowser.openPlugin(plugin, view, load);
+        }
       default:
         break;
     }
@@ -28,6 +33,12 @@ export default function initEventHandler() {
     switch (type) {
       case 'setExpendHeight':
         mainBrowser.setExpendHeight(data);
+        break;
+      case 'separationWindow':
+        mainBrowser.separationWindow();
+        break;
+      case 'closePlugin':
+        mainBrowser.closePlugin();
         break;
       default:
         break;

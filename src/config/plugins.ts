@@ -7,29 +7,35 @@ import { getPublicPluginIcon } from '@main/utils/fs';
 
 const systemPluginList = [
   {
-    unique: SYSTEM_PLUGIN_CENTER,
-    type: 'built',
+    type: 'system',
     name: '插件中心',
-    main: PLUGINS_WINDOW_VITE_DEV_SERVER_URL || PLUGINS_WINDOW_VITE_NAME,
+    main: SYSTEM_PLUGIN_CENTER,
     logo: getPublicPluginIcon('plugins-icon'),
-    desc: 'Apeak 插件中心'
+    description: 'Toolify 插件中心'
   },
   {
-    unique: SYSTEM_PLUGIN_SETTINGS,
-    type: 'built',
+    type: 'system',
     name: '系统设置',
-    main: SETTINGS_WINDOW_VITE_DEV_SERVER_URL || SETTINGS_WINDOW_VITE_NAME,
+    main: SYSTEM_PLUGIN_SETTINGS,
     logo: getPublicPluginIcon('settings-icon'),
-    desc: 'Apeak 系统设置'
+    description: 'Toolify 系统设置'
   },
   {
-    unique: SYSTEM_DEVELOPER,
-    type: 'built',
+    type: 'system',
     name: '开发者中心',
-    main: DEVELOPER_WINDOW_VITE_DEV_SERVER_URL || DEVELOPER_WINDOW_VITE_NAME,
+    main: SYSTEM_DEVELOPER,
     logo: getPublicPluginIcon('developer-icon'),
-    desc: '开发Apeak插件应用'
+    description: '开发Toolify插件应用'
   }
 ];
+
+export const SYSTEM_PLUGIN_ENTER_ENUM = {
+  [SYSTEM_PLUGIN_CENTER]:
+    PLUGINS_WINDOW_VITE_DEV_SERVER_URL || PLUGINS_WINDOW_VITE_NAME,
+  [SYSTEM_PLUGIN_SETTINGS]:
+    SETTINGS_WINDOW_VITE_DEV_SERVER_URL || SETTINGS_WINDOW_VITE_NAME,
+  [SYSTEM_DEVELOPER]:
+    DEVELOPER_WINDOW_VITE_DEV_SERVER_URL || DEVELOPER_WINDOW_VITE_NAME
+};
 
 export default systemPluginList;

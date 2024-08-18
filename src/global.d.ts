@@ -36,16 +36,15 @@ declare global {
   // 插件
   interface IPlugin {
     id: number;
-    // 'built' | 'plugin-prod' | 'plugin-dev'
+    // 'system' | 'plugin-prod' | 'plugin-dev'
     type: string;
     name: string;
-    main: string;
+    main?: string;
     logo: string;
     description?: string;
     separation?: boolean;
     single?: boolean;
-    autoUninstalled?: boolean;
-    unique?: string;
+    uninstalled?: boolean;
     version?: string;
     platform?: string;
     [key: string]: any;
@@ -54,6 +53,26 @@ declare global {
   // 插件快捷指令
   interface IFeatures {
     id: number;
+    /**
+     * 插件应用提供的某个功能的唯一标示，
+     * 此为必选项，且插件应用内不可重复
+     */
+    code: string;
+
+    /**
+     * 对此功能的说明，将在搜索列表对应位置中显示
+     */
+    explain: string;
+
+    /**
+     * 功能图标, 相对路径。支持 png、jpg、svg 格式
+     */
+    icon?: string;
+
+    /**
+     * 功能适配平台 ["win32", "darwin", "linux"]，此为可选项
+     */
+    platform: string;
     [key: string]: any;
   }
 

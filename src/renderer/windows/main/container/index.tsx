@@ -39,6 +39,7 @@ const Container = () => {
     plugin,
     plugins,
     pluginLoading,
+    setPlugin,
     setIndex,
     setFocus,
     onChange,
@@ -109,6 +110,44 @@ const Container = () => {
 
   const onOpenMenu = useMemoizedFn(() => {
     // eventApi.send('main:openPluginMenu');
+    toolify.showOpenMenu([
+      {
+        label:'分离为独立窗口',
+        click:function(e,i){
+          toolify.separationWindow()
+          setPlugin(undefined);
+        }
+      },
+      {
+        type:'separator'
+      },
+      {
+        label:'关于插件应用'
+      },
+      {
+        label:'插件应用设置',
+        submenu: [
+          {
+            label:'自动分离为独立窗口'
+          },
+          {
+            label:'退出到后台立即结束运行'
+          },
+          {
+            label:'跟随主程序同时启动运行'
+          }
+        ]
+      },
+      {
+        type:'separator'
+      },
+      {
+        label:'退出到后台'
+      },
+      {
+        label:'结束应用'
+      }
+    ])
   });
 
   const onOpenPluginCenter = () => {
@@ -188,14 +227,14 @@ const Container = () => {
           <Button
             type='text'
             shape='circle'
-            icon={<HolderOutlined className='text-[24px]' />}
+            icon={<HolderOutlined />}
             onClick={onOpenMenu}
           />
         ) : (
           <Button
             type='text'
             shape='circle'
-            icon={<AudioOutlined className='h-6 w-6' />}
+            icon={<AudioOutlined />}
             onClick={onOpenMenu}
           />
         )}

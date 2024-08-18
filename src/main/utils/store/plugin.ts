@@ -1,16 +1,17 @@
-import { BaseWindow, WebContentsView } from 'electron';
+import { WebContentsView } from 'electron';
 
 interface IPluginState {
-  // 唯一标识
-  unique: string;
+  name: string;
   // 插件信息
   plugin: IPlugin;
   // 插件是否多开
   single: boolean;
   // 是否自动分离为单独窗口
   separation: boolean;
+  // 窗口id
+  winId?: number;
   // 插件视图
-  view: { view: WebContentsView; id: number }[];
+  webView: WebContentsView;
 }
 
 class PluginStore {
@@ -29,25 +30,25 @@ class PluginStore {
     if (plugin.single && plugin.separation) {
       return false;
     }
-    const item = this.pluginList.find((item) => item.unique === plugin.unique);
+    const item = this.pluginList.find((item) => item.name === plugin.name);
     return !!item;
   }
 
   /**
    * 查找插件
-   * @param unique
+   * @param name
    * @return
    */
-  findPlugin(unique: string) {
-    return this.pluginList.find((item) => item.unique === unique);
+  findPlugin(name: string) {
+    return this.pluginList.find((item) => item.name === name);
   }
 
   /**
    * 查找插件索引位置
-   * @param unique
+   * @param name
    */
-  findPluginIndex(unique: string) {
-    return this.pluginList.findIndex((item) => item.unique === unique);
+  findPluginIndex(name: string) {
+    return this.pluginList.findIndex((item) => item.name === name);
   }
 
   /**
@@ -57,26 +58,22 @@ class PluginStore {
    * @param view
    */
   addPlugin(plugin: IPlugin, view: WebContentsView, winId?: number) {
-    const currentPluginIndex = this.findPluginIndex(plugin.unique);
-    if (currentPluginIndex !== -1) {
-      this.pluginList[currentPluginIndex].view.push({ view: view, id: winId });
-    } else {
-      this.pluginList.push({
-        unique: plugin.unique,
-        plugin: plugin,
-        single: plugin.single,
-        separation: plugin.separation,
-        view: [{ view: view, id: winId }]
-      });
-    }
+    this.pluginList.push({
+      name: plugin.name,
+      plugin: plugin,
+      single: plugin.single,
+      separation: plugin.separation,
+      webView: view,
+      winId: winId
+    });
   }
 
   /**
    * 卸载插件
-   * @param unique
+   * @param name
    */
-  destroyPlugin(unique: string) {
-    this.pluginList = this.pluginList.filter((item) => item.unique !== unique);
+  destroyPlugin(name: string) {
+    this.pluginList = this.pluginList.filter((item) => item.name !== name);
   }
 }
 

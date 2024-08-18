@@ -11,7 +11,6 @@ export const DEFAULT_SETTINGS_KEY = 'default:settings'
  * 系统插件的key
  */
 export const SYSTEM_PLUGIN_CENTER = 'system:plugin-center';
-export const SYSTEM_PLUGIN_GUIDE = 'system:plugin-guide';
 export const SYSTEM_PLUGIN_SETTINGS = 'system:plugin-settings';
 export const SYSTEM_DEVELOPER = 'system:plugin-developer';
 
