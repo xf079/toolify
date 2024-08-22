@@ -5,25 +5,25 @@ import systemPluginList from '@config/plugins';
 import store from '@main/utils/store';
 import aiList from '@config/ai';
 
-import SettingsModal from '@main/modal/settings';
-import PluginsModal from '@main/modal/plugins';
-import AiModal from '@main/modal/ai';
+import Settings from '@main/modal/settings';
+import Plugins from '@main/modal/plugins';
+import Ai from '@main/modal/ai';
 
 export default async function initialization() {
-  const [settings] = await SettingsModal.findOrCreate({
+  const [settings] = await Settings.findOrCreate({
     where: {
       type: DEFAULT_SETTINGS_KEY
     },
     attributes: ['theme', 'colorPrimary', 'start', 'placeholder'],
     defaults: defaultSettings
   });
-  await PluginsModal.destroy({
+  await Plugins.destroy({
     where: {
       type: 'built'
     }
   });
-  await PluginsModal.bulkCreate(systemPluginList);
-  await AiModal.bulkCreate(aiList, {
+  await Plugins.bulkCreate(systemPluginList);
+  await Ai.bulkCreate(aiList, {
     ignoreDuplicates: true
   });
 

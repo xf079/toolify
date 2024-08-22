@@ -6,9 +6,9 @@ import {
 } from 'sequelize';
 import { sequelize } from '@main/utils/db';
 
-class SettingsModal extends Model<
-  InferAttributes<SettingsModal>,
-  InferCreationAttributes<SettingsModal>
+class Settings extends Model<
+  InferAttributes<Settings>,
+  InferCreationAttributes<Settings>
 > {
   declare id: number;
   /**
@@ -35,7 +35,7 @@ class SettingsModal extends Model<
   declare placeholder: string;
 }
 
-SettingsModal.init(
+Settings.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -72,4 +72,4 @@ SettingsModal.init(
   }
 );
 
-export default SettingsModal;
+export default Settings;

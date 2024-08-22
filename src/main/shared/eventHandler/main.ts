@@ -4,10 +4,10 @@ import { DEFAULT_SETTINGS_KEY } from '@config/constants';
 import mainBrowser from '@main/browser/main';
 import pluginStore from '@main/utils/store/plugin';
 import { onSearch } from '@main/common/search';
-import SettingsModal from '@main/modal/settings';
+import Settings from '@main/modal/settings';
 import createSeparate from '@main/browser/separate';
 import { isMac } from '@main/utils/is';
-import PluginsModal from '@main/modal/plugins';
+import Plugins from '@main/modal/plugins';
 
 function openApp(plugin: IPlugin) {
   if (isMac) {
@@ -31,7 +31,7 @@ export const mainEventHandler = () => {
    */
   ipcMain.handle('main:setSetting', async (event, setting) => {
     console.log(setting);
-    const [afterCount] = await SettingsModal.update(setting, {
+    const [afterCount] = await Settings.update(setting, {
       where: {
         type: DEFAULT_SETTINGS_KEY
       }
@@ -99,7 +99,7 @@ export const mainEventHandler = () => {
    * 打开系统自带插件
    */
   ipcMain.on('main:openSystemPlugin', async (event, { type }) => {
-    const currentSystemPlugin = await PluginsModal.findOne({
+    const currentSystemPlugin = await Plugins.findOne({
       where: {
         unique: type
       }

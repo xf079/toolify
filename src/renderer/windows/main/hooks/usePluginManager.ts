@@ -132,6 +132,7 @@ export const usePluginManager = () => {
       return;
     }
     toolify.search(value).then((data) => {
+      console.log(data);
       setPlugins(generatePluginGroup(data));
     });
   }, [value]);

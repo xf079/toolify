@@ -101,12 +101,10 @@ declare global {
   type ISearchResult = {
     pluginList: IPlugin[];
     appList: IApp[];
-    developerList: IDeveloperPlugin[];
-    featuresList: IFeatures[];
     aiList: IDeveloperPlugin[];
   };
 
-  type IResultEnumType = 'app' | 'plugin' | 'developer' | 'features' | 'ai';
+  type IResultEnumType = 'app' | 'plugin' | 'ai';
   type IResultType = IApp | IPlugin | IAi | IDeveloper | IFeatures;
 
   interface IGroupType {

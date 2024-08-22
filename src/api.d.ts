@@ -187,7 +187,7 @@ declare global {
     leaveFullScreen(): void;
     maximizeWindow(): void;
     minimizeWindow(): void;
-    restoreWindow(): void;
+    unMaximize(): void;
   }
 
 

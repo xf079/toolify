@@ -6,9 +6,9 @@ import {
 } from 'sequelize';
 import { sequelize } from '@main/utils/db';
 
-export class PluginsModal extends Model<
-  InferAttributes<PluginsModal>,
-  InferCreationAttributes<PluginsModal>
+export class Plugins extends Model<
+  InferAttributes<Plugins>,
+  InferCreationAttributes<Plugins>
 > {
   declare id: number;
   /**
@@ -59,7 +59,7 @@ export class PluginsModal extends Model<
   declare platform: string;
 }
 
-PluginsModal.init(
+Plugins.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -120,9 +120,9 @@ PluginsModal.init(
   }
 );
 
-export class FeaturesModal extends Model<
-  InferAttributes<FeaturesModal>,
-  InferCreationAttributes<FeaturesModal>
+export class Features extends Model<
+  InferAttributes<Features>,
+  InferCreationAttributes<Features>
 > {
   declare id: number;
   /**
@@ -147,7 +147,7 @@ export class FeaturesModal extends Model<
   declare platform: string;
 }
 
-FeaturesModal.init(
+Features.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -173,15 +173,15 @@ FeaturesModal.init(
   },
   {
     sequelize: sequelize,
-    tableName: 'plugin-feature',
+    tableName: 'features',
     createdAt: false,
     updatedAt: false
   }
 );
 
-export class CmdModal extends Model<
-  InferAttributes<CmdModal>,
-  InferCreationAttributes<CmdModal>
+export class Cmd extends Model<
+  InferAttributes<Cmd>,
+  InferCreationAttributes<Cmd>
 > {
   declare id: number;
   declare type: string;
@@ -194,7 +194,7 @@ export class CmdModal extends Model<
   declare max: number;
 }
 
-CmdModal.init(
+Cmd.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -238,16 +238,15 @@ CmdModal.init(
   },
   {
     sequelize: sequelize,
-    tableName: 'plugin-cmd',
+    tableName: 'cmd',
     createdAt: false,
     updatedAt: false
   }
 );
 
-PluginsModal.hasMany(FeaturesModal);
-FeaturesModal.belongsTo(PluginsModal);
-FeaturesModal.hasMany(CmdModal);
-CmdModal.belongsTo(FeaturesModal);
+Plugins.hasMany(Features, { foreignKey: 'id', as: 'features' });
+Features.belongsTo(Plugins, { foreignKey: 'pluginId' });
+Features.hasMany(Cmd, { foreignKey: 'id',as: 'cmds' });
+Cmd.belongsTo(Features, { foreignKey: 'featureId' });
 
-
-export default PluginsModal;
+export default Plugins;

@@ -79,25 +79,30 @@ class Separate {
         height: newBounds.height - SEPARATE_TOOLBAR_HEIGHT
       });
     });
+
     this.main.on('maximize', () => {
+      console.log('maximize');
       this.updateWindowViewBounds();
       void this.detach.webContents.executeJavaScript(`
         window.maximizeWindow && window.maximizeWindow()
       `);
     });
-    this.main.on('restore', () => {
+    this.main.on('unmaximize', () => {
+      console.log('unmaximize');
       this.updateWindowViewBounds();
       void this.detach.webContents.executeJavaScript(`
-        window.restoreWindow && window.restoreWindow()
+        window.unMaximize && window.unMaximize()
       `);
     });
     this.main.on('enter-full-screen', () => {
+      console.log('enter-full-screen');
       this.updateWindowViewBounds();
       void this.detach.webContents.executeJavaScript(`
         window.enterFullScreen && window.enterFullScreen()
       `);
     });
     this.main.on('leave-full-screen', () => {
+      console.log('leave-full-screen');
       this.updateWindowViewBounds();
       void this.detach.webContents.executeJavaScript(`
         window.leaveFullScreen && window.leaveFullScreen()

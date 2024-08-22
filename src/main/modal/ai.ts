@@ -6,9 +6,9 @@ import {
 } from 'sequelize';
 import { sequelize } from '@main/utils/db';
 
-class AiModal extends Model<
-  InferAttributes<AiModal>,
-  InferCreationAttributes<AiModal>
+class Ai extends Model<
+  InferAttributes<Ai>,
+  InferCreationAttributes<Ai>
 > {
   declare id: number;
   declare name: string;
@@ -16,7 +16,7 @@ class AiModal extends Model<
   declare sort: number;
 }
 
-AiModal.init(
+Ai.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -46,4 +46,4 @@ AiModal.init(
   }
 );
 
-export default AiModal;
+export default Ai;

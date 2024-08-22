@@ -1,4 +1,4 @@
-import PluginsModal from '@main/modal/plugins';
+import Plugins from '@main/modal/plugins';
 
 
 /**

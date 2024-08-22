@@ -4,7 +4,7 @@ import { EVENT_MESSENGER } from '@config/constants';
 import mainBrowser from '@main/browser/main';
 import createPlugin from '@main/utils/plugin';
 import createSeparate from '@main/browser/separate';
-import PluginsModal from '@main/modal/plugins';
+import Plugins from '@main/modal/plugins';
 
 export default function initEventHandler() {
   ipcMain.handle(EVENT_MESSENGER, async (event, { type, data }) => {
@@ -12,7 +12,7 @@ export default function initEventHandler() {
       case 'search':
         return onSearch(data);
       case 'openPlugin':
-        const item = await PluginsModal.findOne({
+        const item = await Plugins.findOne({
           where: {
             name: data
           }

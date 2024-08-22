@@ -1,17 +1,23 @@
 import { match } from 'pinyin-pro';
 import store from '@main/utils/store';
 import AppModal from '@main/modal/app';
-import PluginsModal from '@main/modal/plugins';
-import AiModal from '@main/modal/ai';
+import Plugins, { Cmd, Features } from '@main/modal/plugins';
+import Ai from '@main/modal/ai';
 
 /**
  * 搜索
  * @param value
  */
 export const onSearch = async (value: string): Promise<ISearchResult> => {
-  const pluginList = await PluginsModal.findAll();
+  const pluginList = await Plugins.findAll({
+    include: {
+      model: Features,
+      as: 'features',
+      attributes: ['id', 'code', 'explain', 'icon', 'platform']
+    }
+  });
   const appList = await AppModal.findAll();
-  const aiList = await AiModal.findAll();
+  const aiList = await Ai.findAll();
   const _pluginList: IPlugin[] = [];
   const _appList: IApp[] = [];
 
@@ -55,10 +61,8 @@ export const onSearch = async (value: string): Promise<ISearchResult> => {
     });
   }
   return {
-    pluginList: _pluginList,
+    pluginList: pluginList.map((item) => item.dataValues),
     aiList: aiList.map((item) => item.dataValues),
-    featuresList: [],
-    developerList: [],
     appList: _appList
   };
 };
