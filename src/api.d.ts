@@ -23,6 +23,9 @@ declare global {
      */
     openPlugin(name: string): Promise<boolean>;
 
+    /**
+     * 设置当前插件位独立窗口
+     */
     separationWindow(): void;
 
     /**
@@ -30,6 +33,11 @@ declare global {
      * @param destroy 是否卸载
      */
     closePlugin(destroy?: boolean): void;
+
+    /**
+     * 独立窗口 事件
+     */
+    detachService(type: string, data?: any): void;
   }
 
   interface ICommonEventHandler {
@@ -95,9 +103,8 @@ declare global {
     showSaveDialog(options: Electron.SaveDialogOptions): string;
 
     // ------- tools 工具
-    screenColorPick():Promise<{hex:string;rgb:string}>
-    screenCapture():Promise<any[]>
-
+    screenColorPick(): Promise<{ hex: string; rgb: string }>;
+    screenCapture(): Promise<any[]>;
 
     // ------ system 系统 ------------
     /**
@@ -172,6 +179,17 @@ declare global {
   interface Window {
     toolify: Toolify;
     __hooks__: Recordable;
+
+    // system main handler
+    winId: number;
+    initDetachState(winId: number, plugin: string): void;
+    enterFullScreen(): void;
+    leaveFullScreen(): void;
+    maximizeWindow(): void;
+    minimizeWindow(): void;
+    restoreWindow(): void;
   }
+
+
   declare const toolify: Toolify;
 }

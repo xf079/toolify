@@ -1,6 +1,6 @@
 import { Avatar, Button, Flex, Typography } from 'antd';
-import { Fragment, useState } from 'react';
-import { useMemoizedFn } from 'ahooks';
+import { Fragment, useEffect, useState } from 'react';
+import { useExternal, useMemoizedFn, useMount } from 'ahooks';
 import { SEPARATE_TOOLBAR_HEIGHT } from '@config/constants';
 import { useOs } from '@/hooks/useOs';
 import { useStyles } from './style';
@@ -18,52 +18,83 @@ import InfoIcon from '../assets/info.svg?react';
 
 export default function Container() {
   const { styles, cx } = useStyles();
-
-  const winId = window.winId;
-  const plugin = JSON.parse(window.plugin || '{}') as IPlugin;
-  const eventName = `detach:${winId}`;
-
+  const [plugin, setPlugin] = useState<IPlugin>();
   const [isMaximize, setIsMaximize] = useState(false);
   const [pined, setPined] = useState(false);
   const { isMac } = useOs();
 
   const onOpenDebug = () => {
-    eventApi.send(eventName, { type: 'debug' });
+    console.log('debug');
+    toolify.detachService('debug');
   };
 
   const onTogglePined = useMemoizedFn(() => {
-    eventApi.send(eventName, { type: pined ? 'un-pined' : 'pined' });
+    toolify.detachService(pined ? 'un-pined' : 'pined');
     setPined(!pined);
   });
 
   const onOpenSettings = () => {
-    eventApi.send(eventName, { type: 'settings' });
+    toolify.detachService('settings');
   };
 
   const onOpenScale = () => {
-    eventApi.send(eventName, { type: 'scale' });
+    toolify.detachService('scale');
   };
 
   const onOpenInfo = () => {
-    eventApi.send(eventName, { type: 'info' });
+    toolify.detachService('info');
   };
 
   const onMinimize = () => {
-    eventApi.send(eventName, { type: `minimize` });
+    toolify.detachService('minimize');
   };
 
   const onToggleMaximize = useMemoizedFn(() => {
-    eventApi.send(eventName, { type: isMaximize ? `restore` : 'maximize' });
+    toolify.detachService(isMaximize ? `restore` : 'maximize');
     setIsMaximize(!isMaximize);
   });
 
   const onCloseWin = () => {
-    eventApi.send(eventName, { type: 'close' });
+    toolify.detachService('close');
   };
+
+  const onKeyDownHandle = (e: KeyboardEvent) => {
+    if (toolify.isMacOs()) {
+      if (e.code === 'Escape') {
+        toolify.detachService('leave-fullscreen');
+      }
+      if (e.metaKey && (e.code === 'KeyW' || e.code === 'KeyQ')) {
+        toolify.detachService('close');
+      }
+    } else {
+      if (e.ctrlKey && e.code === 'KeyW') {
+        toolify.detachService('close');
+        return;
+      }
+    }
+  };
+
+  useEffect(() => {
+    window.initDetachState = (id, _plugin) => {
+      setPlugin(JSON.parse(_plugin || '{}'));
+      window.winId = id;
+    };
+
+    window.enterFullScreen = () => {
+      setIsMaximize(true);
+    };
+    window.leaveFullScreen = () => {
+      setIsMaximize(false);
+    };
+    window.addEventListener('keydown', onKeyDownHandle);
+    return () => {
+      window.removeEventListener('keydown', onKeyDownHandle);
+    };
+  }, []);
 
   return (
     <Flex
-      className={cx(styles.toolbar, isMac ? 'pl-20' : '')}
+      className={cx(styles.toolbar, isMac && !isMaximize ? 'pl-20' : '')}
       justify='space-between'
       align='center'
     >
@@ -78,7 +109,9 @@ export default function Container() {
             />
             <Typography.Text strong>{plugin.name}</Typography.Text>
           </Fragment>
-        ) : null}
+        ) : (
+          <div />
+        )}
       </Flex>
       <Flex gap={12} align='center'>
         <Flex align='center' gap={14} className='pr-2'>

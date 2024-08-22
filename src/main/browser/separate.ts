@@ -49,7 +49,7 @@ class Separate {
       center: true,
       title: plugin.name,
       icon: nativeImage.createFromPath(plugin.logo),
-      show: true,
+      show: false,
       focusable: true,
       skipTaskbar: false,
       hiddenInMissionControl: false,
@@ -79,9 +79,49 @@ class Separate {
         height: newBounds.height - SEPARATE_TOOLBAR_HEIGHT
       });
     });
+    this.main.on('maximize', () => {
+      this.updateWindowViewBounds();
+      void this.detach.webContents.executeJavaScript(`
+        window.maximizeWindow && window.maximizeWindow()
+      `);
+    });
+    this.main.on('restore', () => {
+      this.updateWindowViewBounds();
+      void this.detach.webContents.executeJavaScript(`
+        window.restoreWindow && window.restoreWindow()
+      `);
+    });
+    this.main.on('enter-full-screen', () => {
+      this.updateWindowViewBounds();
+      void this.detach.webContents.executeJavaScript(`
+        window.enterFullScreen && window.enterFullScreen()
+      `);
+    });
+    this.main.on('leave-full-screen', () => {
+      this.updateWindowViewBounds();
+      void this.detach.webContents.executeJavaScript(`
+        window.leaveFullScreen && window.leaveFullScreen()
+      `);
+    });
 
-    pluginStore.addPlugin(plugin, this.content, this.main.id);
-    this.handler(this.main.id);
+    pluginStore.addPlugin(plugin, this.content, this.winId);
+    this.handler(this.winId);
+  }
+
+  private updateWindowViewBounds() {
+    const bounds = this.main.getBounds();
+    this.detach.setBounds({
+      x: 0,
+      y: 0,
+      width: bounds.width,
+      height: SEPARATE_TOOLBAR_HEIGHT
+    });
+    this.content.setBounds({
+      x: 0,
+      y: SEPARATE_TOOLBAR_HEIGHT,
+      width: bounds.width,
+      height: bounds.height - SEPARATE_TOOLBAR_HEIGHT
+    });
   }
 
   /**
@@ -91,7 +131,8 @@ class Separate {
     this.detach = new WebContentsView({
       webPreferences: {
         nodeIntegrationInWorker: true,
-        contextIsolation: true,
+        nodeIntegration: true,
+        contextIsolation: false,
         zoomFactor: 1,
         preload: path.join(__dirname, '../preload/index.js')
       }
@@ -103,19 +144,22 @@ class Separate {
       width: SEPARATE_WIDTH,
       height: SEPARATE_TOOLBAR_HEIGHT
     });
-    void this.detach.webContents.executeJavaScript(`
-      window.winId = '${this.winId}';
-      window.plugin = '${JSON.stringify(this.plugin)}';
-    `);
 
     if (isDev) {
       void this.detach.webContents.loadURL(DETACH_WINDOW_VITE_DEV_SERVER_URL);
+      this.detach.webContents.openDevTools();
     } else {
       void this.detach.webContents.loadFile(
         `${path.join(__dirname, `../../renderer/${DETACH_WINDOW_VITE_NAME}/index.html`)}`
       );
     }
 
+    this.detach.webContents.once('did-finish-load', () => {
+      void this.detach.webContents.executeJavaScript(`
+        window.initDetachState(${this.winId},'${JSON.stringify(this.plugin)}')
+      `);
+      this.main.show();
+    });
     this.main.contentView.addChildView(this.detach);
   }
 
@@ -132,14 +176,20 @@ class Separate {
     });
   }
 
-  handler(winId: number) {
-    ipcMain.on(`detach:${winId}`, (event, args) => {
+  private handler(winId: number) {
+    ipcMain.on(`detachService:${winId}`, (event, args) => {
       switch (args.type) {
         case 'minimize':
           this.main.minimize();
+          void this.detach.webContents.executeJavaScript(`
+            window.minimizeWindow && window.minimizeWindow()
+          `);
           break;
         case 'maximize':
           this.main.maximize();
+          break;
+        case 'leave-fullscreen':
+          this.main.setFullScreen(false);
           break;
         case 'restore':
           this.main.restore();
@@ -148,7 +198,11 @@ class Separate {
           this.main.close();
           break;
         case 'debug':
-          this.content.webContents.openDevTools();
+          if (this.content.webContents.isDevToolsOpened()) {
+            this.content.webContents.closeDevTools();
+          } else {
+            this.content.webContents.openDevTools();
+          }
           break;
         case 'pined':
           this.main.setAlwaysOnTop(true);
@@ -165,22 +219,6 @@ class Separate {
         case 'info':
           this.openPluginInfo();
           break;
-      }
-
-      if (args.type === 'maximize' || args.type === 'restore') {
-        const bounds = this.main.getBounds();
-        this.detach.setBounds({
-          x: 0,
-          y: 0,
-          width: bounds.width,
-          height: SEPARATE_TOOLBAR_HEIGHT
-        });
-        this.content.setBounds({
-          x: 0,
-          y: SEPARATE_TOOLBAR_HEIGHT,
-          width: bounds.width,
-          height: bounds.height - SEPARATE_TOOLBAR_HEIGHT
-        });
       }
     });
   }
@@ -245,8 +283,8 @@ class Separate {
   private openPluginInfo() {}
 }
 
-export default function createSeparate(plugin: IPlugin,view: WebContentsView) {
+export default function createSeparate(plugin: IPlugin, view: WebContentsView) {
   const separate = new Separate();
-  separate.openPlugin(plugin,view);
+  separate.openPlugin(plugin, view);
   separateList.push(separate);
 }

@@ -6,6 +6,7 @@ export const useStyles = createStyles(({ css, token }) => ({
     width: 100%;
     height: ${SEPARATE_TOOLBAR_HEIGHT}px;
     background-color: ${token.colorBgLayout};
+      transition: all 0.1s;
     -webkit-app-region: drag;
   `,
   logo: css`

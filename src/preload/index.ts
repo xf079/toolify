@@ -20,7 +20,7 @@ function send(type: string, data?: any) {
 
 (function () {
   const commonToolify = genCommonToolify(sync, send);
-  const mainToolify: IMainEventHandler  = {
+  const mainToolify: IMainEventHandler = {
     search(value) {
       return sync('search', value);
     },
@@ -33,8 +33,8 @@ function send(type: string, data?: any) {
       return await sync('openPlugin', name);
     },
 
-    separationWindow(){
-      send('separationWindow',undefined);
+    separationWindow() {
+      send('separationWindow', undefined);
     },
 
     /**
@@ -43,10 +43,23 @@ function send(type: string, data?: any) {
      */
     closePlugin(destroy?: boolean) {
       send('closePlugin', destroy);
+    },
+
+    /**
+     * 独立窗口事件
+     * @param type
+     * @param data
+     */
+    detachService(type: string, data?: any) {
+      console.log(`detachService:${window.winId}`);
+      ipcRenderer.send(`detachService:${window.winId}`, {
+        type,
+        data
+      });
     }
   };
   Object.defineProperty(window, 'toolify', {
-    value: { ...commonToolify,...mainToolify },
+    value: { ...commonToolify, ...mainToolify },
     configurable: false,
     writable: false
   });
