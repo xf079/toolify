@@ -31,20 +31,15 @@ import {
 } from '../components/create-plugin';
 
 export default function Developer() {
-  const [list, setList] = useState<IDeveloperPlugin[]>([]);
-  const [plugin, setPlugin] = useState<IDeveloperPlugin>();
+  const [list, setList] = useState<IPlugin[]>([]);
+  const [plugin, setPlugin] = useState<IPlugin>();
 
   const [type, setType] = useState('developer');
 
   const createPluginRef = useRef<ICreateOrUpdatePluginRef>(null);
 
   const onQueryPluginList = async () => {
-    const list = await eventApi.sync('developer:pluginList');
-    setList(list);
-    console.log(list);
-    if (list.length && !plugin) {
-      setPlugin(list[0]);
-    }
+
   };
 
   const onCreatePluginHandle = () => {
@@ -56,33 +51,33 @@ export default function Developer() {
    * @description 从本地导入插件，并更新插件列表
    */
   const onImportPlugin = async () => {
-    const result = await eventApi.sync('developer:importPlugin');
-    if (result.success) {
-      void onQueryPluginList();
-      setPlugin(result.data);
-      console.log(result.data);
-      message.success('插件导入成功');
-    } else {
-      message.success('插件导入失败');
-    }
+    // const result = await eventApi.sync('developer:importPlugin');
+    // if (result.success) {
+    //   void onQueryPluginList();
+    //   setPlugin(result.data);
+    //   console.log(result.data);
+    //   message.success('插件导入成功');
+    // } else {
+    //   message.success('插件导入失败');
+    // }
   };
 
   /**
    * 刷新插件
    */
   const onRefreshPlugin = async () => {
-    const result = await eventApi.sync('developer:refreshPlugin');
-    setList(result);
-    if (result.length && !plugin) {
-      setPlugin(result[0]);
-    }
+    // const result = await eventApi.sync('developer:refreshPlugin');
+    // setList(result);
+    // if (result.length && !plugin) {
+    //   setPlugin(result[0]);
+    // }
   };
 
   const onStartPlugin = async () => {
-    const result = await eventApi.sync('developer:startPlugin', {
-      ...plugin,
-      running: true
-    });
+    // const result = await eventApi.sync('developer:startPlugin', {
+    //   ...plugin,
+    //   running: true
+    // });
   };
 
   const pluginItems = useMemo(() => {

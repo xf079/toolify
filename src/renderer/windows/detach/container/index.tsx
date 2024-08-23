@@ -1,6 +1,6 @@
 import { Avatar, Button, Flex, Typography } from 'antd';
 import { Fragment, useEffect, useState } from 'react';
-import { useExternal, useMemoizedFn, useMount } from 'ahooks';
+import { useMemoizedFn } from 'ahooks';
 import { SEPARATE_TOOLBAR_HEIGHT } from '@config/constants';
 import { useOs } from '@/hooks/useOs';
 import { useStyles } from './style';
@@ -75,10 +75,9 @@ export default function Container() {
   };
 
   useEffect(() => {
-    window.initDetachState = (id, _plugin) => {
-      setPlugin(JSON.parse(_plugin || '{}'));
-      window.winId = id;
-    };
+    toolify.initDetach(function(options){
+      setPlugin(options.plugin);
+    })
 
     window.enterFullScreen = () => {
       setIsMaximize(true);

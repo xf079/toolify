@@ -34,10 +34,38 @@ declare global {
      */
     closePlugin(destroy?: boolean): void;
 
+    // 工具栏相关
+    /**
+     * 工具栏加载完成回调
+     * @param func
+     */
+    initDetach(func: (data: { id: number; plugin: IPlugin }) => void): void;
+
     /**
      * 独立窗口 事件
      */
     detachService(type: string, data?: any): void;
+
+    /**
+     * 开发者工具相关
+     */
+    createDeveloperPlugin(
+      data: IPlugin
+    ): Promise<{ success: boolean; data: IPlugin; message: string }>;
+    updateDeveloperPlugin(
+      data: IPlugin
+    ): Promise<{ success: boolean; data: IPlugin; message: string }>;
+    refreshDeveloperPlugin(
+      id: string
+    ): Promise<{ success: boolean; data: IPlugin; message: string }>;
+    deleteDeveloperPlugin(
+      name: string
+    ): Promise<{ success: boolean; data: undefined; message: string }>;
+    getDeveloperPlugins(): Promise<{
+      success: boolean;
+      data: IPlugin[];
+      message: string;
+    }>;
   }
 
   interface ICommonEventHandler {
@@ -189,7 +217,6 @@ declare global {
     minimizeWindow(): void;
     unMaximize(): void;
   }
-
 
   declare const toolify: Toolify;
 }

@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import { onSearch } from '@main/common/search';
-import { EVENT_MESSENGER } from '@config/constants';
+import { DEVELOPER_MESSAGE, EVENT_MESSENGER } from '@config/constants';
 import mainBrowser from '@main/browser/main';
 import createPlugin from '@main/utils/plugin';
 import createSeparate from '@main/browser/separate';
@@ -44,4 +44,48 @@ export default function initEventHandler() {
         break;
     }
   });
+
+
+  ipcMain.handle(DEVELOPER_MESSAGE, async (event, { type, data }) => {
+    if (type === 'create'){
+      const plugin = await Plugins.create({
+        type:'plugin-dev',
+        ...data
+      },{
+        returning: true,
+      });
+      return plugin;
+    }
+    switch (type) {
+      case 'create':
+      case 'update':
+        const item = await Plugins.findOne({
+          where: {
+            name: data.name
+          }
+        });
+        const plugin = item.dataValues;
+        await Plugins.update(data, {
+          where: {
+            name: plugin.name
+          }
+        });
+        return plugin;
+      case 'delete':
+        const item = await Plugins.findOne({
+          where: {
+            name: data
+          }
+        });
+        const plugin = item.dataValues;
+        await Plugins.destroy({
+          where: {
+            name: plugin.name
+          }
+        });
+        return plugin;
+      default:
+        break;
+    }
+  })
 }

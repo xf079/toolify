@@ -34,4 +34,5 @@ export const SEPARATE_HEIGHT = 660;
 export const SEPARATE_TOOLBAR_HEIGHT = 48;
 
 export const EVENT_MESSENGER = 'event-messenger';
+export const DEVELOPER_MESSAGE = 'dev-message';
 

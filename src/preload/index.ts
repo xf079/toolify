@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { EVENT_MESSENGER } from '@config/constants';
+import { DEVELOPER_MESSAGE, EVENT_MESSENGER } from '@config/constants';
 import { genCommonToolify } from './common';
 
 function sync(type: string, data?: any) {
@@ -47,14 +47,53 @@ function send(type: string, data?: any) {
 
     /**
      * 独立窗口事件
-     * @param type
-     * @param data
+     * @param callback 回调函数
      */
+    initDetach(callback) {
+      const event = ipcRenderer.sendSync('initDetach')
+      if(callback && typeof callback === 'function') {
+        callback(event);
+      }
+    },
     detachService(type: string, data?: any) {
-      console.log(`detachService:${window.winId}`);
-      ipcRenderer.send(`detachService:${window.winId}`, {
+      ipcRenderer.send('detachService', {
         type,
         data
+      });
+    },
+
+    /**
+     * 开发者工具插件相关
+     * @param data
+     */
+    createDeveloperPlugin(data:IPlugin){
+      return ipcRenderer.invoke(DEVELOPER_MESSAGE, {
+        type: 'create',
+        data
+      });
+    },
+    updateDeveloperPlugin(data:IPlugin){
+      return ipcRenderer.invoke(DEVELOPER_MESSAGE, {
+        type: 'update',
+        data
+      });
+    },
+    refreshDeveloperPlugin(name:string){
+      return ipcRenderer.invoke(DEVELOPER_MESSAGE, {
+        type: 'refresh',
+        data: name
+      });
+    },
+    deleteDeveloperPlugin(name:string){
+      return ipcRenderer.invoke(DEVELOPER_MESSAGE, {
+        type: 'delete',
+        data: name
+      });
+    },
+    getDeveloperPlugins(){
+      return ipcRenderer.invoke(DEVELOPER_MESSAGE, {
+        type: 'getDeveloperPlugins',
+        data: undefined
       });
     }
   };

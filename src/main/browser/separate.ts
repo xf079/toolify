@@ -1,6 +1,5 @@
 import {
   BaseWindow,
-  ipcMain,
   Menu,
   nativeImage,
   WebContentsView,
@@ -110,7 +109,7 @@ class Separate {
     });
 
     pluginStore.addPlugin(plugin, this.content, this.winId);
-    this.handler(this.winId);
+    this.handler();
   }
 
   private updateWindowViewBounds() {
@@ -152,20 +151,17 @@ class Separate {
 
     if (isDev) {
       void this.detach.webContents.loadURL(DETACH_WINDOW_VITE_DEV_SERVER_URL);
-      this.detach.webContents.openDevTools();
+      // this.detach.webContents.openDevTools();
     } else {
       void this.detach.webContents.loadFile(
         `${path.join(__dirname, `../../renderer/${DETACH_WINDOW_VITE_NAME}/index.html`)}`
       );
     }
+    this.main.contentView.addChildView(this.detach);
 
     this.detach.webContents.once('did-finish-load', () => {
-      void this.detach.webContents.executeJavaScript(`
-        window.initDetachState(${this.winId},'${JSON.stringify(this.plugin)}')
-      `);
       this.main.show();
     });
-    this.main.contentView.addChildView(this.detach);
   }
 
   /**
@@ -181,49 +177,59 @@ class Separate {
     });
   }
 
-  private handler(winId: number) {
-    ipcMain.on(`detachService:${winId}`, (event, args) => {
-      switch (args.type) {
-        case 'minimize':
-          this.main.minimize();
-          void this.detach.webContents.executeJavaScript(`
-            window.minimizeWindow && window.minimizeWindow()
-          `);
-          break;
-        case 'maximize':
-          this.main.maximize();
-          break;
-        case 'leave-fullscreen':
-          this.main.setFullScreen(false);
-          break;
-        case 'restore':
-          this.main.restore();
-          break;
-        case 'close':
-          this.main.close();
-          break;
-        case 'debug':
-          if (this.content.webContents.isDevToolsOpened()) {
-            this.content.webContents.closeDevTools();
-          } else {
-            this.content.webContents.openDevTools();
-          }
-          break;
-        case 'pined':
-          this.main.setAlwaysOnTop(true);
-          break;
-        case 'un-pined':
-          this.main.setAlwaysOnTop(false);
-          break;
-        case 'settings':
-          this.openSettingsMenu();
-          break;
-        case 'scale':
-          this.openScaleMenu();
-          break;
-        case 'info':
-          this.openPluginInfo();
-          break;
+  private handler() {
+    this.detach.webContents.on('ipc-message', (event, channel, args) => {
+      if (channel === 'detachService') {
+        switch (args.type) {
+          case 'minimize':
+            this.main.minimize();
+            void this.detach.webContents.executeJavaScript(`
+              window.minimizeWindow && window.minimizeWindow()
+            `);
+            break;
+          case 'maximize':
+            this.main.maximize();
+            break;
+          case 'leave-fullscreen':
+            this.main.setFullScreen(false);
+            break;
+          case 'restore':
+            this.main.restore();
+            break;
+          case 'close':
+            this.main.close();
+            break;
+          case 'debug':
+            if (this.content.webContents.isDevToolsOpened()) {
+              this.content.webContents.closeDevTools();
+            } else {
+              this.content.webContents.openDevTools();
+            }
+            break;
+          case 'pined':
+            this.main.setAlwaysOnTop(true);
+            break;
+          case 'un-pined':
+            this.main.setAlwaysOnTop(false);
+            break;
+          case 'settings':
+            this.openSettingsMenu();
+            break;
+          case 'scale':
+            this.openScaleMenu();
+            break;
+          case 'info':
+            this.openPluginInfo();
+            break;
+        }
+      }
+    });
+    this.detach.webContents.on('ipc-message-sync', (event, channel) => {
+      if (channel === 'initDetach') {
+        event.returnValue = {
+          id: this.winId,
+          plugin: this.plugin
+        }
       }
     });
   }

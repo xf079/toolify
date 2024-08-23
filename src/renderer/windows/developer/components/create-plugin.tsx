@@ -1,5 +1,4 @@
 import { Button, Drawer, Flex, Form, Input, message, Typography } from 'antd';
-import { nanoid } from 'nanoid';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { createStyles } from 'antd-style';
 
@@ -17,7 +16,7 @@ export interface ICreateAndUpdatePluginProps {
 }
 
 export interface ICreateOrUpdatePluginRef {
-  open: (data?: IDeveloperPlugin) => void;
+  open: (data?: IPlugin) => void;
 }
 
 export const CreatePlugin = forwardRef<
@@ -31,7 +30,7 @@ export const CreatePlugin = forwardRef<
   const [form] = Form.useForm();
 
   useImperativeHandle(ref, () => ({
-    open: (data?: IDeveloperPlugin) => {
+    open: (data) => {
       setEdit(!!data);
       if (data) {
         form.setFieldsValue(data);
@@ -42,7 +41,7 @@ export const CreatePlugin = forwardRef<
 
   const onCreatePlugin = async (data: IPlugin) => {
     if (edit) {
-      const result = await eventApi.sync('built:updatePlugin', data);
+      const result = await toolify.updateDeveloperPlugin(data);
       if (result.success) {
         setOpen(false);
         onFinish?.();
@@ -51,10 +50,7 @@ export const CreatePlugin = forwardRef<
         message.error(result.message);
       }
     } else {
-      const result = await eventApi.sync('built:createPlugin', {
-        ...data,
-        unique: nanoid()
-      });
+      const result = await toolify.createDeveloperPlugin(data);
       if (result.success) {
         setOpen(false);
         onFinish?.();
