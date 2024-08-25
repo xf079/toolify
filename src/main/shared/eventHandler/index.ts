@@ -5,6 +5,7 @@ import mainBrowser from '@main/browser/main';
 import createPlugin from '@main/utils/plugin';
 import createSeparate from '@main/browser/separate';
 import Plugins from '@main/modal/plugins';
+import { capture } from '@main/shared/capture';
 
 export default function initEventHandler() {
   ipcMain.handle(EVENT_MESSENGER, async (event, { type, data }) => {
@@ -24,6 +25,11 @@ export default function initEventHandler() {
         } else {
           return await mainBrowser.openPlugin(plugin, view, load);
         }
+      case 'screenCapture':
+        const result =  await capture();
+        return result
+        console.log('screenCapture');
+        break;
       default:
         break;
     }
@@ -55,37 +61,6 @@ export default function initEventHandler() {
         returning: true,
       });
       return plugin;
-    }
-    switch (type) {
-      case 'create':
-      case 'update':
-        const item = await Plugins.findOne({
-          where: {
-            name: data.name
-          }
-        });
-        const plugin = item.dataValues;
-        await Plugins.update(data, {
-          where: {
-            name: plugin.name
-          }
-        });
-        return plugin;
-      case 'delete':
-        const item = await Plugins.findOne({
-          where: {
-            name: data
-          }
-        });
-        const plugin = item.dataValues;
-        await Plugins.destroy({
-          where: {
-            name: plugin.name
-          }
-        });
-        return plugin;
-      default:
-        break;
     }
   })
 }

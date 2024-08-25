@@ -10,7 +10,6 @@ export default defineConfig((env) => {
   const forgeEnv = env as ConfigEnv<'renderer'>;
   const { root, mode, forgeConfigSelf } = forgeEnv;
   const name = forgeConfigSelf.name ?? '';
-  console.log(name, path.join(__dirname, 'template', 'detach.html'));
   return {
     root,
     mode,

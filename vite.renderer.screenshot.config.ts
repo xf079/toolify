@@ -23,7 +23,7 @@ export default defineConfig((env) => {
       createHtmlPlugin({
         minify: true,
         template: 'index.html',
-        entry: 'src/renderer/windows/plugins/main.tsx'
+        entry: 'src/renderer/windows/screenshot/main.tsx'
       })
     ],
     resolve: {

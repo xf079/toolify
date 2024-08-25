@@ -97,14 +97,11 @@ export function genCommonToolify(sync: ISync, send: ISend) {
       return dialog.showSaveDialogSync(options);
     },
     // ------- tools 工具
-    screenColorPick() {},
-    screenCapture() {
-      return new Promise((resolve) => {
-        desktopCapturer.getSources({ types: ['screen','window'] }).then((sources) => {
-          console.log(sources);
-          resolve(sources)
-        });
-      });
+    screenColorPick(func) {},
+    screenCapture(func) {
+      sync('screenCapture').then(data=>{
+        func(data)
+      })
     },
 
     // ------ system 系统 ------------

@@ -57,6 +57,10 @@ const config: ForgeConfig = {
           config: 'vite.renderer.developer.config.ts'
         },
         {
+          name: 'screenshot_window',
+          config: 'vite.renderer.screenshot.config.ts'
+        },
+        {
           name: 'translation_window',
           config: 'vite.renderer.translation.config.ts'
         }

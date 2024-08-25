@@ -66,6 +66,9 @@ declare global {
       data: IPlugin[];
       message: string;
     }>;
+
+
+    getScreenSource():string
   }
 
   interface ICommonEventHandler {
@@ -131,8 +134,8 @@ declare global {
     showSaveDialog(options: Electron.SaveDialogOptions): string;
 
     // ------- tools 工具
-    screenColorPick(): Promise<{ hex: string; rgb: string }>;
-    screenCapture(): Promise<any[]>;
+    screenColorPick(fun: (data: string) => void): void;
+    screenCapture(fun: (data: string) => void): void;
 
     // ------ system 系统 ------------
     /**

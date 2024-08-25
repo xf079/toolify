@@ -95,6 +95,10 @@ function send(type: string, data?: any) {
         type: 'getDeveloperPlugins',
         data: undefined
       });
+    },
+
+    getScreenSource(){
+      return ipcRenderer.sendSync('capture-source')
     }
   };
   Object.defineProperty(window, 'toolify', {

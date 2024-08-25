@@ -129,6 +129,9 @@ export const usePluginManager = () => {
       setIndex(1);
     }
     if(value === '截图'){
+      toolify.screenCapture((res)=>{
+        console.log('截图成功')
+      })
       return;
     }
     toolify.search(value).then((data) => {
