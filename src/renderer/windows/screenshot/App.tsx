@@ -7,6 +7,11 @@ export default function App() {
   useMount(() => {
     const res = toolify.getScreenSource()
     console.log(res);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.close();
+      }
+    })
     setSource(res);
   });
   return (

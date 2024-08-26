@@ -1532,6 +1532,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/screenshot-desktop@^1.12.3":
+  version "1.12.3"
+  resolved "https://registry.npmmirror.com/@types/screenshot-desktop/-/screenshot-desktop-1.12.3.tgz#912cf5bbd04f961928b9ebab374ce2e369c53da4"
+  integrity sha512-b1BoY60eEUwXgAE4le7gQFf78RWQxveF/ZKW5Ifh1+M4byPiyp3kP4qStVL+2pwrwaaJyN8qzeaczSDfz2WOPw==
+  dependencies:
+    "@types/node" "*"
+
 "@types/semver@^7.3.12":
   version "7.5.8"
   resolved "https://registry.npmmirror.com/@types/semver/-/semver-7.5.8.tgz#8268a8c57a3e4abd25c165ecd36237db7948a55e"
@@ -6431,6 +6438,13 @@ screenfull@^5.0.0:
   resolved "https://registry.npmmirror.com/screenfull/-/screenfull-5.2.0.tgz#6533d524d30621fc1283b9692146f3f13a93d1ba"
   integrity sha512-9BakfsO2aUQN2K9Fdbj87RJIEZ82Q9IGim7FqM5OsebfoFC6ZHXgDq/KvniuLTPdeM8wY2o6Dj3WQ7KeQCj3cA==
 
+screenshot-desktop@^1.15.0:
+  version "1.15.0"
+  resolved "https://registry.npmmirror.com/screenshot-desktop/-/screenshot-desktop-1.15.0.tgz#62109463865cdb1bbe61dff39003cd06ac404fb0"
+  integrity sha512-CLaZNBDEXU+KJ6BGsO8jSbKI7Zck7gQmFJHjzluBdwrVP0jOemP2avpD3ufWu81yqzwB92u2AMv+K9IlaslRsg==
+  dependencies:
+    temp "^0.9.4"
+
 scroll-into-view-if-needed@^3.1.0:
   version "3.1.0"
   resolved "https://registry.npmmirror.com/scroll-into-view-if-needed/-/scroll-into-view-if-needed-3.1.0.tgz#fa9524518c799b45a2ef6bbffb92bcad0296d01f"
@@ -6995,7 +7009,7 @@ tar@^6.0.2, tar@^6.0.5, tar@^6.1.11, tar@^6.1.2:
     mkdirp "^1.0.3"
     yallist "^4.0.0"
 
-temp@^0.9.0:
+temp@^0.9.0, temp@^0.9.4:
   version "0.9.4"
   resolved "https://registry.npmmirror.com/temp/-/temp-0.9.4.tgz#cd20a8580cb63635d0e4e9d4bd989d44286e7620"
   integrity sha512-yYrrsWnrXMcdsnu/7YMYAofM1ktpL5By7vZhf15CrXijWWrEYZks5AXBudalfSWJLlnen/QUJUB5aoB0kqZUGA==
